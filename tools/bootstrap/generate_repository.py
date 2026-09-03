@@ -1012,7 +1012,7 @@ def workflows() -> None:
             if (!/Relates to #\d+/i.test(text)) core.setFailed('A Relates to #123 reference is required.');
 """
     write(".github/workflows/pull-request-governance.yml", pr_gov)
-    sensitive = workflow_header("Sensitive review", "  pull_request:\n    types: [opened, synchronize, reopened, ready_for_review, review_submitted]", "contents: read\n  pull-requests: read") + fr"""jobs:
+    sensitive = workflow_header("Sensitive review", "  pull_request:\n    types: [opened, synchronize, reopened, ready_for_review]\n  pull_request_review:\n    types: [submitted, dismissed]", "contents: read\n  pull-requests: read") + fr"""jobs:
   sensitive-review-check:
     runs-on: ubuntu-latest
     steps:
@@ -1206,6 +1206,9 @@ def verification_scripts() -> None:
             for line in value.splitlines():
                 if "uses:" in line and not re.search(r"@[0-9a-f]{40}(?:\s+#|\s*$)",line): errors.append(f"mutable action reference: {p.name}: {line.strip()}")
             if not re.search(r"(?m)^permissions:\s*$",value): errors.append(f"permissions missing: {p.name}")
+        sensitive=text(ROOT/".github/workflows/sensitive-review.yml")
+        if "pull_request_review:" not in sensitive or "types: [submitted, dismissed]" not in sensitive: errors.append("sensitive review must run when reviews are submitted or dismissed")
+        if "review_submitted" in sensitive: errors.append("invalid pull_request review_submitted activity type")
     checks={"policy":policy,"forbidden":forbidden,"secrets":secrets,"markdown":markdown,"links":links,"json":json_check,"csv":csv_check,"contracts":contracts,"manifest":manifest,"actions":actions}
     selected=sys.argv[1] if len(sys.argv)>1 else "all"; errors=[]
     if selected=="all":
