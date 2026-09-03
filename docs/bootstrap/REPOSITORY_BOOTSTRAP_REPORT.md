@@ -5,7 +5,7 @@ Status: `REPO-BOOTSTRAP-CONDITIONAL`
 ## Verified outcome
 
 - Repository: `akhileshkancharla/SIH26168-intelligent-dead-reckoning`
-- Visibility/default branch: private / `main`
+- Visibility/default branch: public / `main`
 - Architecture input SHA-256: `7e244de520173c54285b3de076eee74f53c0c89dc8a10b0a25d4f379b91f0e7e`
 - Architecture status: `ARCH3-READY-FOR-REPOSITORY-BOOTSTRAP`
 - Architecture counts: 20 components, 22 interfaces, 18 work packages, 20 risks, 98 requirement mappings

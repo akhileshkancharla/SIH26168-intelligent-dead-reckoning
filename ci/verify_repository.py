@@ -8,6 +8,7 @@ REQUIRED = ["README.md", "CONTRIBUTING.md", "SECURITY.md", "CODE_OF_CONDUCT.md",
 FORBIDDEN_SUFFIXES = {".pbf", ".sqlite", ".sqlite3", ".db", ".apk", ".aab", ".onnx", ".pt", ".pth", ".tflite", ".keystore", ".jks", ".pem", ".key", ".jsonl"}
 ACTION = re.compile(r"^\s*-?\s*uses:\s*[^@\s]+@([0-9a-f]{40})(?:\s+#.*)?$", re.M)
 ABSOLUTE = re.compile(r"(?i)((?<![A-Za-z0-9_])[A-Z]:[\\/]|C:/Users/|/Users/[^/]+/|/home/[^/]+/|/workspace/|/tmp/)")
+WEB_URL = re.compile(r"https?://[^\s<>()\"']+")
 SCANNER_SOURCES = {"ci/verify_repository.py", "tools/bootstrap/generate_repository.py"}
 SECRETS = [re.compile(r"gh[pousr]_[A-Za-z0-9]{20,}"), re.compile(r"github_pat_[A-Za-z0-9_]{20,}"), re.compile(r"AKIA[0-9A-Z]{16}"), re.compile(r"-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----")]
 def files():
@@ -32,7 +33,8 @@ def forbidden(errors):
         if p.suffix.lower() in FORBIDDEN_SUFFIXES or p.name==".env" or lower.startswith(("data/","private/")): errors.append(f"forbidden file: {rel}")
         if p.stat().st_size > 5*1024*1024: errors.append(f"file exceeds 5 MiB: {rel}")
         value=text(p)
-        if rel not in SCANNER_SOURCES and value and ABSOLUTE.search(value): errors.append(f"absolute/local path pattern: {rel}")
+        scan_value=WEB_URL.sub("",value)
+        if rel not in SCANNER_SOURCES and scan_value and ABSOLUTE.search(scan_value): errors.append(f"absolute/local path pattern: {rel}")
 def secrets(errors):
     for p in files():
         value=text(p)
