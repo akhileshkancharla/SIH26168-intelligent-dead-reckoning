@@ -359,6 +359,64 @@ def update_assignment_register(invitations: dict[str, str], issues: list[dict[st
     write_csv(path, rows, fields)
 
 
+def sync_assignments_only() -> None:
+    """Synchronize issue assignees without rewriting unrelated GitHub metadata."""
+    authenticated = subprocess.run(
+        ["gh", "api", "user", "--jq", ".login"],
+        text=True,
+        encoding="utf-8",
+        capture_output=True,
+        check=True,
+    ).stdout.strip()
+    if authenticated.lower() != OWNER.lower():
+        raise SystemExit(f"Authenticated owner mismatch: {authenticated}")
+
+    invitations = invite_collaborators()
+    path = ROOT / "docs/bootstrap/ISSUE_REGISTER.csv"
+    rows, fields = read_csv(path)
+    remote = {
+        item["title"]: item
+        for item in all_pages(f"repos/{REPOSITORY}/issues?state=all")
+        if "pull_request" not in item
+    }
+    changed = 0
+    for row in rows:
+        record = remote.get(row["Title"])
+        if record is None:
+            raise RuntimeError(f"Remote issue missing: {row['Title']}")
+        desired = [row["Intended assignee"]] if can_assign(row["Intended assignee"], invitations) else []
+        observed = [item["login"] for item in record.get("assignees", [])]
+        if record["state"] == "open" and {item.lower() for item in observed} != {item.lower() for item in desired}:
+            record = api(
+                f"repos/{REPOSITORY}/issues/{record['number']}",
+                "PATCH",
+                {"assignees": desired},
+            )
+            observed = [item["login"] for item in record.get("assignees", [])]
+            changed += 1
+        row["Actual assignee"] = ";".join(observed)
+
+    write_csv(path, rows, fields)
+    update_assignment_register(invitations, rows)
+
+    state_path = ROOT / "docs/bootstrap/GITHUB_CONFIGURATION_STATE.json"
+    state = json.loads(state_path.read_text(encoding="utf-8"))
+    state["authenticated_owner"] = authenticated
+    state["collaborators"] = invitations
+    assignment_counts: dict[str, int] = {}
+    for row in rows:
+        assignee = row["Actual assignee"] or "unassigned"
+        assignment_counts[assignee] = assignment_counts.get(assignee, 0) + 1
+    state["assignment_summary"] = {
+        "issues_checked": len(rows),
+        "assigned": sum(bool(row["Actual assignee"]) for row in rows),
+        "unassigned": sum(not row["Actual assignee"] for row in rows),
+        "by_assignee": dict(sorted(assignment_counts.items())),
+    }
+    state_path.write_text(json.dumps(state, indent=2) + "\n", encoding="utf-8", newline="\n")
+    print(json.dumps({"issues_checked": len(rows), "assignments_changed": changed, "collaborators": invitations}, indent=2))
+
+
 def main() -> None:
     authenticated = subprocess.run(["gh", "api", "user", "--jq", ".login"], text=True, encoding="utf-8", capture_output=True, check=True).stdout.strip()
     if authenticated.lower() != OWNER.lower():
@@ -391,7 +449,10 @@ def main() -> None:
 
 if __name__ == "__main__":
     try:
-        main()
+        if "--assignments-only" in sys.argv[1:]:
+            sync_assignments_only()
+        else:
+            main()
     except Exception as exc:
         print(f"BOOTSTRAP ERROR: {exc}", file=sys.stderr)
         raise

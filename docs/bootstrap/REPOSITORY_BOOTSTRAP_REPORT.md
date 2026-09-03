@@ -22,7 +22,7 @@ Status: `REPO-BOOTSTRAP-CONDITIONAL`
 ## Conditional items
 
 - GitHub Project v2 was not created because the token lacks `project` and `read:project`; exact manual setup is documented.
-- Collaborator state at verification: Zeeshan and Junaid active with Write; Faisal, Likhitha, and Era pending.
+- Collaborator state at the latest assignment sync: Faisal, Zeeshan, Likhitha, and Junaid active with Write; Era pending.
 - WP-00 remains open because Project-v2 configuration and designated Faisal review are incomplete. Bootstrap artifacts are not marked accepted merely because implementation exists.
 - Strict `main` protection is applied only after the final report commit and reverified through the GitHub API, avoiding an administrator bypass after activation.
 

@@ -5,6 +5,6 @@
 - S2 source is intentionally not imported by bootstrap.
 - GitHub Project v2 was not created: the authenticated token lacks `project` and `read:project`; the exact manual setup is documented.
 - Local CMake, Java, Gradle, and Android SDK tools are unavailable; C++ and Android checks were therefore verified on GitHub-hosted runners.
-- Faisal, Likhitha, and Era invitations remain pending; their issues retain intended-assignee metadata and are not falsely reported as assigned.
+- Era's invitation remains pending; her issues retain intended-assignee metadata and are not falsely reported as assigned. Faisal, Zeeshan, Likhitha, and Junaid have active Write access.
 - GitHub milestones expose date-level due dates; the M0 description and milestone register preserve the authoritative `2026-09-03 20:00 IST` cutoff.
 - The exact branch-check names were established on validation PR #129; strict protection is intentionally the final remote action after the evidence commit, so that commit cannot itself attest to the later API mutation.

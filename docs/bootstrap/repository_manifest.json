@@ -9,18 +9,18 @@
     },
     {
       "path": "docs/bootstrap/GITHUB_CONFIGURATION_STATE.json",
-      "size_bytes": 1534,
-      "sha256": "362dec343c7aa1602d3eef91f7043ffd3e87dbe1492140762d9617cb3946f962"
+      "size_bytes": 1830,
+      "sha256": "596dd7e7ef1e69d293379b651a9ab9b3af7d4f6cfdc31f59cdfabf923d68eb31"
     },
     {
       "path": "docs/bootstrap/ISSUE_REGISTER.csv",
-      "size_bytes": 42529,
-      "sha256": "3a4e4b84727f7a9dc89afecf41945d8887830a00d2d809e7644a43bc04519eaa"
+      "size_bytes": 43181,
+      "sha256": "a20f0cc5d7d7ec882f7ce8836342a10510b202aa29bc2790dbd295191d2507ca"
     },
     {
       "path": "docs/bootstrap/KNOWN_LIMITATIONS.md",
-      "size_bytes": 1030,
-      "sha256": "4036d6f67623800b936571a7dd14670b4ea2b373e682ca0592b8ca7a74391ff2"
+      "size_bytes": 1072,
+      "sha256": "bfbc8ae6a2a14b98dfbcafee40a0d713bee96515235be26632d2f8bb2826a2fa"
     },
     {
       "path": "docs/bootstrap/LABEL_REGISTER.csv",
@@ -34,8 +34,8 @@
     },
     {
       "path": "docs/bootstrap/NEXT_ACTIONS.md",
-      "size_bytes": 775,
-      "sha256": "b21565210c1276f302318ae1a970de9391524539af9ece79ebd8c86ee361bdae"
+      "size_bytes": 763,
+      "sha256": "740f2ad0ca20197e6106fb4d91cc545c2786619dceaf68619ae74977649a6be7"
     },
     {
       "path": "docs/bootstrap/PROJECT_MANUAL_SETUP.md",
@@ -44,8 +44,8 @@
     },
     {
       "path": "docs/bootstrap/REPOSITORY_BOOTSTRAP_REPORT.md",
-      "size_bytes": 2849,
-      "sha256": "835bb4f1c2b963864b82b6a1076e5244e8e0d52dc794d2a9aa40ec71dffd31f6"
+      "size_bytes": 2860,
+      "sha256": "0ad633b4f9442bf96887d8f275e016d6e2dc4ab969c913d13a31c844e5c85070"
     },
     {
       "path": "docs/bootstrap/REPOSITORY_RULES.md",
@@ -59,8 +59,8 @@
     },
     {
       "path": "docs/bootstrap/TEAM_ASSIGNMENT_MATRIX.csv",
-      "size_bytes": 1241,
-      "sha256": "9400e590ad32d17d899ebe3e884774fe1c4a6720a0a974fad658809ec0cae0ae"
+      "size_bytes": 1306,
+      "sha256": "f44bd0e920ce036e05eb2c769f7baa3742b79c72af352a6837e36e1dde801125"
     },
     {
       "path": "docs/bootstrap/TEAM_ASSIGNMENT_MATRIX.md",

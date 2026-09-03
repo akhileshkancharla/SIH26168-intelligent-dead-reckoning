@@ -1,19 +1,19 @@
 WP,Owner role,Intended assignee,Actual assignee,Reviewer,Area
 WP-00,R1/R4,akhileshkancharla,akhileshkancharla,FaisalTabrez,governance
 WP-01,R1/R4,akhileshkancharla,akhileshkancharla,FaisalTabrez,contracts
-WP-02,R5,likhithayepalagunta-19,pending,akhileshkancharla,acquisition
+WP-02,R5,likhithayepalagunta-19,likhithayepalagunta-19,akhileshkancharla,acquisition
 WP-03,R1/R4,akhileshkancharla,akhileshkancharla,FaisalTabrez,core
 WP-04,R1/R4,akhileshkancharla,akhileshkancharla,FaisalTabrez,core
-WP-05,R5,likhithayepalagunta-19,pending,akhileshkancharla,acquisition
+WP-05,R5,likhithayepalagunta-19,likhithayepalagunta-19,akhileshkancharla,acquisition
 WP-06,R1/R4,akhileshkancharla,akhileshkancharla,FaisalTabrez,core
 WP-07,R1/R4,akhileshkancharla,akhileshkancharla,FaisalTabrez,core
 WP-08,R1/R4,akhileshkancharla,akhileshkancharla,FaisalTabrez,map
-WP-09,R5,likhithayepalagunta-19,pending,akhileshkancharla,android
-WP-10,R2,FaisalTabrez,pending,akhileshkancharla,data
+WP-09,R5,likhithayepalagunta-19,likhithayepalagunta-19,akhileshkancharla,android
+WP-10,R2,FaisalTabrez,FaisalTabrez,akhileshkancharla,data
 WP-11,R3,Zeeshan1786,Zeeshan1786,akhileshkancharla,ml
 WP-12,R3,Zeeshan1786,Zeeshan1786,akhileshkancharla,ml
 WP-13,R1/R4,akhileshkancharla,akhileshkancharla,FaisalTabrez,analyzer
 WP-14,R1/R4,akhileshkancharla,akhileshkancharla,FaisalTabrez,core
-WP-15,R5/R6,likhithayepalagunta-19,pending,akhileshkancharla,demo
+WP-15,R5/R6,likhithayepalagunta-19,likhithayepalagunta-19,akhileshkancharla,demo
 WP-16,R1/R4,akhileshkancharla,akhileshkancharla,FaisalTabrez,core
 WP-17,R1/R4,akhileshkancharla,akhileshkancharla,FaisalTabrez,submission

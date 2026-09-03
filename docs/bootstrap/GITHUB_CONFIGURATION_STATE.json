@@ -16,9 +16,9 @@
   "total_issue_count": 128,
   "submission_critical_issue_count": 40,
   "collaborators": {
-    "FaisalTabrez": "pending",
+    "FaisalTabrez": "active:write",
     "Zeeshan1786": "active:write",
-    "likhithayepalagunta-19": "pending",
+    "likhithayepalagunta-19": "active:write",
     "eragarg": "pending",
     "mjunaidqureshimct255a1405-art": "active:write"
   },
@@ -33,5 +33,17 @@
     "authorized_close_run": "https://github.com/akhileshkancharla/SIH26168-intelligent-dead-reckoning/actions/runs/33708760553",
     "wip_limit_run": "https://github.com/akhileshkancharla/SIH26168-intelligent-dead-reckoning/actions/runs/33708811544",
     "inactivity_dry_run": "https://github.com/akhileshkancharla/SIH26168-intelligent-dead-reckoning/actions/runs/33708875912"
+  },
+  "assignment_summary": {
+    "issues_checked": 128,
+    "assigned": 128,
+    "unassigned": 0,
+    "by_assignee": {
+      "FaisalTabrez": 3,
+      "Zeeshan1786": 12,
+      "akhileshkancharla": 65,
+      "likhithayepalagunta-19": 28,
+      "mjunaidqureshimct255a1405-art": 20
+    }
   }
 }
