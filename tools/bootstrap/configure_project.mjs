@@ -107,7 +107,7 @@ function parseCsv(text) {
 
 function optionId(field, value) {
   const option = field.options.find(
-    (candidate) => candidate.name.toLocaleLowerCase() === value.toLocaleLowerCase(),
+    (candidate) => candidate.name.toLowerCase() === value.toLowerCase(),
   );
   if (!option) fail(`Field ${field.name} has no option ${value}`);
   return option.id;
@@ -226,7 +226,7 @@ function configureViews(projectId, visibleFieldIds) {
 }
 
 function verifyValues(itemsByNumber, register, phases) {
-  const keyFor = (fieldName) => fieldName[0].toLocaleLowerCase() + fieldName.slice(1);
+  const keyFor = (fieldName) => fieldName[0].toLowerCase() + fieldName.slice(1);
   const coverage = Object.fromEntries(
     [
       "Status", "WP ID", "Parent WP", "Phase", "Submission critical", "Priority", "Area",
@@ -261,7 +261,7 @@ function verifyValues(itemsByNumber, register, phases) {
       if (actualValue !== undefined) coverage[fieldName] += 1;
       const valuesMatch =
         fieldName === "Phase" && typeof actualValue === "string"
-          ? actualValue.toLocaleLowerCase() === expectedValue.toLocaleLowerCase()
+          ? actualValue.toLowerCase() === expectedValue.toLowerCase()
           : actualValue === expectedValue;
       if (!valuesMatch) {
         mismatches.push({ number, fieldName, expectedValue, actualValue });
@@ -282,6 +282,9 @@ const option = (name, fallback) => {
 const owner = option("--owner", DEFAULT_OWNER);
 const projectNumber = option("--project", DEFAULT_PROJECT);
 const batchSize = Number(option("--batch-size", "40"));
+if (!Number.isSafeInteger(batchSize) || batchSize < 1 || batchSize > 100) {
+  fail("--batch-size must be an integer from 1 through 100");
+}
 const shouldApply = args.includes("--apply");
 const shouldConfigureViews = args.includes("--configure-views");
 const shouldVerifyValues = args.includes("--verify-values");

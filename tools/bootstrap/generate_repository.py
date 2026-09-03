@@ -1210,7 +1210,9 @@ def verification_scripts() -> None:
             for line in value.splitlines():
                 if "uses:" in line and not re.search(r"@[0-9a-f]{40}(?:\s+#|\s*$)",line): errors.append(f"mutable action reference: {p.name}: {line.strip()}")
             if not re.search(r"(?m)^permissions:\s*$",value): errors.append(f"permissions missing: {p.name}")
-        sensitive=text(ROOT/".github/workflows/sensitive-review.yml")
+        sensitive_path=ROOT/".github/workflows/sensitive-review.yml"
+        if not sensitive_path.is_file(): errors.append("sensitive review workflow missing"); return
+        sensitive=text(sensitive_path)
         if "pull_request_review:" not in sensitive or "types: [submitted, dismissed]" not in sensitive: errors.append("sensitive review must run when reviews are submitted or dismissed")
         if "review_submitted" in sensitive: errors.append("invalid pull_request review_submitted activity type")
     checks={"policy":policy,"forbidden":forbidden,"secrets":secrets,"markdown":markdown,"links":links,"json":json_check,"csv":csv_check,"contracts":contracts,"manifest":manifest,"actions":actions}
