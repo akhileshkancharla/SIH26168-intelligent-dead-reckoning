@@ -3,6 +3,11 @@
   "scope": "Bootstrap and immutable Architecture Revision 3 artifacts; manifest excludes itself.",
   "files": [
     {
+      "path": "docs/bootstrap/CI_VALIDATION.md",
+      "size_bytes": 320,
+      "sha256": "6cf16f5cb6baa4e4e21a83cda815be00d0ca84aa477ff2f52156a8347c403918"
+    },
+    {
       "path": "docs/bootstrap/GITHUB_CONFIGURATION_STATE.json",
       "size_bytes": 589,
       "sha256": "8c4ddb9bb82a8a4ee5f547487893679479440bbf09b07a6f6dee9a88f0eaa82a"
