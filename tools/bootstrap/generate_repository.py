@@ -550,7 +550,7 @@ def basic_files() -> None:
     class MainActivity : Activity() {
         override fun onCreate(savedInstanceState: Bundle?) {
             super.onCreate(savedInstanceState)
-            setContentView(TextView(this).apply { text = "${ReplayDisclosure.LABEL}\nSCAFFOLD — NOT IMPLEMENTED"; textSize = 28f })
+            setContentView(TextView(this).apply { text = "${ReplayDisclosure.LABEL}\\nSCAFFOLD — NOT IMPLEMENTED"; textSize = 28f })
         }
     }
     """)
