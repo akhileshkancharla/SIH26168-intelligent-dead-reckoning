@@ -184,6 +184,8 @@ Completion means every mandatory child, dependency, review, and evidence item is
 
 ## Evidence
 Evidence: https://github.com/{REPOSITORY}/actions
+Required PR: none
+Required review: pending
 
 ## Risks
 Refer to `docs/architecture/SIH26168_Risk_Register_v1.csv`; escalate any safety, privacy, schedule, or scientific-integrity conflict.
@@ -269,6 +271,8 @@ Run the narrow component tests plus `python ci/verify_repository.py all` where s
 
 ## Evidence
 Evidence: https://github.com/{REPOSITORY}/actions
+Required PR: pending
+Required review: pending
 
 ## Estimate
 One bounded child issue; refine before Ready without expanding scope.

@@ -995,17 +995,35 @@ def workflows() -> None:
             const issue = context.payload.issue;
             const authorized = ['akhileshkancharla', 'FaisalTabrez'].map(x => x.toLowerCase());
             const comments = await github.paginate(github.rest.issues.listComments, {{...context.repo, issue_number: issue.number, per_page: 100}});
-            const approval = [...comments].reverse().find(c => authorized.includes(c.user.login.toLowerCase()) && c.body.trim() === '/approve-close' && new Date(c.created_at) >= new Date(issue.updated_at));
+            const approval = [...comments].reverse().find(c => authorized.includes(c.user.login.toLowerCase()) && c.body.trim() === '/approve-close');
+            const substantive = [...comments].reverse().find(c => c.user.type !== 'Bot' && c.body.trim() !== '/approve-close');
+            const approvalFresh = approval && (!substantive || new Date(approval.created_at) >= new Date(substantive.created_at));
             const checksComplete = !/- \[ \]/.test(issue.body || '');
             const evidence = /Evidence:\s*https?:\/\//i.test(issue.body || '');
+            const requiredReview = /Required review:\s*complete/i.test(issue.body || '');
+            const prMatch = (issue.body || '').match(/Required PR:\s*(none|https:\/\/github\.com\/[^/]+\/[^/]+\/pull\/(\d+))/i);
+            let requiredPr = Boolean(prMatch);
+            if (prMatch && prMatch[2]) {{
+              const pr = await github.rest.pulls.get({{...context.repo, pull_number: Number(prMatch[2])}});
+              requiredPr = Boolean(pr.data.merged_at);
+            }}
+            const childNumbers = [...(issue.body || '').matchAll(/^- \[[ x]\] #(\d+)/gmi)].map(m => Number(m[1]));
+            let childrenClosed = true;
+            for (const number of childNumbers) {{
+              const child = await github.rest.issues.get({{...context.repo, issue_number: number}});
+              if (child.data.state !== 'closed') childrenClosed = false;
+            }}
             const blocked = issue.labels.some(l => (l.name || l) === 'status:blocked');
             const closerAllowed = authorized.includes(context.actor.toLowerCase());
-            if (!(approval && checksComplete && evidence && !blocked && closerAllowed)) {{
+            if (!(approvalFresh && checksComplete && evidence && requiredReview && requiredPr && childrenClosed && !blocked && closerAllowed)) {{
               await github.rest.issues.update({{...context.repo, issue_number: issue.number, state: 'open'}});
               await github.rest.issues.addLabels({{...context.repo, issue_number: issue.number, labels: ['status:unauthorized-close']}});
               try {{ await github.rest.issues.removeLabel({{...context.repo, issue_number: issue.number, name: 'status:done'}}); }} catch (e) {{ if (e.status !== 404) throw e; }}
-              await github.rest.issues.createComment({{...context.repo, issue_number: issue.number, body: `Closure reversed and audited. Actor: @${{context.actor}}. Missing one or more of: authorized closer, current /approve-close, complete checklist, evidence URL, or unblocked status. @akhileshkancharla @FaisalTabrez`}});
+              await github.rest.issues.createComment({{...context.repo, issue_number: issue.number, body: `Closure reversed and audited. Actor: @${{context.actor}}. Missing one or more of: authorized closer, current /approve-close, complete checklist, evidence URL, merged required PR/explicit none, completed review, closed mandatory children, or unblocked status. @akhileshkancharla @FaisalTabrez`}});
               core.summary.addHeading('Unauthorized issue closure reversed').addRaw(`Actor: ${{context.actor}}`).write();
+            }} else {{
+              await github.rest.issues.addLabels({{...context.repo, issue_number: issue.number, labels: ['status:closure-approved', 'status:done']}});
+              try {{ await github.rest.issues.removeLabel({{...context.repo, issue_number: issue.number, name: 'status:unauthorized-close'}}); }} catch (e) {{ if (e.status !== 404) throw e; }}
             }}
 """
     write(".github/workflows/issue-close-guard.yml", close_guard)
