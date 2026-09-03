@@ -256,6 +256,10 @@ OWNERS = {
     "WP-17": ("R1/R4", "akhileshkancharla", "FaisalTabrez", "submission"),
 }
 
+CHILD_ASSIGNMENT_OVERRIDES = {
+    "WP-00.5": ("R2", "FaisalTabrez", "akhileshkancharla"),
+}
+
 MILESTONES = [
     ("M0 — Repository Ready", "2026-09-03T14:30:00Z", "WP-00 complete by 20:00 IST"),
     ("M1 — Submission Contracts", "2026-09-05T18:29:59Z", "Contracts, narrative and wireframes"),
@@ -328,13 +332,18 @@ def issue_rows() -> list[dict[str, str]]:
             issue_id = f"{wp}.{index}"
             critical = issue_id in CRITICAL_DATES
             operations = issue_id in {"WP-02.1", "WP-02.4", "WP-02.5", "WP-05.1", "WP-05.2", "WP-05.3", "WP-05.4", "WP-06.5", "WP-10.1", "WP-10.2", "WP-10.3", "WP-10.4", "WP-13.4", "WP-16.3", "WP-17.1", "WP-17.3", "WP-17.4", "WP-17.5", "WP-17.6", "WP-17.7"}
-            intended = "mjunaidqureshimct255a1405-art" if operations else assignee
+            if issue_id in CHILD_ASSIGNMENT_OVERRIDES:
+                child_owner_role, intended, child_reviewer = CHILD_ASSIGNMENT_OVERRIDES[issue_id]
+            elif operations:
+                child_owner_role, intended, child_reviewer = "OPS-1", "mjunaidqureshimct255a1405-art", reviewer
+            else:
+                child_owner_role, intended, child_reviewer = owner_role, assignee, reviewer
             rows.append({
                 "Issue number": "", "Parent": wp, "WP ID": issue_id,
                 "Title": f"[{issue_id}] {title}", "Milestone": milestone_for(issue_id),
                 "Submission-critical flag": "yes" if critical else "no",
-                "Owner role": "OPS-1" if operations else owner_role, "Intended assignee": intended, "Actual assignee": "",
-                "Reviewer": reviewer, "Priority": "critical" if critical else "high",
+                "Owner role": child_owner_role, "Intended assignee": intended, "Actual assignee": "",
+                "Reviewer": child_reviewer, "Priority": "critical" if critical else "high",
                 "Area": area, "Status": "status:backlog", "Dependencies": f"Parent {wp}; architecture dependency graph",
                 "Evidence required": "yes", "Due date": CRITICAL_DATES.get(issue_id, ""), "URL": "",
             })
@@ -677,9 +686,9 @@ def governance_files() -> None:
     * @akhileshkancharla @FaisalTabrez
     /core/ @akhileshkancharla @FaisalTabrez
     /contracts/ @akhileshkancharla @FaisalTabrez
-    /.github/workflows/ @akhileshkancharla @FaisalTabrez
+    /.github/workflows/ @FaisalTabrez @akhileshkancharla
     /.github/CODEOWNERS @akhileshkancharla @FaisalTabrez
-    /ci/ @akhileshkancharla @FaisalTabrez
+    /ci/ @FaisalTabrez @akhileshkancharla
     /docs/architecture/ @akhileshkancharla @FaisalTabrez
     /tools/analyzer/ @akhileshkancharla @FaisalTabrez
     /tools/dataset/ @FaisalTabrez @akhileshkancharla
@@ -731,8 +740,8 @@ A claim requires an immutable evidence reference, method, scope, reviewer, and l
 
 | Role | Member | Authority |
 |---|---|---|
-| R1/R4 | Akhilesh Kancharla (`@akhileshkancharla`) | Architecture, core, CI, analyzer, scientific evidence and release approval |
-| R2 | Md. Faisal Tabrez (`@FaisalTabrez`) | Dataset engineering, leakage control and general closure approval |
+    | R1/R4 | Akhilesh Kancharla (`@akhileshkancharla`) | Architecture, core, analyzer, scientific evidence, CI/CD review and release approval |
+    | R2 | Md. Faisal Tabrez (`@FaisalTabrez`) | CI/CD ownership, repository automation, dataset engineering, leakage control and general closure approval |
 | R3 | Zeeshan Ahmed Khan (`@Zeeshan1786`) | ML baselines, training, evaluation, export and shadow mode |
 | R5 | Likhitha Yepalagunta (`@likhithayepalagunta-19`) | Android acquisition, integration, UI and map display |
 | R6 | Era Garg (`@eragarg`) | Demo, documentation, PPT, video and presentation |

@@ -1,9 +1,9 @@
 * @akhileshkancharla @FaisalTabrez
 /core/ @akhileshkancharla @FaisalTabrez
 /contracts/ @akhileshkancharla @FaisalTabrez
-/.github/workflows/ @akhileshkancharla @FaisalTabrez
+/.github/workflows/ @FaisalTabrez @akhileshkancharla
 /.github/CODEOWNERS @akhileshkancharla @FaisalTabrez
-/ci/ @akhileshkancharla @FaisalTabrez
+/ci/ @FaisalTabrez @akhileshkancharla
 /docs/architecture/ @akhileshkancharla @FaisalTabrez
 /tools/analyzer/ @akhileshkancharla @FaisalTabrez
 /tools/dataset/ @FaisalTabrez @akhileshkancharla

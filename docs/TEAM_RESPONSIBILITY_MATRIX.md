@@ -2,8 +2,8 @@
 
 | Role | Member | Authority |
 |---|---|---|
-| R1/R4 | Akhilesh Kancharla (`@akhileshkancharla`) | Architecture, core, CI, analyzer, scientific evidence and release approval |
-| R2 | Md. Faisal Tabrez (`@FaisalTabrez`) | Dataset engineering, leakage control and general closure approval |
+| R1/R4 | Akhilesh Kancharla (`@akhileshkancharla`) | Architecture, core, analyzer, scientific evidence, CI/CD review and release approval |
+| R2 | Md. Faisal Tabrez (`@FaisalTabrez`) | CI/CD ownership, repository automation, dataset engineering, leakage control and general closure approval |
 | R3 | Zeeshan Ahmed Khan (`@Zeeshan1786`) | ML baselines, training, evaluation, export and shadow mode |
 | R5 | Likhitha Yepalagunta (`@likhithayepalagunta-19`) | Android acquisition, integration, UI and map display |
 | R6 | Era Garg (`@eragarg`) | Demo, documentation, PPT, video and presentation |
