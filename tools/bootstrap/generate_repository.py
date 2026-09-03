@@ -420,7 +420,7 @@ def basic_files() -> None:
     write("README.md", """
     # SIH26168 — Intelligent Dead Reckoning
 
-    Public development monorepo for the SIH26168 submission and its evidence-bounded post-submission engineering program.
+    Private development monorepo for the SIH26168 submission and its evidence-bounded post-submission engineering program.
 
     Architecture Revision 3 is authoritative and has status `ARCH3-READY-FOR-REPOSITORY-BOOTSTRAP`. Repository bootstrap does not claim completion of S1, S3, S4, runtime map matching, model promotion, live-field validation, or final scientific validation.
 
@@ -443,7 +443,7 @@ def basic_files() -> None:
 
     ## Licence
 
-    No software licence has been approved. Although this repository is publicly visible, its contents remain all-rights-reserved pending an explicit owner decision. No `LICENSE` file is intentionally present.
+    No software licence has been approved. This private repository is all-rights-reserved pending an explicit owner decision. No `LICENSE` file is intentionally present.
     """)
     write("CMakeLists.txt", """
     cmake_minimum_required(VERSION 3.20)

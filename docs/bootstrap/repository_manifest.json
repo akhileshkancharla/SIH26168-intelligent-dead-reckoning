@@ -9,8 +9,8 @@
     },
     {
       "path": "docs/bootstrap/GITHUB_CONFIGURATION_STATE.json",
-      "size_bytes": 2434,
-      "sha256": "4cdeffb1c3275d24a6104b5fa2741c4b6a080df88721972d42cf6bc6f0181034"
+      "size_bytes": 2435,
+      "sha256": "26cf4cbf1a43a68af2751b4e28ad47c2d2a0daf288d176278a12a611ac8d38c7"
     },
     {
       "path": "docs/bootstrap/ISSUE_REGISTER.csv",
@@ -44,8 +44,8 @@
     },
     {
       "path": "docs/bootstrap/REPOSITORY_BOOTSTRAP_REPORT.md",
-      "size_bytes": 3052,
-      "sha256": "73aea977fa7fa2c8eab008d796c1ccacb839c685bf064b4459602371d2a75304"
+      "size_bytes": 3053,
+      "sha256": "b1985054bffdeff8f22f62be1a9882c79bb728018f3c707512d4767b7637f16a"
     },
     {
       "path": "docs/bootstrap/REPOSITORY_RULES.md",
