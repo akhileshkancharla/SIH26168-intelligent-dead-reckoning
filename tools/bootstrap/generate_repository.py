@@ -424,6 +424,8 @@ def basic_files() -> None:
 
     Architecture Revision 3 is authoritative and has status `ARCH3-READY-FOR-REPOSITORY-BOOTSTRAP`. Repository bootstrap does not claim completion of S1, S3, S4, runtime map matching, model promotion, live-field validation, or final scientific validation.
 
+    Project execution is tracked in the private [SIH26168 Development Roadmap](https://github.com/users/akhileshkancharla/projects/4), which contains all 128 governed repository issues.
+
     ## Deadline boundary
 
     - Internal immutable submission freeze: **2026-09-15 (IST)**
@@ -893,13 +895,13 @@ def bootstrap_registers() -> None:
     - Bootstrap smoke scaffolds are not navigation functionality.
     - Android, C++, and Python CI do not use private data, physical devices, GPUs, or IO-VNBD downloads.
     - S2 source is intentionally not imported by bootstrap.
-    - Project-v2 fields/views may require a separate `project` OAuth scope; manual setup instructions are retained if automation is unavailable.
+    - Project synchronization requires an authenticated GitHub CLI token with the `project` scope; start dates and effort estimates remain unset until genuinely scheduled.
     - Repository protection cannot require checks until exact successful check names exist.
     """)
     write("docs/bootstrap/NEXT_ACTIONS.md", """
     # Next Actions
 
-    - Akhilesh: obtain Project-v2 OAuth scopes or complete the documented manual project setup; review CI/CD and delegated R2 work, and triage the September 3–8 critical path.
+    - Akhilesh: use the SIH26168 Development Roadmap for triage, add Start date and Estimated effort only when work is genuinely scheduled, review CI/CD and delegated R2 work, and triage the September 3–8 critical path.
     - Faisal: execute the 31 delegated governance, CI/CD, contract, map-support, analyzer/evidence, replay-fixture, adapter and release child issues; retain the existing private-data responsibilities and escalate scientific decisions to Akhilesh.
     - Zeeshan: prepare deterministic offline ML plans without claiming results or beginning dependency-blocked implementation.
     - Likhitha: begin only Ready submission-critical Android/replay issues, keeping dependency-blocked work in Backlog or Blocked.
@@ -907,9 +909,9 @@ def bootstrap_registers() -> None:
     - Junaid: execute only bounded operational issues after task-specific commands are frozen and approved.
     """)
     write("docs/bootstrap/PROJECT_MANUAL_SETUP.md", """
-    # GitHub Project Manual Setup
+    # GitHub Project Configuration
 
-    If Project v2 automation is unavailable, create **SIH26168 Development Roadmap** and add the fields and 14 views specified in the repository-bootstrap brief. Import all 128 issues. Record actual field identifiers and view configuration in the bootstrap report; do not claim completion until verified.
+    Configure **SIH26168 Development Roadmap** with all 128 issues, 14 custom fields, and 14 required views. Use `tools/bootstrap/configure_project.mjs` to synchronize and verify deterministic values. Record the live URL, IDs, visibility, repository link, item count, field count, view configuration, and verification timestamp only after direct verification.
     """)
     write("docs/bootstrap/REPOSITORY_BOOTSTRAP_REPORT.md", """
     # Repository Bootstrap Report

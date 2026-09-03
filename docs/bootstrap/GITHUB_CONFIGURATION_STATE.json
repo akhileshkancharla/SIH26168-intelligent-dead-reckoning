@@ -23,9 +23,25 @@
     "mjunaidqureshimct255a1405-art": "active:write"
   },
   "project_v2": {
-    "created": false,
-    "reason": "Authenticated token lacks project and read:project scopes.",
-    "manual_setup": "docs/bootstrap/PROJECT_MANUAL_SETUP.md"
+    "created": true,
+    "number": 4,
+    "id": "PVT_kwHODQgbA84BiXCE",
+    "title": "SIH26168 Development Roadmap",
+    "url": "https://github.com/users/akhileshkancharla/projects/4",
+    "visibility": "private",
+    "linked_repository": "akhileshkancharla/SIH26168-intelligent-dead-reckoning",
+    "issue_count": 128,
+    "field_count": 27,
+    "built_in_field_count": 13,
+    "custom_field_count": 14,
+    "deterministic_field_value_count": 1646,
+    "view_count": 14,
+    "owner_grouping": "Assignees",
+    "milestone_grouping": "Milestone",
+    "roadmap_target_date": "Due date",
+    "verified_at": "2026-09-03T21:21:51+05:30",
+    "configuration_record": "docs/bootstrap/PROJECT_MANUAL_SETUP.md",
+    "synchronizer": "tools/bootstrap/configure_project.mjs"
   },
   "validation": {
     "pull_request": "https://github.com/akhileshkancharla/SIH26168-intelligent-dead-reckoning/pull/129",

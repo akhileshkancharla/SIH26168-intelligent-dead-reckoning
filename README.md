@@ -4,6 +4,8 @@ Private development monorepo for the SIH26168 submission and its evidence-bounde
 
 Architecture Revision 3 is authoritative and has status `ARCH3-READY-FOR-REPOSITORY-BOOTSTRAP`. Repository bootstrap does not claim completion of S1, S3, S4, runtime map matching, model promotion, live-field validation, or final scientific validation.
 
+Project execution is tracked in the private [SIH26168 Development Roadmap](https://github.com/users/akhileshkancharla/projects/4), which contains all 128 governed repository issues.
+
 ## Deadline boundary
 
 - Internal immutable submission freeze: **2026-09-15 (IST)**

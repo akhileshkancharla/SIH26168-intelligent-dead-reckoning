@@ -9,8 +9,8 @@
     },
     {
       "path": "docs/bootstrap/GITHUB_CONFIGURATION_STATE.json",
-      "size_bytes": 1831,
-      "sha256": "a61371253438c6e2e7fcda70cbc2671f06aeacc1c25e1245f1bb8f4590c835ad"
+      "size_bytes": 2435,
+      "sha256": "26cf4cbf1a43a68af2751b4e28ad47c2d2a0daf288d176278a12a611ac8d38c7"
     },
     {
       "path": "docs/bootstrap/ISSUE_REGISTER.csv",
@@ -19,8 +19,8 @@
     },
     {
       "path": "docs/bootstrap/KNOWN_LIMITATIONS.md",
-      "size_bytes": 1072,
-      "sha256": "bfbc8ae6a2a14b98dfbcafee40a0d713bee96515235be26632d2f8bb2826a2fa"
+      "size_bytes": 1115,
+      "sha256": "9ff681746f3d525ca9d02ebbd76f203cf3905594562d84f5f01a2f2f5b275b4c"
     },
     {
       "path": "docs/bootstrap/LABEL_REGISTER.csv",
@@ -34,18 +34,18 @@
     },
     {
       "path": "docs/bootstrap/NEXT_ACTIONS.md",
-      "size_bytes": 930,
-      "sha256": "fdc993f53100965fdbb6fd998032c698fe611cd80f244796e511407ecebd6ad5"
+      "size_bytes": 974,
+      "sha256": "783ba80420d4231bee873587c5299af652159498c0ca53173b9282c4413499dc"
     },
     {
       "path": "docs/bootstrap/PROJECT_MANUAL_SETUP.md",
-      "size_bytes": 1560,
-      "sha256": "7f5e56139aab9a62b77077336e085649d66f2d4845a40a6907af6ce1f9e1dc24"
+      "size_bytes": 2151,
+      "sha256": "d86b7608016ab60aa5d65461278bc646a23d7d9c5b54f53605770f7c3bf4f5ee"
     },
     {
       "path": "docs/bootstrap/REPOSITORY_BOOTSTRAP_REPORT.md",
-      "size_bytes": 2860,
-      "sha256": "0ad633b4f9442bf96887d8f275e016d6e2dc4ab969c913d13a31c844e5c85070"
+      "size_bytes": 3053,
+      "sha256": "b1985054bffdeff8f22f62be1a9882c79bb728018f3c707512d4767b7637f16a"
     },
     {
       "path": "docs/bootstrap/REPOSITORY_RULES.md",

@@ -3,7 +3,7 @@
 - Bootstrap smoke scaffolds are not navigation functionality.
 - Android, C++, and Python CI do not use private data, physical devices, GPUs, or IO-VNBD downloads.
 - S2 source is intentionally not imported by bootstrap.
-- GitHub Project v2 was not created: the authenticated token lacks `project` and `read:project`; the exact manual setup is documented.
+- Project `Start date` and `Estimated effort` are intentionally unset until an issue is genuinely scheduled and estimated; no placeholder dates or effort claims were fabricated.
 - Local CMake, Java, Gradle, and Android SDK tools are unavailable; C++ and Android checks were therefore verified on GitHub-hosted runners.
 - Era's invitation remains pending; her issues retain intended-assignee metadata and are not falsely reported as assigned. Faisal, Zeeshan, Likhitha, and Junaid have active Write access.
 - GitHub milestones expose date-level due dates; the M0 description and milestone register preserve the authoritative `2026-09-03 20:00 IST` cutoff.

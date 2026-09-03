@@ -11,6 +11,8 @@ Status: `REPO-BOOTSTRAP-CONDITIONAL`
 - Architecture counts: 20 components, 22 interfaces, 18 work packages, 20 risks, 98 requirement mappings
 - Backlog: 18 parent issues, 110 child issues, 128 total issues, 40 submission-critical issues
 - Governance metadata: 66 labels and 13 milestones
+- GitHub Project v2: private [SIH26168 Development Roadmap](https://github.com/users/akhileshkancharla/projects/4), linked only to this repository, with all 128 issues, 27 fields, 1,646 deterministic field values, and 14 configured views
+- Project display configuration: owner and milestone views grouped by Assignees and Milestone respectively; Roadmap and Post-Submission use the authoritative Due date field
 - Workflows: 21; 17 exact PR/branch check contexts completed successfully on [validation PR #129](https://github.com/akhileshkancharla/SIH26168-intelligent-dead-reckoning/pull/129)
 - Smoke checks: one Python unit test, one C++ CTest, and one Android JVM JUnit test; Android lint and debug scaffold build also passed
 - Unauthorized close test: closure of issue #19 was reversed and audited ([run 33708637152](https://github.com/akhileshkancharla/SIH26168-intelligent-dead-reckoning/actions/runs/33708637152))
@@ -21,10 +23,9 @@ Status: `REPO-BOOTSTRAP-CONDITIONAL`
 
 ## Conditional items
 
-- GitHub Project v2 was not created because the token lacks `project` and `read:project`; exact manual setup is documented.
 - Collaborator state at the latest assignment sync: Faisal, Zeeshan, Likhitha, and Junaid active with Write; Era pending.
-- WP-00 remains open because Project-v2 configuration and designated Faisal review are incomplete. Bootstrap artifacts are not marked accepted merely because implementation exists.
-- Strict `main` protection is applied only after the final report commit and reverified through the GitHub API, avoiding an administrator bypass after activation.
+- WP-00 remains open because designated Faisal review is incomplete. Bootstrap artifacts are not marked accepted merely because implementation exists.
+- Strict `main` protection remains active; changes continue through protected pull-request review.
 
 ## Scientific boundary
 
