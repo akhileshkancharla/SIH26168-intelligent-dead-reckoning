@@ -257,7 +257,37 @@ OWNERS = {
 }
 
 CHILD_ASSIGNMENT_OVERRIDES = {
+    "WP-00.2": ("R2", "FaisalTabrez", "akhileshkancharla"),
+    "WP-00.3": ("R2", "FaisalTabrez", "akhileshkancharla"),
+    "WP-00.4": ("R2", "FaisalTabrez", "akhileshkancharla"),
     "WP-00.5": ("R2", "FaisalTabrez", "akhileshkancharla"),
+    "WP-00.6": ("R2", "FaisalTabrez", "akhileshkancharla"),
+    "WP-01.1": ("R2", "FaisalTabrez", "akhileshkancharla"),
+    "WP-01.2": ("R2", "FaisalTabrez", "akhileshkancharla"),
+    "WP-01.3": ("R2", "FaisalTabrez", "akhileshkancharla"),
+    "WP-01.4": ("R2", "FaisalTabrez", "akhileshkancharla"),
+    "WP-01.5": ("R2", "FaisalTabrez", "akhileshkancharla"),
+    "WP-01.6": ("R2", "FaisalTabrez", "akhileshkancharla"),
+    "WP-03.2": ("R2", "FaisalTabrez", "akhileshkancharla"),
+    "WP-04.1": ("R2", "FaisalTabrez", "akhileshkancharla"),
+    "WP-04.5": ("R2", "FaisalTabrez", "akhileshkancharla"),
+    "WP-04.6": ("R2", "FaisalTabrez", "akhileshkancharla"),
+    "WP-07.5": ("R2", "FaisalTabrez", "akhileshkancharla"),
+    "WP-08.1": ("R2", "FaisalTabrez", "akhileshkancharla"),
+    "WP-08.2": ("R2", "FaisalTabrez", "akhileshkancharla"),
+    "WP-08.3": ("R2", "FaisalTabrez", "akhileshkancharla"),
+    "WP-08.4": ("R2", "FaisalTabrez", "akhileshkancharla"),
+    "WP-08.5": ("R2", "FaisalTabrez", "akhileshkancharla"),
+    "WP-08.6": ("R2", "FaisalTabrez", "akhileshkancharla"),
+    "WP-13.1": ("R2", "FaisalTabrez", "akhileshkancharla"),
+    "WP-13.2": ("R2", "FaisalTabrez", "akhileshkancharla"),
+    "WP-13.3": ("R2", "FaisalTabrez", "akhileshkancharla"),
+    "WP-13.5": ("R2", "FaisalTabrez", "akhileshkancharla"),
+    "WP-13.6": ("R2", "FaisalTabrez", "akhileshkancharla"),
+    "WP-16.1": ("R2", "FaisalTabrez", "akhileshkancharla"),
+    "WP-16.2": ("R2", "FaisalTabrez", "akhileshkancharla"),
+    "WP-16.4": ("R2", "FaisalTabrez", "akhileshkancharla"),
+    "WP-17.2": ("R2", "FaisalTabrez", "akhileshkancharla"),
 }
 
 MILESTONES = [
@@ -840,7 +870,13 @@ def bootstrap_registers() -> None:
     for wp, (role, intended, reviewer, area) in OWNERS.items():
         assignment_rows.append({"WP": wp, "Owner role": role, "Intended assignee": intended, "Actual assignee": "pending invitation/verification", "Reviewer": reviewer, "Area": area})
     write_csv("docs/bootstrap/TEAM_ASSIGNMENT_MATRIX.csv", assignment_rows, list(assignment_rows[0]))
-    write("docs/bootstrap/TEAM_ASSIGNMENT_MATRIX.md", "# Team Assignment Matrix\n\nThe CSV beside this document is authoritative for machine-readable bootstrap assignment intent. Actual assignment is never inferred before GitHub confirms collaborator access.")
+    write("docs/bootstrap/TEAM_ASSIGNMENT_MATRIX.md", """
+    # Team Assignment Matrix
+
+    The CSV beside this document is authoritative for machine-readable bootstrap assignment intent. Actual assignment is never inferred before GitHub confirms collaborator access.
+
+    WP-level scientific and product authority remains in the CSV. To balance execution workload, 31 bounded child issues are delegated to Faisal under R2 while Akhilesh retains review authority: `WP-00.2`–`WP-00.6`, `WP-01.1`–`WP-01.6`, `WP-03.2`, `WP-04.1`, `WP-04.5`, `WP-04.6`, `WP-07.5`, `WP-08.1`–`WP-08.6`, `WP-13.1`, `WP-13.2`, `WP-13.3`, `WP-13.5`, `WP-13.6`, `WP-16.1`, `WP-16.2`, `WP-16.4`, and `WP-17.2`.
+    """)
     write("docs/bootstrap/REPOSITORY_RULES.md", """
     # Repository Rules
 
@@ -863,12 +899,12 @@ def bootstrap_registers() -> None:
     write("docs/bootstrap/NEXT_ACTIONS.md", """
     # Next Actions
 
-    - Akhilesh: approve contracts and protect `main` after initial checks succeed.
-    - Faisal: accept access, review architecture/contract changes, and establish the private dataset workspace outside Git.
-    - Zeeshan: accept access and prepare deterministic offline ML plans without claiming results.
-    - Likhitha: accept access and begin submission-critical Android/replay tasks from assigned issues.
-    - Era: accept access and begin narrative, wireframe, PPT, and video-planning issues.
-    - Junaid: accept access and execute only bounded operational issues with frozen commands and stop conditions.
+    - Akhilesh: obtain Project-v2 OAuth scopes or complete the documented manual project setup; review CI/CD and delegated R2 work, and triage the September 3–8 critical path.
+    - Faisal: execute the 31 delegated governance, CI/CD, contract, map-support, analyzer/evidence, replay-fixture, adapter and release child issues; retain the existing private-data responsibilities and escalate scientific decisions to Akhilesh.
+    - Zeeshan: prepare deterministic offline ML plans without claiming results or beginning dependency-blocked implementation.
+    - Likhitha: begin only Ready submission-critical Android/replay issues, keeping dependency-blocked work in Backlog or Blocked.
+    - Era: accept the pending invitation, then begin the narrative, wireframe, PPT, and video-planning issues.
+    - Junaid: execute only bounded operational issues after task-specific commands are frozen and approved.
     """)
     write("docs/bootstrap/PROJECT_MANUAL_SETUP.md", """
     # GitHub Project Manual Setup

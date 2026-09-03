@@ -118,10 +118,14 @@ def configure_milestones() -> dict[str, dict]:
 
 
 def invite_collaborators() -> dict[str, str]:
-    result = {}
     for username in COLLABORATORS:
-        response = api(f"repos/{REPOSITORY}/collaborators/{username}", "PUT", {"permission": "push"})
-        result[username] = "pending" if response and response.get("id") else "active-or-already-invited"
+        api(f"repos/{REPOSITORY}/collaborators/{username}", "PUT", {"permission": "push"})
+    return collaborator_states()
+
+
+def collaborator_states() -> dict[str, str]:
+    """Read collaborator access without creating or modifying invitations."""
+    result = {username: "unavailable" for username in COLLABORATORS}
     invitations = all_pages(f"repos/{REPOSITORY}/invitations")
     pending = {item["invitee"]["login"].lower() for item in invitations}
     for username in COLLABORATORS:
@@ -301,6 +305,30 @@ def can_assign(username: str, invitation_state: dict[str, str]) -> bool:
     return username.lower() == OWNER.lower() or invitation_state.get(username, "").startswith("active:")
 
 
+def child_body_with_assignment(body: str, row: dict[str, str]) -> str:
+    """Update only the standardized child-issue assignment metadata sections."""
+    replacements = [
+        (
+            r"(?m)^Intended: `@[^`]+`\. Actual assignment is recorded only after GitHub confirms access\.$",
+            f"Intended: `@{row['Intended assignee']}`. Actual assignment is recorded only after GitHub confirms access.",
+        ),
+        (
+            r"(?m)^Owner role `[^`]+`; escalate to `@akhileshkancharla` and `@FaisalTabrez`\.$",
+            f"Owner role `{row['Owner role']}`; escalate to `@akhileshkancharla` and `@FaisalTabrez`.",
+        ),
+        (
+            r"(?m)(^## Reviewer\r?\n)`@[^`]+`$",
+            rf"\1`@{row['Reviewer']}`",
+        ),
+    ]
+    updated = body
+    for pattern, replacement in replacements:
+        updated, count = re.subn(pattern, replacement, updated)
+        if count != 1:
+            raise RuntimeError(f"Expected one assignment metadata match for {row['WP ID']}: {pattern}")
+    return updated
+
+
 def configure_issues(milestones: dict[str, dict], invitations: dict[str, str]) -> tuple[list[dict[str, str]], dict[str, dict]]:
     path = ROOT / "docs/bootstrap/ISSUE_REGISTER.csv"
     rows, fields = read_csv(path)
@@ -371,29 +399,43 @@ def sync_assignments_only() -> None:
     if authenticated.lower() != OWNER.lower():
         raise SystemExit(f"Authenticated owner mismatch: {authenticated}")
 
-    invitations = invite_collaborators()
+    invitations = collaborator_states()
     path = ROOT / "docs/bootstrap/ISSUE_REGISTER.csv"
     rows, fields = read_csv(path)
     remote = {
-        item["title"]: item
+        str(item["number"]): item
         for item in all_pages(f"repos/{REPOSITORY}/issues?state=all")
         if "pull_request" not in item
     }
-    changed = 0
+    assignments_changed = 0
+    bodies_changed = 0
     for row in rows:
-        record = remote.get(row["Title"])
+        record = remote.get(row["Issue number"])
         if record is None:
-            raise RuntimeError(f"Remote issue missing: {row['Title']}")
+            raise RuntimeError(f"Remote issue missing: #{row['Issue number']} {row['Title']}")
+        if record["title"] != row["Title"]:
+            raise RuntimeError(
+                f"Remote title mismatch for #{row['Issue number']}: "
+                f"expected {row['Title']!r}, observed {record['title']!r}"
+            )
         desired = [row["Intended assignee"]] if can_assign(row["Intended assignee"], invitations) else []
         observed = [item["login"] for item in record.get("assignees", [])]
-        if record["state"] == "open" and {item.lower() for item in observed} != {item.lower() for item in desired}:
+        payload: dict[str, object] = {}
+        if {item.lower() for item in observed} != {item.lower() for item in desired}:
+            payload["assignees"] = desired
+            assignments_changed += 1
+        if "." in row["WP ID"]:
+            body = child_body_with_assignment(record.get("body") or "", row)
+            if body != record.get("body"):
+                payload["body"] = body
+                bodies_changed += 1
+        if record["state"] == "open" and payload:
             record = api(
                 f"repos/{REPOSITORY}/issues/{record['number']}",
                 "PATCH",
-                {"assignees": desired},
+                payload,
             )
             observed = [item["login"] for item in record.get("assignees", [])]
-            changed += 1
         row["Actual assignee"] = ";".join(observed)
 
     write_csv(path, rows, fields)
@@ -414,7 +456,12 @@ def sync_assignments_only() -> None:
         "by_assignee": dict(sorted(assignment_counts.items())),
     }
     state_path.write_text(json.dumps(state, indent=2) + "\n", encoding="utf-8", newline="\n")
-    print(json.dumps({"issues_checked": len(rows), "assignments_changed": changed, "collaborators": invitations}, indent=2))
+    print(json.dumps({
+        "issues_checked": len(rows),
+        "assignments_changed": assignments_changed,
+        "bodies_changed": bodies_changed,
+        "collaborators": invitations,
+    }, indent=2))
 
 
 def main() -> None:

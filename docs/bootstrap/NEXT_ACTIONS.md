@@ -1,7 +1,7 @@
 # Next Actions
 
-- Akhilesh: obtain Project-v2 OAuth scopes or complete the documented manual project setup; review CI/CD changes and triage the September 3–8 critical path.
-- Faisal: own CI/CD and repository automation, review the remaining WP-00/WP-01 governance and contract work, and establish the private dataset workspace outside Git.
+- Akhilesh: obtain Project-v2 OAuth scopes or complete the documented manual project setup; review CI/CD and delegated R2 work, and triage the September 3–8 critical path.
+- Faisal: execute the 31 delegated governance, CI/CD, contract, map-support, analyzer/evidence, replay-fixture, adapter and release child issues; retain the existing private-data responsibilities and escalate scientific decisions to Akhilesh.
 - Zeeshan: access is active; prepare deterministic offline ML plans without claiming results or beginning dependency-blocked implementation.
 - Likhitha: begin only Ready submission-critical Android/replay issues, keeping dependency-blocked work in Backlog or Blocked.
 - Era: accept the pending invitation, then begin the narrative, wireframe, PPT, and video-planning issues.

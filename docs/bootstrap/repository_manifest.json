@@ -9,13 +9,13 @@
     },
     {
       "path": "docs/bootstrap/GITHUB_CONFIGURATION_STATE.json",
-      "size_bytes": 1830,
-      "sha256": "bbf9d4879feed884b702dd3d8ddd2ce603ee0c4f42750df8865690915b729cf0"
+      "size_bytes": 1831,
+      "sha256": "a61371253438c6e2e7fcda70cbc2671f06aeacc1c25e1245f1bb8f4590c835ad"
     },
     {
       "path": "docs/bootstrap/ISSUE_REGISTER.csv",
-      "size_bytes": 43173,
-      "sha256": "6aba001451420949fe3066d72c65da910241d3b500992cc25be7eb9f6f221fb3"
+      "size_bytes": 42933,
+      "sha256": "d45338b981ba3c9eff10c43163c36ad902766f197f8d50da530ad66a26b68266"
     },
     {
       "path": "docs/bootstrap/KNOWN_LIMITATIONS.md",
@@ -34,8 +34,8 @@
     },
     {
       "path": "docs/bootstrap/NEXT_ACTIONS.md",
-      "size_bytes": 839,
-      "sha256": "06b4521c933571b28b514bfd3c9492fbdcd0dd3e0aeb626ae6cc890ce8a48be5"
+      "size_bytes": 930,
+      "sha256": "fdc993f53100965fdbb6fd998032c698fe611cd80f244796e511407ecebd6ad5"
     },
     {
       "path": "docs/bootstrap/PROJECT_MANUAL_SETUP.md",
@@ -64,8 +64,8 @@
     },
     {
       "path": "docs/bootstrap/TEAM_ASSIGNMENT_MATRIX.md",
-      "size_bytes": 366,
-      "sha256": "251d62e483914f6527b8342ff1fb1426a2eaf4e85290364ead8d4d8b8dd60275"
+      "size_bytes": 621,
+      "sha256": "fe0f7e9e5bdea115cf4e6fdeb11896a13696d1614f6f3bd40cd623d2bd23610b"
     },
     {
       "path": "docs/bootstrap/WORKFLOW_REGISTER.csv",
