@@ -17,7 +17,7 @@ generated-drift.yml,generated-file-drift-check,generated file drift check,yes
 graphify-check.yml,graphify-snapshot-check,sanitized dependency graph validation,yes
 issue-governance.yml,issue-governance-check,issue governance check,no
 pull-request-governance.yml,pull-request-governance-check,pull request governance check,yes
-sensitive-review.yml,sensitive-review-check,sensitive review check,yes
+sensitive-review.yml,sensitive-review-check,author-aware review policy check,yes
 issue-close-guard.yml,issue-close-guard,issue close guard,no
 wip-limit.yml,wip-limit-enforcement,wip limit enforcement,no
 inactivity-accountability.yml,inactivity-accountability,inactivity accountability,no

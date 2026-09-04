@@ -1,4 +1,4 @@
-name: Sensitive review
+name: Author-aware review policy
 on:
   pull_request:
     types: [opened, synchronize, reopened, ready_for_review]
@@ -18,11 +18,14 @@ jobs:
         with:
           script: |
             const pr = context.payload.pull_request;
-            const files = await github.paginate(github.rest.pulls.listFiles, {...context.repo, pull_number: pr.number, per_page: 100});
-            const sensitive = files.some(f => /^(core\/|contracts\/|\.github\/workflows\/|\.github\/CODEOWNERS$|ci\/|docs\/architecture\/|tools\/analyzer\/)/.test(f.filename));
-            if (!sensitive) return;
             const reviews = await github.paginate(github.rest.pulls.listReviews, {...context.repo, pull_number: pr.number, per_page: 100});
             const latest = new Map(); for (const r of reviews) latest.set(r.user.login.toLowerCase(), r);
-            const approvals = [...latest.values()].filter(r => r.state === 'APPROVED' && r.user.login.toLowerCase() !== pr.user.login.toLowerCase());
-            const required = pr.user.login.toLowerCase() === 'akhileshkancharla' ? 'faisaltabrez' : 'akhileshkancharla';
-            if (approvals.length < 2 || !approvals.some(r => r.user.login.toLowerCase() === required)) core.setFailed(`Sensitive change requires two non-author approvals including ${required}.`);
+            const author = pr.user.login.toLowerCase();
+            const lead = 'akhileshkancharla';
+            const ciOwner = 'faisaltabrez';
+            const requiredApprovers = author === lead ? [ciOwner] : author === ciOwner ? [lead] : [lead, ciOwner];
+            const approvals = new Set([...latest.values()]
+              .filter(r => r.state === 'APPROVED' && r.commit_id === pr.head.sha && r.user.login.toLowerCase() !== author)
+              .map(r => r.user.login.toLowerCase()));
+            const missing = requiredApprovers.filter(login => !approvals.has(login));
+            if (missing.length) core.setFailed(`Approval policy for @${pr.user.login} requires current-head approval from: ${missing.map(login => `@${login}`).join(', ')}.`);
