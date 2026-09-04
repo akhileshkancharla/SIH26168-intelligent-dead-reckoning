@@ -1,0 +1,57 @@
+{
+  "architecture_authority_statement": "Architecture Revision 3 is authoritative; this static graph is supporting evidence only.",
+  "ci_mode": "snapshot-validation-only",
+  "community_count": 69,
+  "edge_count": 506,
+  "extracted_edge_count": 495,
+  "generator_script_version": "1.0.0",
+  "graph_bootstrap_commands": [
+    [
+      "graphify",
+      "extract",
+      ".",
+      "--code-only"
+    ],
+    [
+      "graphify",
+      "cluster-only",
+      ".",
+      "--no-label"
+    ]
+  ],
+  "graph_html_committed": false,
+  "graph_post_update_command": [
+    "graphify",
+    "cluster-only",
+    ".",
+    "--no-label"
+  ],
+  "graph_update_command": [
+    "graphify",
+    "update",
+    "."
+  ],
+  "graphify_configuration_sha256": "64d5e803e19d546787a1212b733dd0880ef623ccdd56f062a2bda5e516c6ad8b",
+  "graphify_package": "graphifyy",
+  "graphify_product": "Graphify",
+  "graphify_version": "0.9.53",
+  "inferred_edge_count": 11,
+  "known_graphify_limitations": [
+    "Code-only AST extraction does not semantically index architecture documents.",
+    "The committed dependency snapshot and bootstrap repository manifest are excluded to prevent recursive generated-artifact graphs.",
+    "Static extraction can miss JNI, Android callback/manifest, reflection, generated-code, resource, dependency-injection, and serialized-contract relationships.",
+    "Static relationships do not prove runtime reachability, correctness, performance, or scientific validity.",
+    "Community and centrality results can change with Graphify version and extraction mode."
+  ],
+  "node_count": 387,
+  "raw_graph_built_at_commit": "15168e6ac8d2c5398330454f8e4b65ddc0f3542a",
+  "removed_volatile_fields": [],
+  "sanitizer_script_sha256": "c699268b6bb17233e7a8439404b6eb4b5c655df8e6c020c7d4e79016bc3cac71",
+  "schema_version": 1,
+  "snapshot_classification": "generated-and-sanitized",
+  "source_branch": "chore/WP-00.5-graphify-knowledge-transfer",
+  "source_includes_working_tree": true,
+  "source_parent_commit": "15168e6ac8d2c5398330454f8e4b65ddc0f3542a",
+  "source_repository": "akhileshkancharla/SIH26168-intelligent-dead-reckoning",
+  "verification_script_sha256": "836bbe62c458fb04e88b5d1c4d707d8c8f68e2066b9eeed054c6a8f2994a78a8"
+}

@@ -14,6 +14,7 @@ android-lint.yml,android-lint-check,android lint check,yes
 android-debug-build.yml,android-debug-build-check,android debug build check,yes
 manifest.yml,manifest-check,manifest check,yes
 generated-drift.yml,generated-file-drift-check,generated file drift check,yes
+graphify-check.yml,graphify-snapshot-check,sanitized dependency graph validation,yes
 issue-governance.yml,issue-governance-check,issue governance check,no
 pull-request-governance.yml,pull-request-governance-check,pull request governance check,yes
 sensitive-review.yml,sensitive-review-check,sensitive review check,yes

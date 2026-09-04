@@ -69,13 +69,38 @@
     },
     {
       "path": "docs/bootstrap/WORKFLOW_REGISTER.csv",
-      "size_bytes": 1349,
-      "sha256": "7af4103987430738ee699406d17df7bb9f77c34b0eb6aa4843519d0e69c6f6a3"
+      "size_bytes": 1434,
+      "sha256": "e940698db059f7c68cf4e463dec9f46e8c28be2463b63dc6439c8db435cc8a62"
     },
     {
       "path": "docs/architecture/ADR_INDEX.md",
       "size_bytes": 264,
       "sha256": "059203f67ff9e9f58d3ecc05a5c929cede2dc6a120dc26dd4a3781bb112e5ca0"
+    },
+    {
+      "path": "docs/architecture/dependency-graph/graph.json",
+      "size_bytes": 353242,
+      "sha256": "707b49ccadee7c5b3bc01e457b17f75e3780bd15cc9cb3ff09c07aff16103d35"
+    },
+    {
+      "path": "docs/architecture/dependency-graph/GRAPH_REPORT.md",
+      "size_bytes": 7387,
+      "sha256": "5ad18842b1bcd3ff7fa6e9b2d667d46355d14d984581019c4ff9f2ff69a25e7d"
+    },
+    {
+      "path": "docs/architecture/dependency-graph/metadata.json",
+      "size_bytes": 2214,
+      "sha256": "c036b817075ea6dedcf347885e7a356fdc2b9761ce68dfd9034c65ac55840f2a"
+    },
+    {
+      "path": "docs/architecture/dependency-graph/README.md",
+      "size_bytes": 2071,
+      "sha256": "fabf7440df92f22104e06274ac3ecf6ade3cb58398db43a7265e5d4ea4f1fa34"
+    },
+    {
+      "path": "docs/architecture/dependency-graph/SHA256SUMS.txt",
+      "size_bytes": 315,
+      "sha256": "cad3f89035d3ceb2b595ce6adf10513d1f263a6a1c6f88f3427b0a1d9b027bc4"
     },
     {
       "path": "docs/architecture/machine_readable/architecture_status.json",
@@ -166,6 +191,11 @@
       "path": "docs/architecture/SIH26168_Verification_Strategy_v1.md",
       "size_bytes": 4503,
       "sha256": "eb29326040fccf634df8fde82bb1115427d86599a34a687dd01c259a62072f7f"
+    },
+    {
+      "path": "docs/architecture/START_HERE.md",
+      "size_bytes": 1474,
+      "sha256": "45f9abede2bb13c5dd5fbc83d0a5371228c082a6f71c09b369356d88c098d5ce"
     }
   ]
 }
