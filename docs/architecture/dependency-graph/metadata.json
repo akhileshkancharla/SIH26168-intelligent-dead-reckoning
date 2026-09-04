@@ -1,9 +1,9 @@
 {
   "architecture_authority_statement": "Architecture Revision 3 is authoritative; this static graph is supporting evidence only.",
   "ci_mode": "snapshot-validation-only",
-  "community_count": 69,
-  "edge_count": 506,
-  "extracted_edge_count": 495,
+  "community_count": 28,
+  "edge_count": 394,
+  "extracted_edge_count": 383,
   "generator_script_version": "1.0.0",
   "graph_bootstrap_commands": [
     [
@@ -43,15 +43,15 @@
     "Static relationships do not prove runtime reachability, correctness, performance, or scientific validity.",
     "Community and centrality results can change with Graphify version and extraction mode."
   ],
-  "node_count": 387,
-  "raw_graph_built_at_commit": "15168e6ac8d2c5398330454f8e4b65ddc0f3542a",
+  "node_count": 238,
+  "raw_graph_built_at_commit": "6af81b4f16486bf79a4239e71697032db24e8ec3",
   "removed_volatile_fields": [],
   "sanitizer_script_sha256": "c699268b6bb17233e7a8439404b6eb4b5c655df8e6c020c7d4e79016bc3cac71",
   "schema_version": 1,
   "snapshot_classification": "generated-and-sanitized",
-  "source_branch": "chore/WP-00.5-graphify-knowledge-transfer",
+  "source_branch": "chore/author-aware-review-policy",
   "source_includes_working_tree": true,
-  "source_parent_commit": "15168e6ac8d2c5398330454f8e4b65ddc0f3542a",
+  "source_parent_commit": "6af81b4f16486bf79a4239e71697032db24e8ec3",
   "source_repository": "akhileshkancharla/SIH26168-intelligent-dead-reckoning",
   "verification_script_sha256": "836bbe62c458fb04e88b5d1c4d707d8c8f68e2066b9eeed054c6a8f2994a78a8"
 }

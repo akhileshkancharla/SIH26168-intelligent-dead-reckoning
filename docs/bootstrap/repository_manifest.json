@@ -49,8 +49,8 @@
     },
     {
       "path": "docs/bootstrap/REPOSITORY_RULES.md",
-      "size_bytes": 418,
-      "sha256": "92d219459c3dcd99a4863e85f775bf7cdb8733b7cee2ade81d1dc050c2b983f4"
+      "size_bytes": 640,
+      "sha256": "1f9bc845f2b681ba5cf874a7ebadeeea70400c49fb4fbde09bfd9a885f919b82"
     },
     {
       "path": "docs/bootstrap/SUBMISSION_CRITICAL_PATH.md",
@@ -69,8 +69,8 @@
     },
     {
       "path": "docs/bootstrap/WORKFLOW_REGISTER.csv",
-      "size_bytes": 1434,
-      "sha256": "e940698db059f7c68cf4e463dec9f46e8c28be2463b63dc6439c8db435cc8a62"
+      "size_bytes": 1444,
+      "sha256": "8a97a367b8b4154a7af215d9c4d9079e76ba3d06441d291097f24a2aa2746a11"
     },
     {
       "path": "docs/architecture/ADR_INDEX.md",
@@ -79,18 +79,18 @@
     },
     {
       "path": "docs/architecture/dependency-graph/graph.json",
-      "size_bytes": 353242,
-      "sha256": "707b49ccadee7c5b3bc01e457b17f75e3780bd15cc9cb3ff09c07aff16103d35"
+      "size_bytes": 242593,
+      "sha256": "a2848f634a3e606c2623e9f3494df5e91990d3b054f21c485dec7e977254bc95"
     },
     {
       "path": "docs/architecture/dependency-graph/GRAPH_REPORT.md",
-      "size_bytes": 7387,
-      "sha256": "5ad18842b1bcd3ff7fa6e9b2d667d46355d14d984581019c4ff9f2ff69a25e7d"
+      "size_bytes": 7519,
+      "sha256": "2eb0ca8dc05077407039c5c77de27a41ee701f6413ddddaa1125aa6e1d285482"
     },
     {
       "path": "docs/architecture/dependency-graph/metadata.json",
-      "size_bytes": 2214,
-      "sha256": "c036b817075ea6dedcf347885e7a356fdc2b9761ce68dfd9034c65ac55840f2a"
+      "size_bytes": 2205,
+      "sha256": "8c52efd608f844e7e1b60ba9f72a814a652c7f1d0f0ce676a706d3f084e6e3dd"
     },
     {
       "path": "docs/architecture/dependency-graph/README.md",
@@ -100,7 +100,7 @@
     {
       "path": "docs/architecture/dependency-graph/SHA256SUMS.txt",
       "size_bytes": 315,
-      "sha256": "cad3f89035d3ceb2b595ce6adf10513d1f263a6a1c6f88f3427b0a1d9b027bc4"
+      "sha256": "16b57581e7f87b445c758dfab7a7090da23e00fc715b428070ea76e131c13ebd"
     },
     {
       "path": "docs/architecture/machine_readable/architecture_status.json",

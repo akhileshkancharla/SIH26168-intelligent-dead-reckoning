@@ -90,6 +90,15 @@ def actions(errors):
     sensitive=text(sensitive_path)
     if "pull_request_review:" not in sensitive or "types: [submitted, dismissed]" not in sensitive: errors.append("sensitive review must run when reviews are submitted or dismissed")
     if "review_submitted" in sensitive: errors.append("invalid pull_request review_submitted activity type")
+    required_policy = [
+        "const lead = 'akhileshkancharla';",
+        "const ciOwner = 'faisaltabrez';",
+        "author === lead ? [ciOwner] : author === ciOwner ? [lead] : [lead, ciOwner]",
+        "r.commit_id === pr.head.sha",
+        "const missing = requiredApprovers.filter(login => !approvals.has(login));",
+    ]
+    for rule in required_policy:
+        if rule not in sensitive: errors.append(f"author-aware review policy missing: {rule}")
 def graph_snapshot(errors):
     result=subprocess.run([sys.executable,str(ROOT/"tools/graphify/verify_graph.py")],cwd=ROOT,text=True,capture_output=True)
     if result.returncode != 0: errors.extend(f"Graphify snapshot: {line}" for line in (result.stdout+result.stderr).splitlines() if line)
