@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "product_name": "Graphify",
+  "package_name": "graphifyy",
+  "graphify_version": "0.9.53",
+  "raw_output": "graphify-out",
+  "shared_output": "docs/architecture/dependency-graph",
+  "update_command": ["graphify", "update", "."],
+  "bootstrap_commands": [
+    ["graphify", "extract", ".", "--code-only"],
+    ["graphify", "cluster-only", ".", "--no-label"]
+  ],
+  "post_update_command": ["graphify", "cluster-only", ".", "--no-label"],
+  "semantic_document_extraction": false,
+  "ci_mode": "snapshot-validation-only",
+  "source_repository": "akhileshkancharla/SIH26168-intelligent-dead-reckoning"
+}

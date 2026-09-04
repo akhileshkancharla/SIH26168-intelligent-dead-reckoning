@@ -1,0 +1,13 @@
+# Prevent recursive indexing of Graphify's raw and committed derived output.
+graphify-out/
+docs/architecture/dependency-graph/
+docs/bootstrap/repository_manifest.json
+
+# Preserve the repository's private/build exclusions during local extraction.
+data/
+private/
+build/
+**/build/
+.gradle/
+.cxx/
+.git/

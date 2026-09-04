@@ -20,6 +20,8 @@ __pycache__/
 .pytest_cache/
 .ruff_cache/
 *.egg-info/
+# Local machine-specific Graphify output
+graphify-out/
 # Sensitive or large artifacts
 data/
 private/
