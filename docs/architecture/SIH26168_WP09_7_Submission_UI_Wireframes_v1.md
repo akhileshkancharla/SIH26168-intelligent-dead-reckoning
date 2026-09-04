@@ -141,7 +141,7 @@ The wireframes are logical layouts, not pixel specifications. `<value>` denotes 
 |                                               | Sensor      AVAILABLE      |
 |   route ===============================       | GNSS        HEALTHY        |
 |                   [S] scientific anchor       | Navigation  GNSS_AIDED     |
-|                    (95% uncertainty)          | Alignment   UNINITIALIZED  |
+|                 (<confidence> uncertainty)    | Alignment   UNINITIALIZED  |
 |                                               | Model       DISABLED       |
 | Legend: [S] SCIENTIFIC  == ROUTE              | Map         <actual state> |
 +-----------------------------------------------+----------------------------+
@@ -247,7 +247,7 @@ The separation remains understandable without colour. If reference disclosure is
 | earlier (---)                                 | Source I-08                |
 |       scientific trail ---------[S]            | Confidence <configured>    |
 |                              (((     )))       | Major axis <value> m       |
-|                           (( 95% BAND  ))       | Minor axis <value> m       |
+|                      (( <CONFIDENCE> BAND ))   | Minor axis <value> m       |
 |                              (((     )))       | Quality <flags>            |
 +-----------------------------------------------+----------------------------+
 | If covariance is nonfinite/dimension-invalid: SCIENTIFIC FAULT, no ellipse. |
@@ -335,7 +335,8 @@ The biased fixture remains visibly simulated/fixture evidence. Rejection consume
 | DISPLAY (SMOOTHED), excluded from metrics     | Output rate <distribution> |
 +-----------------------------------------------+----------------------------+
 | Recording <COMPLETE/INCOMPLETE> | Evidence <run/config/build IDs>           |
-| [View timeline] [View evidence] [Export, if eligible] © OpenStreetMap contrib.|
+| [View timeline] [View evidence] [Export, if eligible]                       |
+|                                              © OpenStreetMap contributors   |
 +----------------------------------------------------------------------------+
 ```
 
@@ -485,4 +486,3 @@ Before implementation, the screen model must consume I-16 as a read-only latest-
 - [ ] Reviewer confirms `UNAVAILABLE`/`EXPERIMENTAL` treatment matches current evidence status.
 - [ ] Reviewer confirms display smoothing is excluded from C-07 and all scientific metrics.
 - [ ] Reviewer confirms private route/location information is absent from submission assets.
-
