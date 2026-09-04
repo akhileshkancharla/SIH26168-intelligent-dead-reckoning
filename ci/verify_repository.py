@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 from __future__ import annotations
-import csv, hashlib, json, re, sys
+import csv, hashlib, json, re, subprocess, sys
 from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
-EXCLUDED = {".git", "build", ".gradle", ".cxx", "__pycache__"}
-REQUIRED = ["README.md", "CONTRIBUTING.md", "SECURITY.md", "CODE_OF_CONDUCT.md", ".gitignore", ".pre-commit-config.yaml", ".github/CODEOWNERS", ".github/pull_request_template.md", "docs/DEVELOPMENT_STATUS.md", "docs/PRIVATE_ARTIFACT_POLICY.md", "docs/GENERATED_FILE_POLICY.md", "docs/CLAIMS_AND_EVIDENCE_POLICY.md", "docs/BRANCH_AND_RELEASE_POLICY.md", "docs/TEAM_RESPONSIBILITY_MATRIX.md", "docs/SUBMISSION_FREEZE_POLICY.md", "docs/architecture/ADR_INDEX.md"]
+EXCLUDED = {".git", "graphify-out", "build", ".gradle", ".cxx", "__pycache__"}
+REQUIRED = ["README.md", "CONTRIBUTING.md", "SECURITY.md", "CODE_OF_CONDUCT.md", "AGENTS.md", ".gitignore", ".graphifyignore", ".pre-commit-config.yaml", ".github/CODEOWNERS", ".github/pull_request_template.md", ".github/workflows/graphify-check.yml", "docs/DEVELOPMENT_STATUS.md", "docs/PRIVATE_ARTIFACT_POLICY.md", "docs/GENERATED_FILE_POLICY.md", "docs/CLAIMS_AND_EVIDENCE_POLICY.md", "docs/BRANCH_AND_RELEASE_POLICY.md", "docs/TEAM_RESPONSIBILITY_MATRIX.md", "docs/SUBMISSION_FREEZE_POLICY.md", "docs/architecture/ADR_INDEX.md", "docs/architecture/START_HERE.md", "docs/architecture/dependency-graph/README.md", "docs/architecture/dependency-graph/GRAPH_REPORT.md", "docs/architecture/dependency-graph/graph.json", "docs/architecture/dependency-graph/metadata.json", "docs/architecture/dependency-graph/SHA256SUMS.txt", "tools/graphify/README.md", "tools/graphify/graphify_config.json", "tools/graphify/update_graph.ps1", "tools/graphify/update_graph.sh", "tools/graphify/sanitize_graph.py", "tools/graphify/verify_graph.py", "tools/graphify/tests/test_graphify_workflow.py"]
 FORBIDDEN_SUFFIXES = {".pbf", ".sqlite", ".sqlite3", ".db", ".apk", ".aab", ".onnx", ".pt", ".pth", ".tflite", ".keystore", ".jks", ".pem", ".key", ".jsonl"}
 ACTION = re.compile(r"^\s*-?\s*uses:\s*[^@\s]+@([0-9a-f]{40})(?:\s+#.*)?$", re.M)
 ABSOLUTE = re.compile(r"(?i)((?<![A-Za-z0-9_])[A-Z]:[\\/]|C:/Users/|/Users/[^/]+/|/home/[^/]+/|/workspace/|/tmp/)")
@@ -26,8 +26,10 @@ def policy(errors):
     if (len(parents),len(children),len(issue_rows)) != (18,110,128): errors.append("issue register must be 18/110/128")
     if sum(r["Submission-critical flag"]=="yes" for r in issue_rows) != 40: errors.append("submission-critical issue count must be 40")
     if len(list(csv.DictReader((ROOT/"docs/bootstrap/MILESTONE_REGISTER.csv").open(encoding="utf-8")))) != 13: errors.append("milestone count must be 13")
-    if len(list(csv.DictReader((ROOT/"docs/bootstrap/WORKFLOW_REGISTER.csv").open(encoding="utf-8")))) != 21: errors.append("workflow count must be 21")
+    if len(list(csv.DictReader((ROOT/"docs/bootstrap/WORKFLOW_REGISTER.csv").open(encoding="utf-8")))) != 22: errors.append("workflow count must be 22")
 def forbidden(errors):
+    tracked=subprocess.run(["git","ls-files","--","graphify-out"],cwd=ROOT,text=True,capture_output=True,check=True).stdout.splitlines()
+    for rel in tracked: errors.append(f"raw Graphify output is tracked: {rel}")
     for p in files():
         rel=p.relative_to(ROOT).as_posix(); lower=rel.lower()
         if p.suffix.lower() in FORBIDDEN_SUFFIXES or p.name==".env" or lower.startswith(("data/","private/")): errors.append(f"forbidden file: {rel}")
@@ -88,7 +90,10 @@ def actions(errors):
     sensitive=text(sensitive_path)
     if "pull_request_review:" not in sensitive or "types: [submitted, dismissed]" not in sensitive: errors.append("sensitive review must run when reviews are submitted or dismissed")
     if "review_submitted" in sensitive: errors.append("invalid pull_request review_submitted activity type")
-checks={"policy":policy,"forbidden":forbidden,"secrets":secrets,"markdown":markdown,"links":links,"json":json_check,"csv":csv_check,"contracts":contracts,"manifest":manifest,"actions":actions}
+def graph_snapshot(errors):
+    result=subprocess.run([sys.executable,str(ROOT/"tools/graphify/verify_graph.py")],cwd=ROOT,text=True,capture_output=True)
+    if result.returncode != 0: errors.extend(f"Graphify snapshot: {line}" for line in (result.stdout+result.stderr).splitlines() if line)
+checks={"policy":policy,"forbidden":forbidden,"secrets":secrets,"markdown":markdown,"links":links,"json":json_check,"csv":csv_check,"contracts":contracts,"manifest":manifest,"actions":actions,"graph":graph_snapshot}
 selected=sys.argv[1] if len(sys.argv)>1 else "all"; errors=[]
 if selected=="all":
     for fn in checks.values(): fn(errors)
