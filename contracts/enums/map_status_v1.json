@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://sih26168.invalid/contracts/enums/map_status_v1.json",
+  "schema_version": 1,
+  "enum_name": "MapStatusV1",
+  "description": "Authoritative map-matching and road-network confidence status enum as defined by Architecture Revision 3 Component C-10.",
+  "values": [
+    "MISSING",
+    "NO_CANDIDATE",
+    "AMBIGUOUS",
+    "CLEAR",
+    "FAILED"
+  ],
+  "definitions": {
+    "MISSING": "Map package, PMTiles database, or road graph offline tile missing or unmounted.",
+    "NO_CANDIDATE": "No road network segment or candidate geometry within search radius of current navigation estimate.",
+    "AMBIGUOUS": "Multiple candidate roads with similar likelihood, or GNSS/heading conflict preventing unique match; matcher abstains.",
+    "CLEAR": "Single unambiguously matched road candidate satisfies topological, heading, and distance gates.",
+    "FAILED": "Corrupt road graph database, spatial query exception, or fatal matcher failure."
+  }
+}

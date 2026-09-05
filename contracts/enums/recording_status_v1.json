@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://sih26168.invalid/contracts/enums/recording_status_v1.json",
+  "schema_version": 1,
+  "enum_name": "RecordingStatusV1",
+  "description": "Authoritative session evidence logging and chunk persistence health enum as defined by Architecture Revision 3 Component C-02.",
+  "values": [
+    "STARTING",
+    "HEALTHY",
+    "EVIDENCE_DEGRADED",
+    "LOW_STORAGE",
+    "INCOMPLETE",
+    "COMPLETE"
+  ],
+  "definitions": {
+    "STARTING": "Recording session initializing, creating directory hierarchy and manifest header.",
+    "HEALTHY": "All evidence streams writing, syncing chunks to persistent storage without queue backpressure.",
+    "EVIDENCE_DEGRADED": "Queue overflow or non-fatal write delay; some non-mandatory records dropped with explicit loss counters.",
+    "LOW_STORAGE": "Storage remaining below critical threshold; chunk rotation restricted and recording transitioning to stop.",
+    "INCOMPLETE": "Session interrupted by unhandled crash, power loss, or process recreation; partial chunks recovered.",
+    "COMPLETE": "Recording session finalized cleanly with manifest closed, checksum verified, and ZIP export ready."
+  }
+}

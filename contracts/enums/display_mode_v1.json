@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://sih26168.invalid/contracts/enums/display_mode_v1.json",
+  "schema_version": 1,
+  "enum_name": "DisplayModeV1",
+  "description": "Authoritative telemetry and display source mode enum for Component C-11 and Interface I-16 as defined by Architecture Revision 3, decoupling source provenance from orthogonal navigation mode, staleness, and fault states.",
+  "values": [
+    "LIVE_DEVICE",
+    "DETERMINISTIC_REPLAY"
+  ],
+  "definitions": {
+    "LIVE_DEVICE": "Real-time active navigation streaming from attached hardware sensors.",
+    "DETERMINISTIC_REPLAY": "Deterministic historical session replay from recorded evidence log."
+  }
+}

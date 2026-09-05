@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://sih26168.invalid/contracts/enums/model_status_v1.json",
+  "schema_version": 1,
+  "enum_name": "ModelStatusV1",
+  "description": "Authoritative learned proposal runtime and model availability status enum as defined by Architecture Revision 3 Component C-08.",
+  "values": [
+    "DISABLED",
+    "LOADING",
+    "SHADOW",
+    "ELIGIBLE",
+    "REJECTED",
+    "FAILED"
+  ],
+  "definitions": {
+    "DISABLED": "Learned model inference is administratively disabled or unconfigured; classical core operates unaided.",
+    "LOADING": "Model weights, ONNX runtime session, or neural execution provider initializing.",
+    "SHADOW": "Model inference executing in non-intrusive shadow mode; proposals logged but not admitted to navigation state.",
+    "ELIGIBLE": "Model inference healthy, outputs within uncertainty bounds, and proposals eligible for supervisory gating.",
+    "REJECTED": "Model proposal failed validation, out-of-distribution gate, timeout, or innovation bounds check.",
+    "FAILED": "Model runtime crashed, execution provider error, or incompatible tensor contract encountered."
+  }
+}

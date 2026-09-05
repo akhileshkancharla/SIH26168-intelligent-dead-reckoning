@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://sih26168.invalid/contracts/enums/sensor_status_v1.json",
+  "schema_version": 1,
+  "enum_name": "SensorStatusV1",
+  "description": "Authoritative sensor availability and stream integrity status enum as defined by Architecture Revision 3 and Development Design Baseline Component C-03.",
+  "values": [
+    "AVAILABLE",
+    "PARTIAL",
+    "GAP",
+    "MISSING_MANDATORY",
+    "FAILED"
+  ],
+  "definitions": {
+    "AVAILABLE": "All mandatory and auxiliary sensor streams are actively delivering valid, in-rate samples.",
+    "PARTIAL": "Mandatory inertial sensors (accel/gyro) are healthy but auxiliary sensors (e.g. magnetometer, barometer) are missing or degraded.",
+    "GAP": "Temporary sample delivery interruption, dropped batches, or non-monotonic delivery detected across sensor streams.",
+    "MISSING_MANDATORY": "Mandatory inertial sensors (accelerometer or gyroscope) are unavailable, preventing valid navigation propagation.",
+    "FAILED": "Irrecoverable hardware fault, permission revocation, or unrecoverable sensor callback failure."
+  }
+}

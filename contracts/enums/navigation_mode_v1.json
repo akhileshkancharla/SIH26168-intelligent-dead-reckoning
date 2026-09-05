@@ -1,0 +1,41 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://sih26168.invalid/contracts/enums/navigation_mode_v1.json",
+  "schema_version": 1,
+  "enum_name": "NavigationModeV1",
+  "description": "Authoritative S2 navigation core operational mode enum and transition conventions as specified in Architecture Revision 3.",
+  "values": [
+    "INITIALIZING",
+    "GNSS_AIDED",
+    "DEGRADED",
+    "BLACKOUT_DR",
+    "REACQUIRING",
+    "FAULT"
+  ],
+  "definitions": {
+    "INITIALIZING": {
+      "description": "Cold start, sensor calibration prior, or waiting for valid initial anchor fix.",
+      "transitions": ["GNSS_AIDED", "FAULT"]
+    },
+    "GNSS_AIDED": {
+      "description": "Nominal operational mode where IMU dead-reckoning is aided by accepted GNSS updates.",
+      "transitions": ["DEGRADED", "BLACKOUT_DR", "FAULT"]
+    },
+    "DEGRADED": {
+      "description": "GNSS fix quality or innovation variance degraded; elevated filter uncertainty.",
+      "transitions": ["GNSS_AIDED", "BLACKOUT_DR", "FAULT"]
+    },
+    "BLACKOUT_DR": {
+      "description": "GNSS absent or rejected; estimator operates in pure dead-reckoning.",
+      "transitions": ["REACQUIRING", "FAULT"]
+    },
+    "REACQUIRING": {
+      "description": "Candidate GNSS fixes detected post-outage; undergoing dwell and innovation validation.",
+      "transitions": ["GNSS_AIDED", "BLACKOUT_DR", "FAULT"]
+    },
+    "FAULT": {
+      "description": "Irrecoverable mathematical defect, PSD defect, or mandatory sensor halt.",
+      "transitions": []
+    }
+  }
+}

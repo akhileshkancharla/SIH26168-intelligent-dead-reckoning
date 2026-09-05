@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://sih26168.invalid/contracts/enums/health_integrity_v1.json",
+  "schema_version": 1,
+  "enum_name": "HealthIntegrityStateV1",
+  "description": "Authoritative GNSS availability and signal integrity status enum as defined by Architecture Revision 3.",
+  "values": [
+    "HEALTHY",
+    "DEGRADED",
+    "UNAVAILABLE",
+    "CANDIDATE_RETURN"
+  ],
+  "definitions": {
+    "HEALTHY": "GNSS fix available with nominal constellation geometry, PDOP within threshold, and valid pseudorange residuals.",
+    "DEGRADED": "GNSS fix available but degraded by multipath, elevated PDOP, or reduced satellite visibility.",
+    "UNAVAILABLE": "GNSS fix lost, jammed, spoofed, or denied; signals unavailable for navigation aiding.",
+    "CANDIDATE_RETURN": "First potential GNSS fix acquired post-outage, pending screening and dwell validation before re-aiding."
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://sih26168.invalid/contracts/enums/reacquisition_status_v1.json",
+  "schema_version": 1,
+  "enum_name": "ReacquisitionStatusV1",
+  "description": "Authoritative GNSS reacquisition and candidate fix screening phase enum as defined by Architecture Revision 3 Component C-09 and Interface I-15.",
+  "values": [
+    "IDLE",
+    "SCREENING",
+    "DWELL",
+    "ACCEPTED",
+    "REJECTED"
+  ],
+  "definitions": {
+    "IDLE": "No outage recovery in progress; normal tracking or continuous GNSS outage.",
+    "SCREENING": "Candidate GNSS fix observed post-outage; evaluating kinematic plausibility and innovation bounds.",
+    "DWELL": "Consecutive plausible fixes accumulating to satisfy dwell time and innovation variance stability criteria.",
+    "ACCEPTED": "Reacquisition validation complete; candidate fixes accepted for filter measurement updates.",
+    "REJECTED": "Candidate fixes failed screening, dwell consistency, or innovation gate; reacquisition aborted."
+  }
+}

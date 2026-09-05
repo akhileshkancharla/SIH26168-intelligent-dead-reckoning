@@ -2,15 +2,15 @@
   "schema_version": 1,
   "navigation_states": [
     "INITIALIZING",
-    "GNSS_HEALTHY",
-    "GNSS_OUTAGE",
-    "REACQUISITION_PENDING",
-    "REACQUIRED",
-    "DEGRADED"
+    "GNSS_AIDED",
+    "DEGRADED",
+    "BLACKOUT_DR",
+    "REACQUIRING",
+    "FAULT"
   ],
   "provenance": [
-    "LIVE",
-    "REPLAY"
+    "LIVE_DEVICE",
+    "DETERMINISTIC_REPLAY"
   ],
-  "note": "SCAFFOLD \u2014 NOT IMPLEMENTED"
+  "description": "Authoritative S2 navigation core state transitions and observation provenance classifications as defined by Architecture Revision 3."
 }
