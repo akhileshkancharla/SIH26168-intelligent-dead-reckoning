@@ -17,5 +17,11 @@ jobs:
           python-version: '3.12'
       - name: Install dependencies
         run: pip install "jsonschema==4.23.0" "referencing==0.35.1"
+      - name: Install project (editable)
+        # Installs sih26168_contracts (and sih26168_bootstrap) as real,
+        # importable packages per pyproject.toml's package-dir mapping, so
+        # test_placed_python_package_is_importable_and_roundtrips exercises
+        # genuine installability rather than a hand-loaded module spec.
+        run: pip install -e .
       - name: Verify
         run: python -m unittest discover -s tools/bootstrap/tests

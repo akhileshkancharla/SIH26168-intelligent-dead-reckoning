@@ -21,11 +21,16 @@ struct RawSensorSamplePayload {
 
 } // namespace
 
-int main() {
-    static_assert(static_cast<uint8_t>(NavigationModeV1::INITIALIZING) == 0 ||
-                      to_string(NavigationModeV1::INITIALIZING) == "INITIALIZING",
-                  "NavigationModeV1 must round-trip through to_string");
+// A direct assertion, not a short-circuited one: this fails loudly if
+// to_string(NavigationModeV1::INITIALIZING) ever stops returning
+// "INITIALIZING", instead of being trivially satisfied by the enum's
+// underlying value being 0.
+static_assert(to_string(NavigationModeV1::INITIALIZING) == "INITIALIZING",
+              "NavigationModeV1::INITIALIZING must round-trip through to_string");
+static_assert(parse_NavigationModeV1("INITIALIZING") == NavigationModeV1::INITIALIZING,
+              "parse_NavigationModeV1 must round-trip the string back to the enum value");
 
+int main() {
     TimestampV1 ts{};
     ts.epoch_ns = 3456789000000;
     ts.arrival_elapsed_realtime_ns = 3456789000000;
@@ -36,7 +41,13 @@ int main() {
     prov.session_id = "sess-001";
     prov.stream_id = "sensor_accel";
 
+    // is_finite/is_valid are required fields with no schema default, so the
+    // generated struct gives them a neutral false placeholder rather than
+    // silently defaulting to true -- set them explicitly here, as real
+    // producer code must.
     ValidityGateV1 gate{};
+    gate.is_finite = true;
+    gate.is_valid = true;
 
     EvidenceEnvelopeV1<RawSensorSamplePayload> envelope{};
     envelope.payload_type = "RawSensorSample";
@@ -50,7 +61,8 @@ int main() {
                     envelope.timestamp.epoch_ns == 3456789000000 &&
                     envelope.provenance.provenance_type == ProvenanceTypeV1::LIVE_DEVICE &&
                     envelope.payload.sensor_type == "ACCELEROMETER" &&
-                    envelope.validity_gate.is_finite;
+                    envelope.validity_gate.is_finite &&
+                    envelope.validity_gate.is_valid;
 
     return ok ? 0 : 1;
 }

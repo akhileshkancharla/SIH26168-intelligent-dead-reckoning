@@ -3,7 +3,6 @@ deterministic contract bindings are actually placed into their consuming
 source trees (C++, Android/Kotlin, Python), not just generated into
 contracts/generated/. See contracts/INTERFACE_SCHEMA_PLAN.md section 6.
 """
-import importlib.util
 import subprocess
 import sys
 import unittest
@@ -53,22 +52,35 @@ class BindingsPlacementTest(unittest.TestCase):
             self.assertEqual(generated, placed, f"tools/contracts/sih26168_contracts/{name} drifted from contracts/generated/python/{name}")
 
     def test_placed_python_package_is_importable_and_roundtrips(self):
-        # Load the *placed* package directly (not contracts/generated/),
-        # proving it is a real, importable Python package on its own —
-        # the actual integration point WP-01.5 is responsible for.
-        enums_spec = importlib.util.spec_from_file_location(
-            "sih26168_contracts.enums", self.python_contracts_dir / "enums.py"
-        )
-        enums_mod = importlib.util.module_from_spec(enums_spec)
-        sys.modules["sih26168_contracts.enums"] = enums_mod
-        enums_spec.loader.exec_module(enums_mod)
+        """Proves the placed package is genuinely installable and
+        importable as `sih26168_contracts` via normal `import` machinery
+        -- not just that the file parses when loaded through a hand-rolled
+        importlib.util spec, which says nothing about whether
+        pyproject.toml's package-dir mapping actually works. CI installs
+        the project with `pip install -e .` before running tests (see
+        .github/workflows/python.yml); locally, skip unless that has been
+        done.
+        """
+        try:
+            import sih26168_contracts.enums as enums_mod
+            import sih26168_contracts.models as models_mod
+        except ImportError:
+            self.skipTest(
+                "sih26168_contracts is not installed; run `pip install -e .` "
+                "from the repository root (CI does this automatically) to "
+                "exercise this test."
+            )
 
-        models_spec = importlib.util.spec_from_file_location(
-            "sih26168_contracts.models", self.python_contracts_dir / "models.py"
+        # Guard against a stale/shadowing install: the imported module must
+        # actually resolve back to the placed source under test.
+        resolved = Path(models_mod.__file__).resolve()
+        expected = (self.python_contracts_dir / "models.py").resolve()
+        self.assertEqual(
+            resolved,
+            expected,
+            f"sih26168_contracts.models resolved to {resolved}, not the placed "
+            f"package at {expected} -- is a stale install shadowing it?",
         )
-        models_mod = importlib.util.module_from_spec(models_spec)
-        sys.modules["sih26168_contracts.models"] = models_mod
-        models_spec.loader.exec_module(models_mod)
 
         ts = models_mod.TimestampV1(epoch_ns=1, arrival_elapsed_realtime_ns=1, clock_id="CLOCK_BOOTTIME")
         prov = models_mod.ProvenanceV1(
@@ -77,7 +89,10 @@ class BindingsPlacementTest(unittest.TestCase):
             stream_id="stream-accel",
             provenance_type=enums_mod.ProvenanceTypeV1.LIVE_DEVICE,
         )
-        gate = models_mod.ValidityGateV1()
+        # is_finite/is_valid are required fields with no schema default,
+        # so the generated dataclass requires them explicitly rather than
+        # silently defaulting to True.
+        gate = models_mod.ValidityGateV1(is_finite=True, is_valid=True)
         env = models_mod.EvidenceEnvelopeV1(
             payload_type="RawSensorSample",
             timestamp=ts,

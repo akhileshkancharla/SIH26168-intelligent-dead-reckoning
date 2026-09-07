@@ -22,14 +22,19 @@ class ContractsModelsSmokeTest {
         val provenance = ProvenanceV1(
             evidenceId = "ev-001",
             sessionId = "sess-001",
-            streamId = "sensor_accel"
+            streamId = "sensor_accel",
+            // provenanceType has no schema default and is required.
+            provenanceType = ProvenanceTypeV1.LIVE_DEVICE
         )
         val envelope = EvidenceEnvelopeV1(
             payloadType = "RawSensorSample",
             timestamp = timestamp,
             provenance = provenance,
             payload = doubleArrayOf(0.012, -0.034, 9.80665),
-            validityGate = ValidityGateV1()
+            // isFinite/isValid are required fields with no schema default,
+            // so the generated data class requires them explicitly rather
+            // than silently defaulting to true.
+            validityGate = ValidityGateV1(isFinite = true, isValid = true)
         )
 
         assertEquals(1L, envelope.schemaVersion)
