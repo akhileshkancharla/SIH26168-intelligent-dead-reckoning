@@ -1,0 +1,38 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://sih26168.invalid/tools/dataset/config/schema_allowlist_config.schema.json",
+  "title": "IoVnbdSchemaAllowlistConfigV1",
+  "description": "WP-10.2 (Issue #80): structural shape of the six-schema IO-VNBD validation allowlist configuration consumed by tools/dataset/schema_allowlist.py. This is repository tooling configuration, not the I-20 DatasetManifest contract itself.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "status",
+    "allowlist"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "integer",
+      "const": 1
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "TEMPLATE_PENDING_S0_AUDIT_ASSIGNMENT",
+        "ACTIVE"
+      ],
+      "description": "TEMPLATE_PENDING_S0_AUDIT_ASSIGNMENT until a human with the SIH26168_IO_VNBD_Dataset_Feasibility_Audit_v1.1 document (referenced as an evidence input in docs/architecture/SIH26168_ARCHITECTURE_MANIFEST_v1.json, not itself present in this repository) replaces the six placeholder entries with the real allowlisted IO-VNBD schema identifiers and sets this to ACTIVE. tools/dataset/schema_allowlist.py refuses to enforce a non-ACTIVE allowlist."
+    },
+    "allowlist": {
+      "type": "array",
+      "description": "Exactly six schema identifiers. Per R-007 in docs/architecture/SIH26168_Risk_Register_v1.csv and C-15's six-schema allowlist in the Revision 3 architecture, IO-VNBD data uses exactly six schemas; any other schema identifier must be quarantined, never silently accepted.",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "minItems": 6,
+      "maxItems": 6,
+      "uniqueItems": true
+    }
+  }
+}
