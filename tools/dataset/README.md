@@ -77,14 +77,45 @@ path under the repo root regardless of Git tracking status.
   each side) until a human replaces both placeholder lists and sets
   `status: ACTIVE`.
 
+- `private_data_scan.py` — WP-10.6 (Issue #84). A WP-10-scoped
+  complement to `ci/verify_repository.py`'s repository-wide `forbidden`
+  check: `scan_tree` walks a directory and flags anything that looks
+  like it could be real dataset content by mistake -- a `data/`- or
+  `private/`-prefixed sub-path at any depth, a raw archive/sensor-data
+  file suffix (`.zip`, `.parquet`, `.h5`, ...), or a file over a small
+  size ceiling. `assert_tree_is_clean` is the raising variant that
+  `tests/test_private_data_exclusion.py` runs against this directory
+  itself on every test run.
+
+- `tests/test_leakage_canary.py` — WP-10.6 (Issue #84). End-to-end
+  canary scenarios wiring `manifest.py`, `schema_allowlist.py`,
+  `grouping.py`, `splits.py` and `feature_firewall.py` together over
+  small synthetic datasets: a clean "golden path" scenario that must
+  pass every stage, plus deliberate attack scenarios (an out-of-allowlist
+  schema hidden in an otherwise-valid manifest, a forbidden label mixed
+  into an otherwise-clean feature set, a hand-corrupted overlapping
+  split, an orphaned group_id) that must each be rejected by the
+  pipeline as a whole, not just by one module in isolation. Also proves
+  concretely, using two identifiers chosen because hashing them
+  independently would place them in different splits, that grouping
+  byte-identical files *before* splitting is what prevents that leak --
+  not an accident of these modules' particular hash function.
+
 ## Scope boundaries
 
-This directory intentionally does **not** yet implement:
-
-- leakage canary and private-data exclusion tests (WP-10.6 / Issue #84)
-
-Each is its own bounded work package; see `docs/architecture/SIH26168_High_Level_Architecture_Revision3.md`
-(component C-15) and `contracts/INTERFACE_SCHEMA_PLAN.md#I-20`.
+This directory now implements every WP-10.1 through WP-10.6 sub-issue
+listed in Issue #11. See `docs/architecture/SIH26168_High_Level_Architecture_Revision3.md`
+(component C-15) and `contracts/INTERFACE_SCHEMA_PLAN.md#I-20` for the
+architecture this tooling implements, and each module's own docstring
+for what it still does not (and, per `docs/PRIVATE_ARTIFACT_POLICY.md`,
+must never) do: read, store, or validate real IO-VNBD bytes. Real
+IO-VNBD-specific facts this repository does not have access to -- the
+six real schema identifiers (`schema_allowlist.py`), the real
+runtime-available feature names and ground-truth label names
+(`feature_firewall.py`) -- remain shipped as reviewable
+`TEMPLATE_PENDING_*` configuration until a human with
+`SIH26168_IO_VNBD_Dataset_Feasibility_Audit_v1.1` and the runtime
+feature spec replaces them and sets `status: ACTIVE`.
 
 ## Tests
 

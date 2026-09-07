@@ -11,7 +11,6 @@ It deliberately does NOT implement:
   - duplicate/parent-session grouping (WP-10.3 / Issue #81)
   - leakage-safe split construction (WP-10.4 / Issue #82)
   - runtime-feature/forbidden-label firewall (WP-10.5 / Issue #83)
-  - leakage canary tests (WP-10.6 / Issue #84)
 
 Per docs/PRIVATE_ARTIFACT_POLICY.md, this module never reads or stores raw
 private bytes -- only SHA-256 digests and structural metadata may enter a
