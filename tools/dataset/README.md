@@ -33,11 +33,19 @@ path under the repo root regardless of Git tracking status.
   source revision. This activation does not grant dataset rights or claim an
   S0 pass; private bytes and paths remain outside Git.
 
+- `grouping.py` — WP-10.3 (Issue #81). Deterministic duplicate and
+  parent-session grouping: `compute_groups` unions files that are
+  byte-identical (same SHA-256) or that declare the same
+  `parent_session_id` into one `group_id` (via union-find, so the merge
+  is transitive), so WP-10.4's split construction can guarantee zero
+  overlap between train/validation/test at the group level.
+  `duplicate_members_by_group` reports which groups contain an exact
+  duplicate, for audit evidence.
+
 ## Scope boundaries
 
 This directory intentionally does **not** yet implement:
 
-- duplicate/parent-session grouping (WP-10.3 / Issue #81)
 - leakage-safe split construction (WP-10.4 / Issue #82)
 - the runtime-feature/forbidden-label firewall (WP-10.5 / Issue #83)
 - leakage canary and private-data exclusion tests (WP-10.6 / Issue #84)
