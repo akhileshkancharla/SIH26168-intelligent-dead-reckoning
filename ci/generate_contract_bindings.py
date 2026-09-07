@@ -31,6 +31,17 @@ SCHEMAS_DIR = CONTRACTS_DIR / "schemas/common"
 VERSION_FILE = CONTRACTS_DIR / "VERSION"
 GENERATED_DIR = CONTRACTS_DIR / "generated"
 
+# WP-01.5 (Issue #29): consuming-tree placement for the same deterministic
+# bindings, per docs/architecture/.../INTERFACE_SCHEMA_PLAN.md section 6
+# ("Produce generated bindings for Kotlin (android/.../contracts/), C++
+# (core/include/sih/contracts/), and Python (tools/contracts/)"). These are
+# not a second implementation: they receive byte-identical content to their
+# contracts/generated/ counterparts (see generate_all_bindings below), so
+# the two locations can never drift apart.
+CPP_CONTRACTS_DIR = ROOT / "core/include/sih26168/contracts"
+ANDROID_CONTRACTS_DIR = ROOT / "android/app/src/main/java/org/sih26168/contracts"
+PYTHON_CONTRACTS_DIR = ROOT / "tools/contracts/sih26168_contracts"
+
 GENERATOR_VERSION = "1.0.0-bootstrap"
 COMMAND_TAG = "python ci/generate_contract_bindings.py"
 
@@ -694,23 +705,43 @@ def generate_all_bindings() -> Dict[Path, str]:
     schemas = load_schemas()
     inputs = collect_input_paths()
 
+    cpp_enums = generate_cpp_enums(enums, schemas)
+    cpp_models = generate_cpp_models(schemas)
+    python_init = generate_python_init()
+    python_enums = generate_python_enums(enums, schemas)
+    python_models = generate_python_models(schemas)
+    kotlin_enums = generate_kotlin_enums(enums, schemas)
+    kotlin_models = generate_kotlin_models(schemas)
+
     bindings: Dict[Path, str] = {}
 
     # 1. Manifest
     bindings[GENERATED_DIR / "contract_version.json"] = generate_contract_version_manifest(version, inputs)
 
     # 2. C++
-    bindings[GENERATED_DIR / "cpp/enums.hpp"] = generate_cpp_enums(enums, schemas)
-    bindings[GENERATED_DIR / "cpp/models.hpp"] = generate_cpp_models(schemas)
+    bindings[GENERATED_DIR / "cpp/enums.hpp"] = cpp_enums
+    bindings[GENERATED_DIR / "cpp/models.hpp"] = cpp_models
 
     # 3. Python
-    bindings[GENERATED_DIR / "python/__init__.py"] = generate_python_init()
-    bindings[GENERATED_DIR / "python/enums.py"] = generate_python_enums(enums, schemas)
-    bindings[GENERATED_DIR / "python/models.py"] = generate_python_models(schemas)
+    bindings[GENERATED_DIR / "python/__init__.py"] = python_init
+    bindings[GENERATED_DIR / "python/enums.py"] = python_enums
+    bindings[GENERATED_DIR / "python/models.py"] = python_models
 
     # 4. Kotlin
-    bindings[GENERATED_DIR / "kotlin/Enums.kt"] = generate_kotlin_enums(enums, schemas)
-    bindings[GENERATED_DIR / "kotlin/Models.kt"] = generate_kotlin_models(schemas)
+    bindings[GENERATED_DIR / "kotlin/Enums.kt"] = kotlin_enums
+    bindings[GENERATED_DIR / "kotlin/Models.kt"] = kotlin_models
+
+    # 5. WP-01.5: place the identical bindings into their consuming source
+    # trees so C++, Android/Kotlin, and Python code can actually import them.
+    bindings[CPP_CONTRACTS_DIR / "enums.hpp"] = cpp_enums
+    bindings[CPP_CONTRACTS_DIR / "models.hpp"] = cpp_models
+
+    bindings[ANDROID_CONTRACTS_DIR / "enums/Enums.kt"] = kotlin_enums
+    bindings[ANDROID_CONTRACTS_DIR / "models/Models.kt"] = kotlin_models
+
+    bindings[PYTHON_CONTRACTS_DIR / "__init__.py"] = python_init
+    bindings[PYTHON_CONTRACTS_DIR / "enums.py"] = python_enums
+    bindings[PYTHON_CONTRACTS_DIR / "models.py"] = python_models
 
     return bindings
 

@@ -1,0 +1,7 @@
+add_library(sih26168_contracts INTERFACE)
+target_include_directories(sih26168_contracts INTERFACE ${PROJECT_SOURCE_DIR}/core/include)
+target_compile_features(sih26168_contracts INTERFACE cxx_std_20)
+
+add_executable(sih26168_contracts_smoke_test tests/contracts_smoke_test.cpp)
+target_link_libraries(sih26168_contracts_smoke_test PRIVATE sih26168_contracts)
+add_test(NAME contracts-smoke COMMAND sih26168_contracts_smoke_test)

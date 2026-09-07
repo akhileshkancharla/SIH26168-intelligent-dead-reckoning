@@ -13,7 +13,8 @@ dependencies = [
 ]
 
 [tool.setuptools]
-package-dir = {"" = "tools/bootstrap/src"}
+packages = ["sih26168_bootstrap", "sih26168_contracts"]
 
-[tool.setuptools.packages.find]
-where = ["tools/bootstrap/src"]
+[tool.setuptools.package-dir]
+sih26168_bootstrap = "tools/bootstrap/src/sih26168_bootstrap"
+sih26168_contracts = "tools/contracts/sih26168_contracts"
