@@ -100,14 +100,37 @@ def assign_splits(group_ids: Iterable[str], ratios: Dict[str, float] = DEFAULT_S
     return result
 
 
+def _reject_unexpected_split_keys(splits: Dict[str, List[str]]) -> None:
+    """Raise SplitError if `splits` has any top-level key besides SPLIT_NAMES.
+
+    validate_splits_are_disjoint/validate_splits_cover_groups previously
+    only ever read `splits.get(split_name, [])` for the three known
+    names, so an externally-constructed or hand-edited splits dictionary
+    carrying an extra key (e.g. a stray "holdout" bucket) had its
+    group_ids silently ignored by both checks -- and by
+    apply_splits_to_manifest, which would then discard that bucket's
+    group assignments entirely without anyone being told. Any key
+    outside SPLIT_NAMES is exactly as untrustworthy as a missing one: it
+    must fail closed, not be quietly dropped.
+    """
+    unexpected_keys = set(splits) - set(SPLIT_NAMES)
+    if unexpected_keys:
+        raise SplitError(
+            f"splits dictionary has unexpected key(s) outside {SPLIT_NAMES}: "
+            f"{sorted(unexpected_keys)}; quarantine and stop the experiment"
+        )
+
+
 def validate_splits_are_disjoint(splits: Dict[str, List[str]]) -> None:
-    """Raise SplitError if any group_id appears in more than one split.
+    """Raise SplitError if any group_id appears in more than one split, or
+    if `splits` carries a key outside train/validation/test.
 
     A defensive check for externally-constructed or hand-edited splits
-    dictionaries -- assign_splits cannot itself produce an overlapping
-    result, but a manifest loaded from disk or edited by another tool
-    might.
+    dictionaries -- assign_splits cannot itself produce an overlapping or
+    extra-keyed result, but a manifest loaded from disk or edited by
+    another tool might.
     """
+    _reject_unexpected_split_keys(splits)
     seen: Dict[str, str] = {}
     for split_name in SPLIT_NAMES:
         for group_id in splits.get(split_name, []):
@@ -143,7 +166,12 @@ def validate_splits_cover_groups(group_ids: Iterable[str], splits: Dict[str, Lis
 def apply_splits_to_manifest(document: dict, splits: Dict[str, List[str]]) -> None:
     """Set `document["splits"]` from `splits`, mutating in place.
 
-    Does not itself validate the resulting document -- call
+    Raises SplitError (via _reject_unexpected_split_keys) if `splits` has
+    a key outside train/validation/test -- otherwise this function would
+    silently write only the three known buckets and discard any other
+    key's group assignments without telling the caller. Does not
+    otherwise validate the resulting document -- call
     tools.dataset.manifest.validate_manifest afterward.
     """
+    _reject_unexpected_split_keys(splits)
     document["splits"] = {name: sorted(splits.get(name, [])) for name in SPLIT_NAMES}

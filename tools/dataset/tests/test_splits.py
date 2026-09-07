@@ -118,6 +118,24 @@ class ValidateSplitsCoverGroupsTest(unittest.TestCase):
         with self.assertRaises(splits_mod.SplitError):
             splits_mod.validate_splits_cover_groups(["g1"], {"train": ["g1"], "validation": ["g1"], "test": []})
 
+    def test_unexpected_split_key_is_rejected(self):
+        # The bug this regression test guards against: a hand-edited
+        # splits dict carrying an extra "holdout" bucket must fail
+        # closed, not have that bucket's group_ids silently ignored by
+        # only ever reading the three known SPLIT_NAMES keys.
+        with self.assertRaises(splits_mod.SplitError):
+            splits_mod.validate_splits_cover_groups(
+                ["g1", "g2"], {"train": ["g1"], "validation": ["g2"], "test": [], "holdout": ["g3"]}
+            )
+
+
+class ValidateSplitsAreDisjointUnexpectedKeyTest(unittest.TestCase):
+    def test_unexpected_split_key_is_rejected(self):
+        with self.assertRaises(splits_mod.SplitError):
+            splits_mod.validate_splits_are_disjoint(
+                {"train": ["g1"], "validation": ["g2"], "test": [], "holdout": ["g3"]}
+            )
+
 
 class ApplySplitsToManifestTest(unittest.TestCase):
     def test_sets_sorted_splits_for_all_three_names(self):
@@ -132,6 +150,11 @@ class ApplySplitsToManifestTest(unittest.TestCase):
         document = {"splits": {}}
         splits_mod.apply_splits_to_manifest(document, {"train": ["g1"]})
         self.assertEqual(document["splits"], {"train": ["g1"], "validation": [], "test": []})
+
+    def test_unexpected_split_key_is_rejected(self):
+        document = {"splits": {}}
+        with self.assertRaises(splits_mod.SplitError):
+            splits_mod.apply_splits_to_manifest(document, {"train": ["g1"], "holdout": ["g2"]})
 
 
 if __name__ == "__main__":
