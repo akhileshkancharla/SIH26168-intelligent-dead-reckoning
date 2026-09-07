@@ -59,11 +59,28 @@ path under the repo root regardless of Git tracking status.
   `validate_splits_cover_groups` are defense-in-depth checks for
   externally-constructed splits dictionaries.
 
+- `feature_firewall.py` — WP-10.5 (Issue #83). Deny-by-default
+  enforcement of the runtime-feature/forbidden-label split: `classify_feature`
+  and `audit_feature_set` label each proposed feature name as
+  `ALLOWED`, `FORBIDDEN_LABEL` (a ground-truth-only field such as a
+  vehicle CAN/telemetry label or precise reference position), or
+  `NOT_RUNTIME_AVAILABLE`; `enforce_feature_set` raises on anything but
+  `ALLOWED`. Neither the real runtime-available feature names nor the
+  real IO-VNBD ground-truth label names are known to this repository --
+  this repo's own contracts and fixtures contain no frozen enum of
+  either, and inventing one would fabricate a fact this repository does
+  not have (the same reasoning as `schema_allowlist.py`'s six schema
+  names). The shipped `config/feature_firewall.json` is therefore a
+  **template** (`status: TEMPLATE_PENDING_REVIEW`) with placeholder
+  entries on both sides; `require_active_firewall` refuses to enforce it
+  (or any document that still looks like it, checked independently on
+  each side) until a human replaces both placeholder lists and sets
+  `status: ACTIVE`.
+
 ## Scope boundaries
 
 This directory intentionally does **not** yet implement:
 
-- the runtime-feature/forbidden-label firewall (WP-10.5 / Issue #83)
 - leakage canary and private-data exclusion tests (WP-10.6 / Issue #84)
 
 Each is its own bounded work package; see `docs/architecture/SIH26168_High_Level_Architecture_Revision3.md`

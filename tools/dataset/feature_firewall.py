@@ -1,0 +1,199 @@
+#!/usr/bin/env python3
+"""WP-10.5 (Issue #83): runtime-feature and forbidden-label firewall.
+
+Per C-15 in docs/architecture/SIH26168_High_Level_Architecture_Revision3.md,
+IO-VNBD carries both fields a deployed model may legitimately consume at
+inference time (live sensor/GNSS-derived features) and fields that only
+exist as ground truth or reference telemetry (vehicle CAN/precise-position
+labels, evaluation-only fields). Training a model on a forbidden label as
+if it were an input feature is a leakage failure mode distinct from --
+and just as serious as -- the file/session leakage that
+tools/dataset/grouping.py and tools/dataset/splits.py guard against; this
+module is the deny-by-default gate for that failure mode.
+
+This module is the enforcement *engine* only. This repository does not
+have a frozen, organizer-supplied list of either (a) which feature names
+are genuinely available to the on-device runtime, or (b) which IO-VNBD
+field names are ground-truth-only. A search of this repository's own
+contracts and fixtures turns up only informal, non-frozen mentions (e.g.
+"ACCELEROMETER" in one test fixture) -- not a committed enum this module
+could safely treat as authoritative. Fabricating either list here would
+violate this repository's "no fabricated architecture/evidence" rule just
+as surely as guessing the six IO-VNBD schema names would (see
+schema_allowlist.py). The shipped config/feature_firewall.json is
+therefore a TEMPLATE with its `status` field set to TEMPLATE_PENDING_REVIEW
+and placeholder entries on both sides: this module refuses to enforce a
+non-ACTIVE firewall, so a template can never be mistaken for a real,
+reviewed firewall. A human with the runtime feature spec and the S0
+feasibility audit must replace both placeholder lists and set status to
+ACTIVE before this module is used against any real feature set.
+"""
+from __future__ import annotations
+
+import json
+from pathlib import Path
+from typing import Any, Dict, List, Tuple
+
+import jsonschema
+
+ROOT = Path(__file__).resolve().parents[2]
+FIREWALL_CONFIG_SCHEMA_PATH = ROOT / "tools/dataset/config/feature_firewall_config.schema.json"
+DEFAULT_FIREWALL_CONFIG_PATH = ROOT / "tools/dataset/config/feature_firewall.json"
+
+TEMPLATE_STATUS = "TEMPLATE_PENDING_REVIEW"
+ACTIVE_STATUS = "ACTIVE"
+
+_TEMPLATE_FEATURE_PLACEHOLDER_PREFIX = "PENDING_FEATURE_"
+_TEMPLATE_LABEL_PLACEHOLDER_PREFIX = "PENDING_LABEL_"
+
+ALLOWED = "ALLOWED"
+FORBIDDEN_LABEL = "FORBIDDEN_LABEL"
+NOT_RUNTIME_AVAILABLE = "NOT_RUNTIME_AVAILABLE"
+
+
+class FeatureFirewallError(Exception):
+    """Raised for any firewall configuration or enforcement failure.
+
+    A hard stop, never a warning to log and continue past -- matching
+    C-15's own "quarantine; stop the experiment" failure mode.
+    """
+
+
+def load_firewall_config_schema() -> Dict[str, Any]:
+    return json.loads(FIREWALL_CONFIG_SCHEMA_PATH.read_text(encoding="utf-8"))
+
+
+def load_firewall_document(path: Path = DEFAULT_FIREWALL_CONFIG_PATH) -> Dict[str, Any]:
+    """Load, structurally validate, and cross-check a firewall config document.
+
+    Structural validity alone does not mean the firewall is usable for
+    real enforcement -- see require_active_firewall for the status gate.
+    Raises FeatureFirewallError if a feature name appears in both
+    `runtime_allowed_features` and `forbidden_labels` -- forbidden takes
+    precedence as defense in depth (see classify_feature), but a document
+    declaring the same name as both allowed and forbidden is internally
+    contradictory and must be rejected outright rather than silently
+    resolved.
+    """
+    try:
+        document = json.loads(path.read_text(encoding="utf-8"))
+    except json.JSONDecodeError as exc:
+        raise FeatureFirewallError(f"firewall config is not valid JSON: {path}: {exc}") from exc
+    schema = load_firewall_config_schema()
+    try:
+        jsonschema.Draft202012Validator(schema).validate(document)
+    except jsonschema.ValidationError as exc:
+        raise FeatureFirewallError(f"firewall config failed schema validation: {exc.message}") from exc
+
+    overlap = set(document.get("runtime_allowed_features", [])) & set(document.get("forbidden_labels", []))
+    if overlap:
+        raise FeatureFirewallError(
+            "firewall config declares the same name in both runtime_allowed_features "
+            f"and forbidden_labels: {sorted(overlap)}; this is an internally "
+            "contradictory configuration and must be fixed by a human reviewer, not "
+            "silently resolved"
+        )
+    return document
+
+
+def is_template_firewall(document: Dict[str, Any]) -> bool:
+    """True if `document` is (or looks like) the unfilled template.
+
+    Checked two ways -- by declared status, and independently by whether
+    every entry on *either* list still carries its placeholder prefix --
+    so a document hand-edited to claim ACTIVE without actually replacing
+    the placeholder entries is still caught. Only one side needing to
+    still look templated is enough to refuse enforcement: a firewall with
+    real runtime features but placeholder forbidden labels (or vice
+    versa) is exactly as unreviewed as one where neither side was
+    touched.
+    """
+    if document.get("status") == TEMPLATE_STATUS:
+        return True
+
+    features = document.get("runtime_allowed_features", [])
+    labels = document.get("forbidden_labels", [])
+    features_are_placeholders = bool(features) and all(
+        str(f).startswith(_TEMPLATE_FEATURE_PLACEHOLDER_PREFIX) for f in features
+    )
+    labels_are_placeholders = bool(labels) and all(
+        str(l).startswith(_TEMPLATE_LABEL_PLACEHOLDER_PREFIX) for l in labels
+    )
+    return features_are_placeholders or labels_are_placeholders
+
+
+def require_active_firewall(document: Dict[str, Any]) -> Tuple[List[str], List[str]]:
+    """Return (runtime_allowed_features, forbidden_labels), or raise.
+
+    Raises FeatureFirewallError if the document's status is not ACTIVE,
+    or if it is ACTIVE but still structurally indistinguishable from the
+    unfilled template (see is_template_firewall) -- either case means
+    real enforcement must not proceed.
+    """
+    if document.get("status") != ACTIVE_STATUS or is_template_firewall(document):
+        raise FeatureFirewallError(
+            "runtime-feature/forbidden-label firewall is not active: it is still "
+            f"the {TEMPLATE_STATUS} template shipped by WP-10.5. A human with the "
+            "runtime feature spec and SIH26168_IO_VNBD_Dataset_Feasibility_Audit_v1.1 "
+            "must replace both placeholder lists with the real runtime-available "
+            "feature names and the real ground-truth-only label names, and set "
+            "status to ACTIVE, before this firewall can be enforced against any "
+            "proposed feature set -- an unresolved firewall is itself a stop "
+            "condition, per C-15's 'quarantine; stop the experiment' failure mode."
+        )
+    return list(document["runtime_allowed_features"]), list(document["forbidden_labels"])
+
+
+def classify_feature(feature_name: str, runtime_allowed: List[str], forbidden_labels: List[str]) -> str:
+    """Classify a single feature name as ALLOWED, FORBIDDEN_LABEL, or
+    NOT_RUNTIME_AVAILABLE.
+
+    Forbidden-label status is checked first and wins over runtime
+    availability, even if a name were (incorrectly) present on both
+    lists -- this is the defense-in-depth ordering described in
+    config/feature_firewall_config.schema.json's `forbidden_labels`
+    description. In normal operation load_firewall_document already
+    rejects any document where the two lists overlap, so this ordering
+    only matters for a firewall assembled directly in memory by a
+    caller that skipped that check.
+    """
+    if feature_name in forbidden_labels:
+        return FORBIDDEN_LABEL
+    if feature_name in runtime_allowed:
+        return ALLOWED
+    return NOT_RUNTIME_AVAILABLE
+
+
+def audit_feature_set(proposed_features: List[str], firewall_document: Dict[str, Any]) -> Dict[str, str]:
+    """Return {feature_name: classification} for every name in
+    `proposed_features`, without raising.
+
+    Pure classification, for audit/reporting -- see enforce_feature_set
+    for the hard-stop variant that a training pipeline should actually
+    call before consuming a feature set.
+    """
+    runtime_allowed, forbidden_labels = require_active_firewall(firewall_document)
+    return {
+        feature_name: classify_feature(feature_name, runtime_allowed, forbidden_labels)
+        for feature_name in proposed_features
+    }
+
+
+def enforce_feature_set(proposed_features: List[str], firewall_document: Dict[str, Any]) -> None:
+    """Raise FeatureFirewallError if `proposed_features` contains any name
+    that is not ALLOWED under the active firewall.
+
+    Both FORBIDDEN_LABEL and NOT_RUNTIME_AVAILABLE names are hard-stop
+    failures -- a name is never allowed through by omission. This is the
+    deny-by-default gate a training/feature-extraction pipeline is meant
+    to call before consuming any proposed feature set.
+    """
+    classifications = audit_feature_set(proposed_features, firewall_document)
+    forbidden = sorted(name for name, verdict in classifications.items() if verdict == FORBIDDEN_LABEL)
+    not_available = sorted(name for name, verdict in classifications.items() if verdict == NOT_RUNTIME_AVAILABLE)
+    if forbidden or not_available:
+        raise FeatureFirewallError(
+            "proposed feature set failed the runtime-feature/forbidden-label "
+            f"firewall; quarantine and stop the experiment: forbidden_labels={forbidden}, "
+            f"not_runtime_available={not_available}"
+        )

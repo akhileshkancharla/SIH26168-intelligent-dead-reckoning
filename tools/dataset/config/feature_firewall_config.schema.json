@@ -1,0 +1,48 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://sih26168.invalid/tools/dataset/config/feature_firewall_config.schema.json",
+  "title": "RuntimeFeatureForbiddenLabelFirewallConfigV1",
+  "description": "WP-10.5 (Issue #83): structural shape of the runtime-feature/forbidden-label firewall configuration consumed by tools/dataset/feature_firewall.py. This is repository tooling configuration, not part of the I-20 DatasetManifest contract itself.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "status",
+    "runtime_allowed_features",
+    "forbidden_labels"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "integer",
+      "const": 1
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "TEMPLATE_PENDING_REVIEW",
+        "ACTIVE"
+      ],
+      "description": "TEMPLATE_PENDING_REVIEW until a human reviews and replaces both placeholder lists below and sets this to ACTIVE. tools/dataset/feature_firewall.py refuses to enforce a non-ACTIVE configuration."
+    },
+    "runtime_allowed_features": {
+      "type": "array",
+      "description": "Feature names genuinely available to the on-device model at inference time (e.g. names derived from I-01 RawSensorSample / I-02 GNSS fix style live signals). Anything not on this list is denied by default -- deny-by-default, not deny-by-exception.",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "uniqueItems": true,
+      "minItems": 1
+    },
+    "forbidden_labels": {
+      "type": "array",
+      "description": "Feature names known to be ground-truth-only (vehicle CAN/telemetry labels, precise reference positions used only for evaluation, or any other IO-VNBD field that must never reach a model as an input feature). Checked even if a name is not present in runtime_allowed_features, as defense in depth against a future accidental addition.",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "uniqueItems": true,
+      "minItems": 1
+    }
+  }
+}
