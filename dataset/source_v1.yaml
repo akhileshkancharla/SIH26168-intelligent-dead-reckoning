@@ -1,0 +1,8 @@
+uip: 10.1
+name: private_dataset_workspace
+immutable: true
+created: 2026-09-07
+source_manifest:
+  version: 1.0.0
+  parent: "11"
+  scope: "bounded"
