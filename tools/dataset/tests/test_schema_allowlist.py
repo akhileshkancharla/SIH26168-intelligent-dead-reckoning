@@ -201,6 +201,19 @@ class EnforceManifestAgainstAllowlistTest(unittest.TestCase):
         with self.assertRaises(allowlist_mod.SchemaAllowlistError):
             allowlist_mod.enforce_manifest_against_allowlist(manifest_doc, template)
 
+    def test_manifest_without_schemas_field_is_rejected(self):
+        # The bug this regression test guards against: manifest_document.get
+        # ("schemas", []) previously turned a missing/empty/malformed
+        # `schemas` field into an empty candidate list, which
+        # classify_schemas trivially classifies as unknown=[] -- silently
+        # PASSING enforcement for a manifest that never declared what
+        # schemas it contains at all. A missing declaration must fail
+        # closed, exactly like an unresolved allowlist.
+        for malformed in ({}, {"schemas": []}, {"schemas": None}, {"schemas": ["", "synthetic_schema_1"]}):
+            with self.subTest(manifest_doc=malformed):
+                with self.assertRaises(allowlist_mod.SchemaAllowlistError):
+                    allowlist_mod.enforce_manifest_against_allowlist(malformed, _synthetic_active_document())
+
 
 if __name__ == "__main__":
     unittest.main()

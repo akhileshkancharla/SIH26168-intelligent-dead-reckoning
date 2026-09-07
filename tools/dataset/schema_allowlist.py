@@ -143,7 +143,23 @@ def enforce_manifest_against_allowlist(manifest_document: Dict[str, Any], allowl
     (call tools.dataset.manifest.validate_manifest for that).
     """
     allowlist = require_active_allowlist(allowlist_document)
-    _, unknown = classify_schemas(manifest_document.get("schemas", []), allowlist)
+
+    candidate_schemas = manifest_document.get("schemas")
+    if not isinstance(candidate_schemas, list) or not candidate_schemas or not all(
+        isinstance(s, str) and s for s in candidate_schemas
+    ):
+        # A missing, empty, or malformed `schemas` field is not "nothing to
+        # check" -- classify_schemas([], allowlist) would silently return
+        # unknown=[] and let a manifest that never declared its schemas at
+        # all pass enforcement. Per C-15's "quarantine unknown schema; stop
+        # experiment" failure mode, an un-declared schema set is itself a
+        # stop condition, exactly like an unresolved allowlist.
+        raise SchemaAllowlistError(
+            "DatasetManifest 'schemas' field is missing, empty, or not a list of "
+            f"non-empty strings; cannot enforce the allowlist against it: {candidate_schemas!r}"
+        )
+
+    _, unknown = classify_schemas(candidate_schemas, allowlist)
     if unknown:
         raise SchemaAllowlistError(
             "DatasetManifest declares schema(s) outside the six-schema IO-VNBD "
