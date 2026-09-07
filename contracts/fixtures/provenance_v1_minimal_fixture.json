@@ -2,5 +2,6 @@
   "evidence_id": "ev-syn-0003",
   "session_id": "sess-synthetic-fixture-03",
   "stream_id": "sensor_mag",
-  "provenance_type": "LIVE_DEVICE"
+  "provenance_type": "DETERMINISTIC_REPLAY",
+  "synthetic": true
 }

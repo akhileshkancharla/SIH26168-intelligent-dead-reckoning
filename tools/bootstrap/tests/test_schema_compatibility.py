@@ -120,6 +120,46 @@ class SchemaCompatibilityTest(unittest.TestCase):
                     ):
                         validator.validate(fixture)
 
+    # -- Evidence integrity: fixtures must never claim LIVE provenance -------
+
+    def test_all_provenance_fixtures_are_replay_labeled_and_synthetic(self):
+        """Every fixture under contracts/fixtures/ is synthetic test data,
+        never a real captured observation, so none of them may claim a
+        LIVE/LIVE_DEVICE provenance_type -- doing so would be a data-
+        integrity bug (synthetic data masquerading as a live device
+        reading), not just a style nit. This checks every standalone
+        provenance fixture plus the provenance object embedded in
+        common_envelope_v1_fixture.json.
+        """
+        replay_values = {"DETERMINISTIC_REPLAY", "REPLAY"}
+
+        provenance_objects = []
+        for fixture_name in (
+            "provenance_v1_fixture.json",
+            "provenance_v1_minimal_fixture.json",
+        ):
+            provenance_objects.append((fixture_name, self._load_fixture(fixture_name)))
+
+        envelope = self._load_fixture("common_envelope_v1_fixture.json")
+        provenance_objects.append(
+            ("common_envelope_v1_fixture.json:provenance", envelope["provenance"])
+        )
+
+        for label, provenance in provenance_objects:
+            with self.subTest(fixture=label):
+                self.assertIn(
+                    provenance.get("provenance_type"),
+                    replay_values,
+                    f"{label} must use a replay provenance_type ({replay_values}), "
+                    f"not {provenance.get('provenance_type')!r} -- fixtures are synthetic "
+                    "and must never claim a live/device-captured origin",
+                )
+                self.assertIs(
+                    provenance.get("synthetic"),
+                    True,
+                    f"{label} must set synthetic: true -- it is synthetic test data",
+                )
+
     # -- Fixtures round-trip through the placed Python bindings --------------
 
     def _load_placed_python_models(self):
