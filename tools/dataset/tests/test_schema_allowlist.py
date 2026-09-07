@@ -133,11 +133,39 @@ class TemplateDetectionTest(unittest.TestCase):
     def test_active_with_real_looking_entries_is_not_a_template(self):
         self.assertFalse(allowlist_mod.is_template_allowlist(_synthetic_active_document()))
 
+    def test_active_with_one_remaining_placeholder_among_real_entries_is_still_a_template(self):
+        # The bug this regression test guards against: is_template_allowlist
+        # must reject as soon as ANY entry is still a placeholder, not only
+        # when every entry is -- five real identifiers and one leftover
+        # PENDING_SCHEMA_* is exactly as unreviewed as an untouched template.
+        doc = copy.deepcopy(_synthetic_active_document())
+        doc["allowlist"][-1] = "PENDING_SCHEMA_6_REPLACE_FROM_S0_AUDIT"
+        self.assertTrue(allowlist_mod.is_template_allowlist(doc))
+        with self.assertRaises(allowlist_mod.SchemaAllowlistError):
+            allowlist_mod.require_active_allowlist(doc)
+
 
 class RequireActiveAllowlistTest(unittest.TestCase):
     def test_active_synthetic_document_returns_its_allowlist(self):
         result = allowlist_mod.require_active_allowlist(_synthetic_active_document())
         self.assertEqual(sorted(result), sorted(_synthetic_active_document()["allowlist"]))
+
+    def test_in_memory_active_document_with_too_few_entries_is_rejected(self):
+        # require_active_allowlist is the public enforcement gate and must
+        # structurally validate its input itself -- a hand-built in-memory
+        # document that never passed through load_allowlist_document (and
+        # so never had jsonschema.Draft202012Validator applied to it) must
+        # still be rejected here for violating the exactly-six contract,
+        # not accepted just because its status says ACTIVE.
+        doc = {"schema_version": 1, "status": "ACTIVE", "allowlist": ["one"]}
+        with self.assertRaises(allowlist_mod.SchemaAllowlistError):
+            allowlist_mod.require_active_allowlist(doc)
+
+    def test_in_memory_active_document_with_too_many_entries_is_rejected(self):
+        doc = copy.deepcopy(_synthetic_active_document())
+        doc["allowlist"].append("synthetic_schema_7")
+        with self.assertRaises(allowlist_mod.SchemaAllowlistError):
+            allowlist_mod.require_active_allowlist(doc)
 
 
 class ClassifySchemasTest(unittest.TestCase):

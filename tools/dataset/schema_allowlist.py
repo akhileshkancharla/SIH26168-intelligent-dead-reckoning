@@ -72,24 +72,40 @@ def is_template_allowlist(document: Dict[str, Any]) -> bool:
     """True if `document` is (or looks like) the unfilled template.
 
     Checked two ways -- by declared status, and independently by whether
-    every entry still carries the placeholder prefix -- so a document that
-    was hand-edited to claim ACTIVE without actually replacing the
-    placeholder entries is still caught.
+    *any* entry still carries the placeholder prefix (not only when every
+    entry does) -- so a document with, say, five real identifiers and one
+    remaining PENDING_SCHEMA_* placeholder is still caught. A mixed
+    real/placeholder allowlist is exactly as unreviewed and unsafe to
+    enforce as one where nothing was replaced at all: the six-schema
+    contract only holds once every entry is genuine.
     """
     if document.get("status") == TEMPLATE_STATUS:
         return True
     entries = document.get("allowlist", [])
-    return bool(entries) and all(str(e).startswith(_TEMPLATE_PLACEHOLDER_PREFIX) for e in entries)
+    return any(str(e).startswith(_TEMPLATE_PLACEHOLDER_PREFIX) for e in entries)
 
 
 def require_active_allowlist(document: Dict[str, Any]) -> List[str]:
     """Return the six allowlisted schema identifiers, or raise.
 
-    Raises SchemaAllowlistError if the document's status is not ACTIVE,
-    or if it is ACTIVE but still structurally indistinguishable from the
-    unfilled template (see is_template_allowlist) -- either case means
-    real enforcement must not proceed.
+    Raises SchemaAllowlistError if `document` fails structural (schema)
+    validation, if its status is not ACTIVE, or if it is ACTIVE but still
+    structurally indistinguishable from the unfilled template (see
+    is_template_allowlist) -- any of these means real enforcement must
+    not proceed. The structural check runs even when `document` did not
+    come from load_allowlist_document: this is the public enforcement
+    gate, and an in-memory document such as
+    {"status": "ACTIVE", "allowlist": ["one"]} must be rejected here too,
+    not only when loaded from disk -- an ACTIVE allowlist with fewer (or
+    more) than exactly six entries violates the six-schema contract just
+    as much as one that is still templated.
     """
+    schema = load_allowlist_config_schema()
+    try:
+        jsonschema.Draft202012Validator(schema).validate(document)
+    except jsonschema.ValidationError as exc:
+        raise SchemaAllowlistError(f"allowlist config failed schema validation: {exc.message}") from exc
+
     if document.get("status") != ACTIVE_STATUS or is_template_allowlist(document):
         raise SchemaAllowlistError(
             "IO-VNBD schema allowlist is not active: it is still the "
