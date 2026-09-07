@@ -165,12 +165,52 @@ class TemplateDetectionTest(unittest.TestCase):
     def test_active_with_real_looking_entries_on_both_sides_is_not_a_template(self):
         self.assertFalse(firewall_mod.is_template_firewall(_synthetic_active_document()))
 
+    def test_active_with_one_remaining_placeholder_feature_among_real_entries_is_still_a_template(self):
+        # The bug this regression test guards against: is_template_firewall
+        # previously required EVERY entry on a side to be a placeholder
+        # (all(...)), so real names plus one leftover PENDING_FEATURE_* was
+        # missed. Must reject as soon as ANY entry on either side is still
+        # a placeholder.
+        doc = copy.deepcopy(_synthetic_active_document())
+        doc["runtime_allowed_features"].append("PENDING_FEATURE_1_REPLACE_FROM_RUNTIME_SPEC")
+        self.assertTrue(firewall_mod.is_template_firewall(doc))
+        with self.assertRaises(firewall_mod.FeatureFirewallError):
+            firewall_mod.require_active_firewall(doc)
+
+    def test_active_with_one_remaining_placeholder_label_among_real_entries_is_still_a_template(self):
+        doc = copy.deepcopy(_synthetic_active_document())
+        doc["forbidden_labels"].append("PENDING_LABEL_1_REPLACE_FROM_S0_AUDIT")
+        self.assertTrue(firewall_mod.is_template_firewall(doc))
+        with self.assertRaises(firewall_mod.FeatureFirewallError):
+            firewall_mod.require_active_firewall(doc)
+
 
 class RequireActiveFirewallTest(unittest.TestCase):
     def test_active_synthetic_document_returns_both_lists(self):
         runtime_allowed, forbidden_labels = firewall_mod.require_active_firewall(_synthetic_active_document())
         self.assertEqual(sorted(runtime_allowed), sorted(_synthetic_active_document()["runtime_allowed_features"]))
         self.assertEqual(sorted(forbidden_labels), sorted(_synthetic_active_document()["forbidden_labels"]))
+
+    def test_in_memory_malformed_active_document_is_rejected(self):
+        # require_active_firewall is the public enforcement gate and must
+        # structurally validate its input itself -- a hand-built in-memory
+        # document that never passed through load_firewall_document (and
+        # so never had jsonschema.Draft202012Validator applied to it) must
+        # still be rejected here for missing a required field, not
+        # accepted just because its status says ACTIVE.
+        doc = {"schema_version": 1, "status": "ACTIVE", "runtime_allowed_features": ["a"]}  # forbidden_labels missing
+        with self.assertRaises(firewall_mod.FeatureFirewallError):
+            firewall_mod.require_active_firewall(doc)
+
+    def test_in_memory_overlapping_active_document_is_rejected(self):
+        # Same reasoning: the allowed/forbidden contradiction guard that
+        # load_firewall_document performs must also run inside
+        # require_active_firewall itself, not only for documents loaded
+        # from disk.
+        doc = copy.deepcopy(_synthetic_active_document())
+        doc["forbidden_labels"].append(doc["runtime_allowed_features"][0])
+        with self.assertRaises(firewall_mod.FeatureFirewallError):
+            firewall_mod.require_active_firewall(doc)
 
 
 class ClassifyFeatureTest(unittest.TestCase):

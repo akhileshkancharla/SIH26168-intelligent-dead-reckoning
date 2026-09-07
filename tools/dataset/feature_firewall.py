@@ -100,36 +100,53 @@ def is_template_firewall(document: Dict[str, Any]) -> bool:
     """True if `document` is (or looks like) the unfilled template.
 
     Checked two ways -- by declared status, and independently by whether
-    every entry on *either* list still carries its placeholder prefix --
-    so a document hand-edited to claim ACTIVE without actually replacing
-    the placeholder entries is still caught. Only one side needing to
-    still look templated is enough to refuse enforcement: a firewall with
-    real runtime features but placeholder forbidden labels (or vice
-    versa) is exactly as unreviewed as one where neither side was
-    touched.
+    *any* entry on either list still carries its placeholder prefix (not
+    only when every entry on a side does) -- so a document hand-edited to
+    claim ACTIVE without actually replacing every placeholder entry is
+    still caught. An ACTIVE list containing real names plus one leftover
+    PENDING_FEATURE_*/PENDING_LABEL_* entry is exactly as unreviewed as a
+    side where nothing was replaced at all -- the firewall contract only
+    holds once every entry on both sides is genuine.
     """
     if document.get("status") == TEMPLATE_STATUS:
         return True
 
     features = document.get("runtime_allowed_features", [])
     labels = document.get("forbidden_labels", [])
-    features_are_placeholders = bool(features) and all(
-        str(f).startswith(_TEMPLATE_FEATURE_PLACEHOLDER_PREFIX) for f in features
-    )
-    labels_are_placeholders = bool(labels) and all(
-        str(l).startswith(_TEMPLATE_LABEL_PLACEHOLDER_PREFIX) for l in labels
-    )
-    return features_are_placeholders or labels_are_placeholders
+    features_have_placeholder = any(str(f).startswith(_TEMPLATE_FEATURE_PLACEHOLDER_PREFIX) for f in features)
+    labels_have_placeholder = any(str(l).startswith(_TEMPLATE_LABEL_PLACEHOLDER_PREFIX) for l in labels)
+    return features_have_placeholder or labels_have_placeholder
 
 
 def require_active_firewall(document: Dict[str, Any]) -> Tuple[List[str], List[str]]:
     """Return (runtime_allowed_features, forbidden_labels), or raise.
 
-    Raises FeatureFirewallError if the document's status is not ACTIVE,
-    or if it is ACTIVE but still structurally indistinguishable from the
-    unfilled template (see is_template_firewall) -- either case means
-    real enforcement must not proceed.
+    Raises FeatureFirewallError if `document` fails structural (schema)
+    validation, declares the same name on both lists, has a status that
+    is not ACTIVE, or is ACTIVE but still structurally indistinguishable
+    from the unfilled template (see is_template_firewall) -- any of these
+    means real enforcement must not proceed. The structural and overlap
+    checks run even when `document` did not come from
+    load_firewall_document: this is the public enforcement gate, and an
+    in-memory document must not be able to bypass required fields,
+    uniqueness, or the allowed/forbidden contradiction guard just by
+    skipping the loader.
     """
+    schema = load_firewall_config_schema()
+    try:
+        jsonschema.Draft202012Validator(schema).validate(document)
+    except jsonschema.ValidationError as exc:
+        raise FeatureFirewallError(f"firewall config failed schema validation: {exc.message}") from exc
+
+    overlap = set(document.get("runtime_allowed_features", [])) & set(document.get("forbidden_labels", []))
+    if overlap:
+        raise FeatureFirewallError(
+            "firewall config declares the same name in both runtime_allowed_features "
+            f"and forbidden_labels: {sorted(overlap)}; this is an internally "
+            "contradictory configuration and must be fixed by a human reviewer, not "
+            "silently resolved"
+        )
+
     if document.get("status") != ACTIVE_STATUS or is_template_firewall(document):
         raise FeatureFirewallError(
             "runtime-feature/forbidden-label firewall is not active: it is still "
