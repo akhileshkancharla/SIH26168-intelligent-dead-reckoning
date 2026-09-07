@@ -24,10 +24,7 @@
       "description": "Monotonic nanoseconds from android.os.SystemClock.elapsedRealtimeNanos() recorded at callback arrival."
     },
     "source_timestamp_ns": {
-      "type": [
-        "integer",
-        "null"
-      ],
+      "type": "integer",
       "minimum": 0,
       "maximum": 9223372036854775807,
       "description": "Optional raw sensor hardware callback timestamp in nanoseconds."

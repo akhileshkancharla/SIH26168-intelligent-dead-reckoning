@@ -172,6 +172,36 @@ class CodegenContractTest(unittest.TestCase):
         self.assertNotEqual(base_kt, changed_kt, "Changing a schema field must change generated Kotlin output")
         self.assertIn("mountHint", changed_kt)
 
+    def test_provenance_type_enum_values_are_schema_driven(self):
+        """ProvenanceTypeV1's members must come from
+        provenance_v1.schema.json's provenance_type.enum, not a hard-coded
+        list, so a schema change to that enum can't leave the generated
+        enum silently stale while --check still passes."""
+        codegen = self._load_codegen_module()
+        base_schemas = codegen.load_schemas()
+        base_enums = codegen.load_enums()
+
+        changed_schemas = copy.deepcopy(base_schemas)
+        changed_schemas["provenance_v1.schema.json"]["properties"]["provenance_type"]["enum"].append(
+            "SIMULATED_FUTURE_SOURCE"
+        )
+
+        base_cpp = codegen.generate_cpp_enums(base_enums, base_schemas)
+        changed_cpp = codegen.generate_cpp_enums(base_enums, changed_schemas)
+        self.assertNotEqual(base_cpp, changed_cpp, "Changing provenance_type's enum must change generated C++ enums")
+        self.assertIn("SIMULATED_FUTURE_SOURCE", changed_cpp)
+        self.assertNotIn("SIMULATED_FUTURE_SOURCE", base_cpp)
+
+        base_py = codegen.generate_python_enums(base_enums, base_schemas)
+        changed_py = codegen.generate_python_enums(base_enums, changed_schemas)
+        self.assertNotEqual(base_py, changed_py, "Changing provenance_type's enum must change generated Python enums")
+        self.assertIn("SIMULATED_FUTURE_SOURCE", changed_py)
+
+        base_kt = codegen.generate_kotlin_enums(base_enums, base_schemas)
+        changed_kt = codegen.generate_kotlin_enums(base_enums, changed_schemas)
+        self.assertNotEqual(base_kt, changed_kt, "Changing provenance_type's enum must change generated Kotlin enums")
+        self.assertIn("SIMULATED_FUTURE_SOURCE", changed_kt)
+
     def test_check_mode_detects_byte_level_drift(self):
         """--check must compare raw bytes, not text-normalized content, so
         e.g. CRLF line endings introduced by an editor are caught as drift

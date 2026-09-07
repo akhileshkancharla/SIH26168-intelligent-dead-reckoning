@@ -105,7 +105,17 @@ def generate_contract_version_manifest(version: str, inputs: List[str]) -> str:
     return json.dumps(data, indent=2, sort_keys=True) + "\n"
 
 
-def generate_cpp_enums(enums: Dict[str, Dict]) -> str:
+def _provenance_type_enum_values(schemas: Dict[str, Dict]) -> List[str]:
+    """ProvenanceTypeV1's authoritative values live in
+    provenance_v1.schema.json's `provenance_type` property -- derive them
+    from there instead of a hard-coded list, so a schema change to that
+    enum can't leave the generated enum silently stale while --check
+    still passes.
+    """
+    return list(schemas["provenance_v1.schema.json"]["properties"]["provenance_type"]["enum"])
+
+
+def generate_cpp_enums(enums: Dict[str, Dict], schemas: Dict[str, Dict]) -> str:
     out = make_header("contracts/enums/*.json", "//")
     out += "#pragma once\n\n"
     out += "#include <cstdint>\n"
@@ -123,9 +133,10 @@ def generate_cpp_enums(enums: Dict[str, Dict]) -> str:
             if "provenance" in data:
                 enum_list.append(("ProvenanceClassificationV1", data["provenance"]))
 
-    # Also add ProvenanceTypeV1 from common provenance schema if not already present
+    # ProvenanceTypeV1 is not one of the contracts/enums/*.json files -- its
+    # authoritative values live in provenance_v1.schema.json, derived below.
     if not any(name == "ProvenanceTypeV1" for name, _ in enum_list):
-        enum_list.append(("ProvenanceTypeV1", ["LIVE_DEVICE", "DETERMINISTIC_REPLAY", "LIVE", "REPLAY"]))
+        enum_list.append(("ProvenanceTypeV1", _provenance_type_enum_values(schemas)))
 
     for enum_name, values in sorted(enum_list, key=lambda x: x[0]):
         out += f"enum class {enum_name} : uint8_t {{\n"
@@ -156,19 +167,34 @@ def generate_cpp_enums(enums: Dict[str, Dict]) -> str:
 # ---------------------------------------------------------------------------
 # Schema-driven field extraction shared by the C++, Python, and Kotlin model
 # generators. A `SchemaField` mirrors one JSON Schema property: its declared
-# type, whether it's `required`, whether it's nullable (JSON Schema
-# `"type": [<type>, "null"]`), and any `default`/`const` annotation.
+# type, whether it's `required`, and any `default`/`const` annotation.
+#
+# Note on optional vs. nullable: JSON Schema's `required` says a field may
+# be *absent*; it says nothing about whether a *present* value may be JSON
+# `null` (that would be a separate `"type": [T, "null"]` declaration). This
+# generator only needs the former -- none of the canonical common schemas
+# declare a field nullable in the latter sense -- so `SchemaField.optional`
+# (== "not required") drives the generated language's optional-presence
+# wrapper (std::optional<T>, Optional[T], T?), and serialization represents
+# an absent field by omitting its key, never by emitting a literal null.
 # ---------------------------------------------------------------------------
 
 class SchemaField:
-    __slots__ = ("name", "required", "kind", "nullable", "prop")
+    __slots__ = ("name", "required", "kind", "prop")
 
-    def __init__(self, name: str, required: bool, kind: str, nullable: bool, prop: Dict):
+    def __init__(self, name: str, required: bool, kind: str, prop: Dict):
         self.name = name
         self.required = required
         self.kind = kind
-        self.nullable = nullable
         self.prop = prop
+
+    @property
+    def optional(self) -> bool:
+        """True if this field may be absent from a serialized payload.
+
+        Presence, not nullability -- see the module-level note above.
+        """
+        return not self.required
 
     @property
     def has_default(self) -> bool:
@@ -181,34 +207,25 @@ class SchemaField:
         return self.prop.get("const")
 
 
-def _field_kind(prop: Dict) -> Tuple[str, bool]:
+def _field_kind(prop: Dict) -> str:
     if "$ref" in prop:
-        return "ref", False
+        return "ref"
 
-    raw_type = prop.get("type")
-    types = raw_type if isinstance(raw_type, list) else [raw_type]
-    nullable = "null" in types
-    base_types = [t for t in types if t != "null"]
-    t = base_types[0] if base_types else None
-
+    t = prop.get("type")
     if t == "integer":
-        kind = "int64" if prop.get("maximum") == INT64_MAX else "int32"
-    elif t == "string":
-        kind = "enum" if "enum" in prop else "string"
-    elif t == "boolean":
-        kind = "bool"
-    elif t == "array":
+        return "int64" if prop.get("maximum") == INT64_MAX else "int32"
+    if t == "string":
+        return "enum" if "enum" in prop else "string"
+    if t == "boolean":
+        return "bool"
+    if t == "array":
         items = prop.get("items", {})
         if items.get("type") == "string":
-            kind = "array_string"
-        else:
-            raise ValueError(f"Unsupported array item schema for codegen: {items}")
-    elif t == "object":
-        kind = "object_inline" if "properties" in prop else "object_generic"
-    else:
-        raise ValueError(f"Unsupported schema property type for codegen: {prop}")
-
-    return kind, nullable
+            return "array_string"
+        raise ValueError(f"Unsupported array item schema for codegen: {items}")
+    if t == "object":
+        return "object_inline" if "properties" in prop else "object_generic"
+    raise ValueError(f"Unsupported schema property type for codegen: {prop}")
 
 
 def schema_fields(schema: Dict) -> List[SchemaField]:
@@ -222,8 +239,7 @@ def schema_fields(schema: Dict) -> List[SchemaField]:
     required = set(schema.get("required", []))
     fields = []
     for name, prop in schema.get("properties", {}).items():
-        kind, nullable = _field_kind(prop)
-        fields.append(SchemaField(name, name in required, kind, nullable, prop))
+        fields.append(SchemaField(name, name in required, _field_kind(prop), prop))
     return fields
 
 
@@ -231,12 +247,13 @@ def _effective_has_default(f: SchemaField) -> bool:
     """True if the generated binding gives this field a default value.
 
     Every field the schema doesn't mark required ends up with *some*
-    default (null/empty/zero) in the generated language; a required field
-    only gets one if the schema explicitly says so via `default`/`const`.
+    default (empty/zero, or Optional[...] = None) in the generated
+    language; a required field only gets one if the schema explicitly
+    says so via `default`/`const`.
     """
     if f.has_default:
         return True
-    return not f.required
+    return f.optional
 
 
 def _grouped_fields(fields: List[SchemaField]) -> List[SchemaField]:
@@ -280,13 +297,17 @@ def _cpp_base_type(f: SchemaField) -> str:
 
 def _cpp_field_type(f: SchemaField) -> str:
     base = _cpp_base_type(f)
-    if f.nullable:
+    # Repeated fields represent "absent" as empty, like Python's
+    # field(default_factory=list) and Kotlin's emptyList() below -- an
+    # optional array doesn't need a second, redundant absence signal on
+    # top of "zero elements".
+    if f.optional and f.kind != "array_string":
         return f"std::optional<{base}>"
     return base
 
 
 def _cpp_field_default(f: SchemaField) -> str:
-    if f.nullable:
+    if f.optional and f.kind != "array_string":
         return "std::nullopt"
     if f.kind in ("array_string", "ref", "object_inline", "object_generic", "string"):
         if f.kind == "string" and f.has_default:
@@ -378,7 +399,7 @@ def _py_type_annotation(f: SchemaField) -> str:
         return "Dict[str, Any]"
     else:
         raise ValueError(f"Unhandled kind for Python type: {f.kind}")
-    if f.nullable:
+    if f.optional:
         return f"Optional[{base}]"
     return base
 
@@ -388,7 +409,7 @@ def _py_default_literal(f: SchemaField) -> Optional[str]:
         return None  # rendered via field(default_factory=list)
     if not _effective_has_default(f):
         return None
-    if f.nullable and not f.has_default:
+    if f.optional and not f.has_default:
         return "None"
     if f.has_default:
         val = f.default
@@ -432,7 +453,7 @@ def _py_from_dict_expr(f: SchemaField) -> str:
         return f'dict(data["{key}"])'
     if f.kind == "array_string":
         return f'list(data.get("{key}", []))'
-    if f.nullable:
+    if f.optional:
         return f'data.get("{key}")'
     if f.kind == "enum":
         enum_type = ENUM_TYPE_BY_FIELD[f.name]
@@ -463,8 +484,8 @@ def _py_dataclass(name: str, fields: List[SchemaField]) -> str:
     lines.append("")
 
     lines.append("    def to_dict(self) -> Dict[str, Any]:")
-    base_fields = [f for f in fields if not (f.nullable and not f.has_default)]
-    optional_fields = [f for f in fields if f.nullable and not f.has_default]
+    base_fields = [f for f in fields if not (f.optional and not f.has_default)]
+    optional_fields = [f for f in fields if f.optional and not f.has_default]
     lines.append("        res: Dict[str, Any] = {")
     for f in base_fields:
         lines.append(f'            "{f.name}": {_py_to_dict_expr(f)},')
@@ -547,7 +568,7 @@ def generate_python_init() -> str:
     return out
 
 
-def generate_kotlin_enums(enums: Dict[str, Dict]) -> str:
+def generate_kotlin_enums(enums: Dict[str, Dict], schemas: Dict[str, Dict]) -> str:
     out = make_header("contracts/enums/*.json", "//")
     out += "package org.sih26168.contracts.enums\n\n"
 
@@ -561,7 +582,7 @@ def generate_kotlin_enums(enums: Dict[str, Dict]) -> str:
                 enum_list.append(("ProvenanceClassificationV1", data["provenance"]))
 
     if not any(name == "ProvenanceTypeV1" for name, _ in enum_list):
-        enum_list.append(("ProvenanceTypeV1", ["LIVE_DEVICE", "DETERMINISTIC_REPLAY", "LIVE", "REPLAY"]))
+        enum_list.append(("ProvenanceTypeV1", _provenance_type_enum_values(schemas)))
 
     for enum_name, values in sorted(enum_list, key=lambda x: x[0]):
         out += f"enum class {enum_name} {{\n"
@@ -605,7 +626,7 @@ def _kt_field_type(f: SchemaField) -> str:
     base = _kt_base_type(f)
     if f.kind == "array_string":
         return base
-    if f.nullable:
+    if f.optional:
         return f"{base}?"
     return base
 
@@ -613,7 +634,7 @@ def _kt_field_type(f: SchemaField) -> str:
 def _kt_field_default(f: SchemaField) -> Optional[str]:
     if f.kind == "array_string":
         return "emptyList()"
-    if f.nullable:
+    if f.optional:
         return "null"
     if not _effective_has_default(f):
         return None
@@ -679,22 +700,22 @@ def generate_all_bindings() -> Dict[Path, str]:
     bindings[GENERATED_DIR / "contract_version.json"] = generate_contract_version_manifest(version, inputs)
 
     # 2. C++
-    bindings[GENERATED_DIR / "cpp/enums.hpp"] = generate_cpp_enums(enums)
+    bindings[GENERATED_DIR / "cpp/enums.hpp"] = generate_cpp_enums(enums, schemas)
     bindings[GENERATED_DIR / "cpp/models.hpp"] = generate_cpp_models(schemas)
 
     # 3. Python
     bindings[GENERATED_DIR / "python/__init__.py"] = generate_python_init()
-    bindings[GENERATED_DIR / "python/enums.py"] = generate_python_enums(enums)
+    bindings[GENERATED_DIR / "python/enums.py"] = generate_python_enums(enums, schemas)
     bindings[GENERATED_DIR / "python/models.py"] = generate_python_models(schemas)
 
     # 4. Kotlin
-    bindings[GENERATED_DIR / "kotlin/Enums.kt"] = generate_kotlin_enums(enums)
+    bindings[GENERATED_DIR / "kotlin/Enums.kt"] = generate_kotlin_enums(enums, schemas)
     bindings[GENERATED_DIR / "kotlin/Models.kt"] = generate_kotlin_models(schemas)
 
     return bindings
 
 
-def generate_python_enums(enums: Dict[str, Dict]) -> str:
+def generate_python_enums(enums: Dict[str, Dict], schemas: Dict[str, Dict]) -> str:
     out = make_header("contracts/enums/*.json", "#")
     out += "from enum import Enum\n\n"
 
@@ -708,7 +729,7 @@ def generate_python_enums(enums: Dict[str, Dict]) -> str:
                 enum_list.append(("ProvenanceClassificationV1", data["provenance"]))
 
     if not any(name == "ProvenanceTypeV1" for name, _ in enum_list):
-        enum_list.append(("ProvenanceTypeV1", ["LIVE_DEVICE", "DETERMINISTIC_REPLAY", "LIVE", "REPLAY"]))
+        enum_list.append(("ProvenanceTypeV1", _provenance_type_enum_values(schemas)))
 
     for enum_name, values in sorted(enum_list, key=lambda x: x[0]):
         out += f"class {enum_name}(str, Enum):\n"

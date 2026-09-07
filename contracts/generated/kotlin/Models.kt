@@ -18,18 +18,18 @@ data class ProvenanceV1(
     val evidenceId: String,
     val sessionId: String,
     val streamId: String,
+    val provenanceType: ProvenanceTypeV1,
     val deviceId: String? = null,
     val buildId: String? = null,
-    val provenanceType: ProvenanceTypeV1 = ProvenanceTypeV1.LIVE_DEVICE,
-    val synthetic: Boolean = false,
+    val synthetic: Boolean? = null,
     val contributingEvidenceIds: List<String> = emptyList()
 )
 
 data class ValidityGateV1(
-    val isFinite: Boolean = true,
-    val isValid: Boolean = true,
+    val isFinite: Boolean,
+    val isValid: Boolean,
     val rejectionCode: String? = null,
-    val flags: Long = 0L
+    val flags: Long? = null
 )
 
 data class EvidenceEnvelopeV1<T>(

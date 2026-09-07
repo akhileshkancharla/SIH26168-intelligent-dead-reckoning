@@ -28,18 +28,12 @@
       "description": "Identifier of the sensor, provider, or processing pipeline stream."
     },
     "device_id": {
-      "type": [
-        "string",
-        "null"
-      ],
+      "type": "string",
       "minLength": 1,
       "description": "Hardware device or model identifier."
     },
     "build_id": {
-      "type": [
-        "string",
-        "null"
-      ],
+      "type": "string",
       "minLength": 1,
       "description": "Software build version, release tag, or git commit SHA."
     },
@@ -51,8 +45,7 @@
         "LIVE",
         "REPLAY"
       ],
-      "description": "Operational origin classification of the observation source.",
-      "default": "LIVE_DEVICE"
+      "description": "Operational origin classification of the observation source."
     },
     "synthetic": {
       "type": "boolean",

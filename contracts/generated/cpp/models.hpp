@@ -27,15 +27,15 @@ struct ProvenanceV1 {
     std::optional<std::string> device_id{std::nullopt};
     std::optional<std::string> build_id{std::nullopt};
     ProvenanceTypeV1 provenance_type{ProvenanceTypeV1::LIVE_DEVICE};
-    bool synthetic{false};
+    std::optional<bool> synthetic{std::nullopt};
     std::vector<std::string> contributing_evidence_ids{};
 };
 
 struct ValidityGateV1 {
-    bool is_finite{true};
-    bool is_valid{true};
+    bool is_finite{false};
+    bool is_valid{false};
     std::optional<std::string> rejection_code{std::nullopt};
-    uint32_t flags{0};
+    std::optional<uint32_t> flags{std::nullopt};
 };
 
 template <typename PayloadT>

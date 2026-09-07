@@ -43,10 +43,10 @@ class ProvenanceV1:
     evidence_id: str
     session_id: str
     stream_id: str
+    provenance_type: ProvenanceTypeV1
     device_id: Optional[str] = None
     build_id: Optional[str] = None
-    provenance_type: ProvenanceTypeV1 = ProvenanceTypeV1.LIVE_DEVICE
-    synthetic: bool = False
+    synthetic: Optional[bool] = None
     contributing_evidence_ids: List[str] = field(default_factory=list)
 
     def to_dict(self) -> Dict[str, Any]:
@@ -55,13 +55,15 @@ class ProvenanceV1:
             "session_id": self.session_id,
             "stream_id": self.stream_id,
             "provenance_type": self.provenance_type.value if hasattr(self.provenance_type, "value") else str(self.provenance_type),
-            "synthetic": self.synthetic,
-            "contributing_evidence_ids": list(self.contributing_evidence_ids),
         }
         if self.device_id is not None:
             res["device_id"] = self.device_id
         if self.build_id is not None:
             res["build_id"] = self.build_id
+        if self.synthetic is not None:
+            res["synthetic"] = self.synthetic
+        if self.contributing_evidence_ids is not None:
+            res["contributing_evidence_ids"] = list(self.contributing_evidence_ids)
         return res
 
     @classmethod
@@ -72,36 +74,37 @@ class ProvenanceV1:
             stream_id=str(data["stream_id"]),
             device_id=data.get("device_id"),
             build_id=data.get("build_id"),
-            provenance_type=ProvenanceTypeV1(data.get("provenance_type", "LIVE_DEVICE")),
-            synthetic=bool(data.get("synthetic", False)),
+            provenance_type=ProvenanceTypeV1(data["provenance_type"]),
+            synthetic=data.get("synthetic"),
             contributing_evidence_ids=list(data.get("contributing_evidence_ids", [])),
         )
 
 
 @dataclass(frozen=True)
 class ValidityGateV1:
-    is_finite: bool = True
-    is_valid: bool = True
+    is_finite: bool
+    is_valid: bool
     rejection_code: Optional[str] = None
-    flags: int = 0
+    flags: Optional[int] = None
 
     def to_dict(self) -> Dict[str, Any]:
         res: Dict[str, Any] = {
             "is_finite": self.is_finite,
             "is_valid": self.is_valid,
-            "flags": self.flags,
         }
         if self.rejection_code is not None:
             res["rejection_code"] = self.rejection_code
+        if self.flags is not None:
+            res["flags"] = self.flags
         return res
 
     @classmethod
     def from_dict(cls, data: Dict[str, Any]) -> ValidityGateV1:
         return cls(
-            is_finite=bool(data.get("is_finite", True)),
-            is_valid=bool(data.get("is_valid", True)),
+            is_finite=bool(data["is_finite"]),
+            is_valid=bool(data["is_valid"]),
             rejection_code=data.get("rejection_code"),
-            flags=int(data.get("flags", 0)),
+            flags=data.get("flags"),
         )
 
 
