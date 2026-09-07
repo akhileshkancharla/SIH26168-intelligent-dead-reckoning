@@ -50,12 +50,19 @@ path under the repo root regardless of Git tracking status.
   manifest revision; never combine old and regenerated IDs or overwrite an
   immutable manifest. Downstream training runs must reference that new
   manifest and its regenerated splits.
+- `splits.py` — WP-10.4 (Issue #82). Leakage-safe grouped dataset
+  splits: `assign_splits` deterministically buckets each `group_id`
+  (from `grouping.py`) into train/validation/test by a stable hash of
+  the group_id itself -- so a group's split assignment never depends on
+  which other groups are present, and adding new groups later never
+  reshuffles existing ones. `validate_splits_are_disjoint` and
+  `validate_splits_cover_groups` are defense-in-depth checks for
+  externally-constructed splits dictionaries.
 
 ## Scope boundaries
 
 This directory intentionally does **not** yet implement:
 
-- leakage-safe split construction (WP-10.4 / Issue #82)
 - the runtime-feature/forbidden-label firewall (WP-10.5 / Issue #83)
 - leakage canary and private-data exclusion tests (WP-10.6 / Issue #84)
 
