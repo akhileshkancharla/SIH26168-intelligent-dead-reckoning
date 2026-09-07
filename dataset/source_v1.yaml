@@ -1,7 +1,12 @@
 uip: 10.1
 name: private_dataset_workspace
+description: "Short description of the dataset workspace and what it contains."
+author: "mjunaidqureshimct255a1405-art"
+contact: "mjunaidqureshimct255a1405-art@example.com"
+license: "CC-BY-4.0"
 immutable: true
 created: 2026-09-07
+schema_version: 1
 source_manifest:
   version: 1.0.0
   parent: "11"
