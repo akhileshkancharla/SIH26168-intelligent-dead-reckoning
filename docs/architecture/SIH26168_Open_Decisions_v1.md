@@ -19,5 +19,6 @@
 | OD-15 | Recording retention/access/deletion | App-private + explicit export | Team privacy policy/consent | Field collection |
 | OD-16 | Two-wheeler scope | No transfer from car evidence | Separate data/protocol and official need | Two-wheeler claim |
 | OD-17 | Exact dependency/tool patch pins | Families selected | Bootstrap lock update with compatibility CI | First build, not architecture |
+| OD-18 | I-20 `file_group_ids` contract amendment | WP-10.3's grouping tooling implements a `file_group_ids` field (full identifier -> group_id membership) that WP-10.1's schema currently declares required; `INTERFACE_SCHEMA_PLAN.md#I-20`'s Required Fields list and explicit "Optional Fields: None" have not been updated to include it, so this is not yet an owner-ratified contract amendment | Owner decision: either ratify by updating I-20's Required Fields list in `INTERFACE_SCHEMA_PLAN.md` (an ADR is not required for an additive field to an already-Tier-A schema, but the interface plan itself is authoritative and must list it), or direct its removal from `dataset_manifest_v1.schema.json` | PR #142 (WP-10.1) and #144 (WP-10.3) final approval |
 
-No open item above blocks WP-00 repository bootstrap. OD-04, OD-09, OD-10/11 and OD-12 are the most immediate demo-path gates; OD-06/07 do not block the model-disabled demonstration.
+No open item above blocks WP-00 repository bootstrap. OD-04, OD-09, OD-10/11 and OD-12 are the most immediate demo-path gates; OD-06/07 do not block the model-disabled demonstration. OD-18 blocks WP-10.1/10.3 final approval only.
