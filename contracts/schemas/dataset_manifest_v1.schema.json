@@ -1,0 +1,195 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://sih26168.invalid/contracts/schemas/dataset_manifest_v1.schema.json",
+  "title": "DatasetManifestV1",
+  "description": "Normative I-20 contract (WP-10 / C-15): private dataset/subset/split/leakage and rights lineage manifest for IO-VNBD-class ingestion. Records only hashes and structural metadata -- never raw private bytes. See docs/architecture/SIH26168_High_Level_Architecture_Revision3.md, contracts/INTERFACE_SCHEMA_PLAN.md#I-20 and docs/PRIVATE_ARTIFACT_POLICY.md.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "dataset_id",
+    "source_revision",
+    "archive_hashes",
+    "file_hashes",
+    "schemas",
+    "units_status",
+    "group_ids",
+    "splits",
+    "exclusions",
+    "rights_status",
+    "privacy",
+    "redistribution"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "integer",
+      "const": 1,
+      "description": "Major schema version of the dataset manifest contract."
+    },
+    "dataset_id": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Immutable identifier for this private dataset revision. Never a filesystem path."
+    },
+    "source_revision": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Organizer-supplied label identifying the upstream source archive/revision this manifest was built from. Never a raw local or absolute path."
+    },
+    "archive_hashes": {
+      "type": "object",
+      "description": "SHA-256 digest of each immutable source archive, keyed by archive identifier (not a path). Hash-only reference per docs/PRIVATE_ARTIFACT_POLICY.md -- no raw bytes ever enter this manifest or Git.",
+      "additionalProperties": {
+        "type": "string",
+        "pattern": "^[0-9a-f]{64}$"
+      },
+      "minProperties": 1
+    },
+    "file_hashes": {
+      "type": "object",
+      "description": "SHA-256 digest of each individual extracted file, keyed by a relative-within-archive file identifier (never an absolute or local filesystem path).",
+      "additionalProperties": {
+        "type": "string",
+        "pattern": "^[0-9a-f]{64}$"
+      },
+      "minProperties": 1
+    },
+    "schemas": {
+      "type": "array",
+      "description": "Six-schema IO-VNBD validation allowlist entries actually present in this dataset revision. WP-10.2 owns allowlist enforcement; this field only records which allowlisted schemas this manifest covers.",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "uniqueItems": true,
+      "minItems": 1
+    },
+    "units_status": {
+      "type": "object",
+      "description": "Per-schema unit/conversion declaration. Unresolved units must be explicit and never guessed.",
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "status"
+        ],
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "DECLARED",
+              "CONVERTED",
+              "UNRESOLVED"
+            ]
+          },
+          "notes": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "group_ids": {
+      "type": "array",
+      "description": "Immutable duplicate/parent-session group identifiers. WP-10.3 owns the grouping algorithm; every included file must resolve to exactly one group_id.",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "uniqueItems": true
+    },
+    "splits": {
+      "type": "object",
+      "description": "Group-to-split assignment. WP-10.4 owns leakage-safe split construction; a given group_id may appear in at most one split.",
+      "additionalProperties": false,
+      "required": [
+        "train",
+        "validation",
+        "test"
+      ],
+      "properties": {
+        "train": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "uniqueItems": true
+        },
+        "validation": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "uniqueItems": true
+        },
+        "test": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "uniqueItems": true
+        }
+      }
+    },
+    "exclusions": {
+      "type": "array",
+      "description": "Quarantined files/groups and the reason. Files failing schema, hash, unit or leakage checks are recorded here -- never silently dropped.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "identifier",
+          "reason"
+        ],
+        "properties": {
+          "identifier": {
+            "type": "string",
+            "minLength": 1
+          },
+          "reason": {
+            "type": "string",
+            "enum": [
+              "UNKNOWN_SCHEMA",
+              "HASH_MISMATCH",
+              "UNRESOLVED_UNIT",
+              "DUPLICATE",
+              "LEAKAGE_RISK",
+              "RIGHTS_UNCLEAR",
+              "OTHER"
+            ]
+          },
+          "notes": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "rights_status": {
+      "type": "string",
+      "enum": [
+        "ORGANIZER_DIRECTED_CONDITIONAL",
+        "SYNTHETIC_TEST_FIXTURE_NO_REAL_DATA",
+        "RIGHTS_UNCLEAR_QUARANTINED"
+      ],
+      "description": "Rights lineage classification per the S0 audit. Real IO-VNBD data may only ever be ORGANIZER_DIRECTED_CONDITIONAL; there is no bare 'approved' value."
+    },
+    "privacy": {
+      "type": "string",
+      "enum": [
+        "PRIVATE_OFFLINE_ONLY",
+        "SYNTHETIC_NON_PRIVATE"
+      ],
+      "description": "Privacy handling class. A PRIVATE_OFFLINE_ONLY manifest's referenced archives/files must never leave the private offline workspace or enter Git/CI."
+    },
+    "redistribution": {
+      "type": "string",
+      "enum": [
+        "PROHIBITED",
+        "NOT_APPLICABLE_SYNTHETIC"
+      ],
+      "description": "Redistribution rights. Real IO-VNBD-derived datasets are always PROHIBITED absent an explicit organizer amendment."
+    }
+  }
+}

@@ -1,0 +1,48 @@
+{
+  "schema_version": 1,
+  "dataset_id": "SYNTHETIC-TEST-FIXTURE-0001",
+  "source_revision": "synthetic-fixture-revision-01",
+  "archive_hashes": {
+    "synthetic-archive-01": "25e8344f5889a610c5b2d610404042771c60fc2797889b776a0d2cbdffaac9a6"
+  },
+  "file_hashes": {
+    "synthetic-file-01": "f865c806b5a9413470e129ae9ca2344250bfba5bab3f42ff92e6a60ebb9807f4",
+    "synthetic-file-02": "a9a8cd3ce825983ecbfbfdb7521bbf334b1d7cea517fc6b4512217f052cfd68a"
+  },
+  "schemas": [
+    "synthetic_schema_a",
+    "synthetic_schema_b"
+  ],
+  "units_status": {
+    "synthetic_schema_a": {
+      "status": "DECLARED",
+      "notes": "Fixture-only; not a real IO-VNBD schema."
+    },
+    "synthetic_schema_b": {
+      "status": "UNRESOLVED"
+    }
+  },
+  "group_ids": [
+    "synthetic-group-01",
+    "synthetic-group-02"
+  ],
+  "splits": {
+    "train": [
+      "synthetic-group-01"
+    ],
+    "validation": [
+      "synthetic-group-02"
+    ],
+    "test": []
+  },
+  "exclusions": [
+    {
+      "identifier": "synthetic-file-03",
+      "reason": "UNKNOWN_SCHEMA",
+      "notes": "Fixture example of a quarantined file."
+    }
+  ],
+  "rights_status": "SYNTHETIC_TEST_FIXTURE_NO_REAL_DATA",
+  "privacy": "SYNTHETIC_NON_PRIVATE",
+  "redistribution": "NOT_APPLICABLE_SYNTHETIC"
+}
