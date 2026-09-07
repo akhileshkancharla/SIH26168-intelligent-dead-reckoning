@@ -81,6 +81,27 @@ def assert_outside_repository(root: Path) -> None:
         )
 
 
+def _reject_if_symlink(path: Path) -> None:
+    """Raise WorkspaceLocationError if `path` already exists and is a symlink.
+
+    A symlink is never followed here: it could silently redirect
+    workspace content -- including README.txt writes, or later private
+    outputs -- into this repository's own working tree (or anywhere else
+    outside operator control), defeating the root-level
+    assert_outside_repository guard even though that guard's own
+    resolve() correctly rejects the symlink's *target* when checked. This
+    must be called on every workspace path (the root and each subdir)
+    before that path is created or written to.
+    """
+    if path.is_symlink():
+        raise WorkspaceLocationError(
+            f"private workspace path {path} is a symlink and is refused rather than "
+            "followed: it could redirect workspace content to an unintended "
+            "destination, including back into this repository's working tree. "
+            "Remove it and use a real directory instead."
+        )
+
+
 def ensure_workspace(root: Path | None = None) -> Path:
     """Create (if needed) and return the private workspace root.
 
@@ -89,12 +110,24 @@ def ensure_workspace(root: Path | None = None) -> Path:
     into each explaining its purpose. Never writes dataset content -- that
     is WP-10.2's ingestion tooling's job, operating against the root this
     function returns.
+
+    Refuses (WorkspaceLocationError) if the root or any subdirectory is
+    an existing symlink (see _reject_if_symlink), and independently
+    re-verifies -- after resolving each subdirectory's own path, not just
+    the root's -- that it still resolves outside REPO_ROOT before
+    creating it or writing into it.
     """
-    workspace_root = (root or default_workspace_root()).expanduser().resolve()
+    raw_root = (root or default_workspace_root()).expanduser()
+    _reject_if_symlink(raw_root)
+    workspace_root = raw_root.resolve()
     assert_outside_repository(workspace_root)
     workspace_root.mkdir(parents=True, exist_ok=True, mode=0o700)
+
     for name in WORKSPACE_SUBDIRS:
         subdir = workspace_root / name
+        _reject_if_symlink(subdir)
+        resolved_subdir = subdir.resolve()
+        assert_outside_repository(resolved_subdir)
         subdir.mkdir(parents=True, exist_ok=True, mode=0o700)
         readme = subdir / "README.txt"
         if not readme.exists():

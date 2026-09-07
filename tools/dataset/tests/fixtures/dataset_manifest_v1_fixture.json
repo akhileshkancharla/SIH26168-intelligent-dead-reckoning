@@ -26,6 +26,10 @@
     "synthetic-group-01",
     "synthetic-group-02"
   ],
+  "file_group_ids": {
+    "synthetic-file-01": "synthetic-group-01",
+    "synthetic-file-02": "synthetic-group-02"
+  },
   "splits": {
     "train": [
       "synthetic-group-01"

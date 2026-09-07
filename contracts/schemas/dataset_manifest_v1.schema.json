@@ -14,6 +14,7 @@
     "schemas",
     "units_status",
     "group_ids",
+    "file_group_ids",
     "splits",
     "exclusions",
     "rights_status",
@@ -48,6 +49,10 @@
     "file_hashes": {
       "type": "object",
       "description": "SHA-256 digest of each individual extracted file, keyed by a relative-within-archive file identifier (never an absolute or local filesystem path).",
+      "propertyNames": {
+        "pattern": "^(?!\\.\\.?(?:/|$))[^/\\\\:]+(?:/(?!\\.\\.?(?:/|$))[^/\\\\:]+)*$",
+        "description": "Canonical, forward-slash-separated, archive-relative identifier: no leading '/' (absolute path), no ':' character (blocks Windows drive-letter prefixes), no '\\' (blocks Windows-style separators), and no '.' or '..' path segment (blocks directory-traversal escapes). A local/private machine path must never be able to enter a manifest that is safe to commit to Git."
+      },
       "additionalProperties": {
         "type": "string",
         "pattern": "^[0-9a-f]{64}$"
@@ -96,6 +101,17 @@
         "minLength": 1
       },
       "uniqueItems": true
+    },
+    "file_group_ids": {
+      "type": "object",
+      "description": "Deterministic file-to-group membership: maps every file_hashes identifier to exactly one group_id from group_ids. A JSON object key can only hold one value, so this shape itself proves each file resolves to exactly one group; downstream tooling (WP-10.4's split construction) can verify group-safe splits directly from this field instead of recomputing membership from private, non-committed metadata. WP-10.3 owns the grouping algorithm that produces this mapping -- see tools/dataset/grouping.py's verify_group_membership for the completeness/no-extra cross-check against file_hashes and group_ids that this schema alone cannot express.",
+      "propertyNames": {
+        "pattern": "^(?!\\.\\.?(?:/|$))[^/\\\\:]+(?:/(?!\\.\\.?(?:/|$))[^/\\\\:]+)*$"
+      },
+      "additionalProperties": {
+        "type": "string",
+        "minLength": 1
+      }
     },
     "splits": {
       "type": "object",

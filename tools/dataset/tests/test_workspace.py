@@ -87,6 +87,56 @@ class EnsureWorkspaceTest(unittest.TestCase):
         # And critically: it must not have created anything.
         self.assertFalse((REPO_ROOT / "private" / "io_vnbd").exists())
 
+    def test_ensure_workspace_rejects_a_symlinked_workspace_root(self):
+        # A symlinked root must be refused outright, never followed --
+        # even though its resolved target is itself perfectly safe.
+        with tempfile.TemporaryDirectory() as tmp:
+            real_target = Path(tmp) / "real-target"
+            real_target.mkdir()
+            symlinked_root = Path(tmp) / "symlinked-root"
+            symlinked_root.symlink_to(real_target, target_is_directory=True)
+            with self.assertRaises(workspace.WorkspaceLocationError):
+                workspace.ensure_workspace(symlinked_root)
+            # Nothing must have been created through the symlink.
+            for name in workspace.WORKSPACE_SUBDIRS:
+                self.assertFalse((real_target / name).exists())
+
+    def test_ensure_workspace_rejects_a_symlinked_subdirectory_pointing_into_the_repo(self):
+        # This is exactly the attack the review flagged: a real, safe
+        # workspace root passes the root-level assert_outside_repository
+        # guard, but one of its subdirectory names (archives/extracted/
+        # manifests) already exists as a symlink that would redirect
+        # README.txt -- or later private outputs -- into this
+        # repository's own working tree.
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp) / "sih26168-private-data"
+            root.mkdir()
+            # A dangling symlink is enough to prove rejection -- the
+            # target must never actually be created inside the real repo
+            # checkout, even by this test.
+            inside_repo_target = REPO_ROOT / "private" / "io_vnbd_symlink_target"
+            subdir_name = workspace.WORKSPACE_SUBDIRS[0]
+            symlinked_subdir = root / subdir_name
+            symlinked_subdir.symlink_to(inside_repo_target, target_is_directory=True)
+            with self.assertRaises(workspace.WorkspaceLocationError):
+                workspace.ensure_workspace(root)
+            self.assertFalse(inside_repo_target.exists())
+
+    def test_ensure_workspace_rejects_a_symlinked_subdirectory_even_pointing_outside_the_repo(self):
+        # Symlinked subdirectories are refused outright (never followed),
+        # regardless of where they point -- not only when the target
+        # happens to be unsafe.
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp) / "sih26168-private-data"
+            root.mkdir()
+            real_target = Path(tmp) / "real-subdir-target"
+            real_target.mkdir()
+            subdir_name = workspace.WORKSPACE_SUBDIRS[0]
+            symlinked_subdir = root / subdir_name
+            symlinked_subdir.symlink_to(real_target, target_is_directory=True)
+            with self.assertRaises(workspace.WorkspaceLocationError):
+                workspace.ensure_workspace(root)
+
     def test_ensure_workspace_never_writes_inside_the_repo_even_by_default(self):
         # Guards against a future regression where default_workspace_root()
         # is changed to something repo-relative without updating the guard,

@@ -105,11 +105,11 @@ def new_manifest(
     """Build an empty-but-valid-shaped DatasetManifest skeleton.
 
     Callers (or later WP-10.2/10.3/10.4 tooling) populate archive_hashes,
-    file_hashes, schemas, units_status, group_ids, splits and exclusions
-    before this document can pass validate_manifest -- an empty skeleton
-    is intentionally not itself schema-valid (archive_hashes/file_hashes/
-    schemas all require at least one entry), so a caller cannot mistake
-    scaffolding for a real manifest.
+    file_hashes, schemas, units_status, group_ids, file_group_ids, splits
+    and exclusions before this document can pass validate_manifest -- an
+    empty skeleton is intentionally not itself schema-valid
+    (archive_hashes/file_hashes/schemas all require at least one entry),
+    so a caller cannot mistake scaffolding for a real manifest.
     """
     return {
         "schema_version": 1,
@@ -120,6 +120,7 @@ def new_manifest(
         "schemas": [],
         "units_status": {},
         "group_ids": [],
+        "file_group_ids": {},
         "splits": {"train": [], "validation": [], "test": []},
         "exclusions": [],
         "rights_status": rights_status,
@@ -135,13 +136,29 @@ def verify_file_hashes(document: Dict[str, Any], files_by_identifier: Dict[str, 
     manifest to its actual on-disk Path (inside the private workspace --
     see workspace.py). Raises DatasetManifestError naming every
     identifier whose recomputed digest does not match the manifest's
-    recorded digest, or that the manifest references but no path was
-    supplied for. This is the "immutable source manifest" guarantee:
-    once recorded, a file's hash must never silently change underneath
-    the manifest.
+    recorded digest, that the manifest references but no path was
+    supplied for, or that was supplied but is not present in the
+    manifest's own file_hashes at all -- the supplied identifier set must
+    match the recorded set exactly, in both directions, or verification
+    itself cannot be trusted to have covered the right files. `document`
+    is validated against the I-20 schema first (see validate_manifest):
+    an invalid document -- including one with an empty or missing
+    file_hashes -- must never be able to "pass" verification by having
+    nothing left to check. This is the "immutable source manifest"
+    guarantee: once recorded, a file's hash must never silently change
+    underneath the manifest.
     """
+    validate_manifest(document)
+
     mismatches = []
     recorded = document.get("file_hashes", {})
+    recorded_identifiers = set(recorded)
+    supplied_identifiers = set(files_by_identifier)
+
+    unexpected = sorted(supplied_identifiers - recorded_identifiers)
+    for identifier in unexpected:
+        mismatches.append(f"{identifier}: supplied for verification but not present in the manifest's file_hashes")
+
     for identifier, expected_digest in recorded.items():
         path = files_by_identifier.get(identifier)
         if path is None:
