@@ -1,0 +1,10 @@
+{
+  "evidence_id": "ev-syn-0002",
+  "session_id": "sess-synthetic-fixture-02",
+  "stream_id": "sensor_gyro",
+  "device_id": "fixture-device-virtual",
+  "build_id": "ci-test-fixture",
+  "provenance_type": "DETERMINISTIC_REPLAY",
+  "synthetic": true,
+  "contributing_evidence_ids": ["ev-syn-0001"]
+}

@@ -1,0 +1,6 @@
+{
+  "epoch_ns": 3456789000000,
+  "arrival_elapsed_realtime_ns": 3456789000000,
+  "source_timestamp_ns": 3456788950000,
+  "clock_id": "CLOCK_BOOTTIME"
+}
