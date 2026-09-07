@@ -111,6 +111,7 @@ def _build_end_to_end_manifest(records: list) -> tuple:
     document["units_status"] = {"synthetic_canary_schema_1": {"status": "DECLARED"}}
     document["exclusions"] = []
     grouping_mod.apply_groups_to_manifest(document, groups)
+    grouping_mod.verify_group_membership(document)
     splits_mod.apply_splits_to_manifest(document, splits)
     manifest_mod.validate_manifest(document)
     return document, groups, splits
@@ -263,6 +264,39 @@ class CanaryOrphanedGroupIdInSplitsTest(unittest.TestCase):
 
         with self.assertRaises(splits_mod.SplitError):
             splits_mod.validate_splits_cover_groups(real_group_ids, corrupted)
+
+
+class CanaryCorruptedFileGroupMembershipTest(unittest.TestCase):
+    """WP-10.3's file_group_ids is the manifest's own committed proof that
+    every file_hashes identifier resolves to exactly one group -- exercised
+    here end-to-end against a manifest that actually came out of
+    _build_end_to_end_manifest, not a hand-invented document, so this
+    proves the composed pipeline calls verify_group_membership() (added
+    to _build_end_to_end_manifest per this file's own review), not just
+    that grouping.py's own unit tests do.
+    """
+
+    def test_removed_file_group_id_entry_is_rejected_end_to_end(self):
+        # Simulate a tool that updates file_hashes with a new file but
+        # forgets to also extend file_group_ids -- exactly the
+        # "membership silently goes stale" failure verify_group_membership
+        # exists to catch.
+        document, _, _ = _build_end_to_end_manifest(_base_records())
+        del document["file_group_ids"]["canary-file-1"]
+
+        with self.assertRaises(ValueError):
+            grouping_mod.verify_group_membership(document)
+
+    def test_corrupted_file_group_id_reference_is_rejected_end_to_end(self):
+        # Simulate a hand-edit that repoints one file at a group_id that
+        # was never actually produced by compute_groups for this
+        # dataset revision -- an undeclared-group-reference attack, not
+        # just a missing/extra key.
+        document, _, _ = _build_end_to_end_manifest(_base_records())
+        document["file_group_ids"]["canary-file-1"] = "grp-never-computed-for-this-revision"
+
+        with self.assertRaises(ValueError):
+            grouping_mod.verify_group_membership(document)
 
 
 if __name__ == "__main__":

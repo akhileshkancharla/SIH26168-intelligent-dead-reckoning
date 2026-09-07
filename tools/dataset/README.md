@@ -103,8 +103,30 @@ path under the repo root regardless of Git tracking status.
 
 ## Scope boundaries
 
-This directory now implements every WP-10.1 through WP-10.6 sub-issue
-listed in Issue #11. See `docs/architecture/SIH26168_High_Level_Architecture_Revision3.md`
+This directory now has code addressing every WP-10.1 through WP-10.6
+sub-issue listed in Issue #11 -- but that is a statement about code
+coverage, not about this being a closed, active, or fully-approved
+pipeline. As of this revision:
+
+- Issues #79 through #84 (WP-10.1 through WP-10.6) remain open in the
+  tracker; none has been reconciled to in-progress/closed status.
+- `schema_allowlist.py`'s shipped `config/io_vnbd_schema_allowlist.json`
+  (WP-10.2) and `feature_firewall.py`'s shipped
+  `config/feature_firewall.json` (WP-10.5) are both still
+  `TEMPLATE_PENDING_*` placeholder configuration -- see below. Neither
+  can enforce anything against a real feature set or manifest until a
+  human replaces the placeholders with real IO-VNBD-derived values and
+  sets `status: ACTIVE`.
+- `dataset_manifest_v1.schema.json`'s `file_group_ids` field (WP-10.1,
+  coordinated from WP-10.3) is not yet listed in the authoritative
+  `INTERFACE_SCHEMA_PLAN.md#I-20` Required Fields -- see OD-18 in
+  `docs/architecture/SIH26168_Open_Decisions_v1.md` for the pending
+  contract-ratification decision this blocks on.
+- The verification evidence in each PR description is a local
+  `python -m unittest` / `ci/verify_repository.py` run, not a green CI
+  run on GitHub -- rerun and attach real CI output once available.
+
+See `docs/architecture/SIH26168_High_Level_Architecture_Revision3.md`
 (component C-15) and `contracts/INTERFACE_SCHEMA_PLAN.md#I-20` for the
 architecture this tooling implements, and each module's own docstring
 for what it still does not (and, per `docs/PRIVATE_ARTIFACT_POLICY.md`,
