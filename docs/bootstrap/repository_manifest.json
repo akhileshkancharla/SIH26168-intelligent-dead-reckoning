@@ -79,18 +79,18 @@
     },
     {
       "path": "docs/architecture/dependency-graph/graph.json",
-      "size_bytes": 242593,
-      "sha256": "a2848f634a3e606c2623e9f3494df5e91990d3b054f21c485dec7e977254bc95"
+      "size_bytes": 1530209,
+      "sha256": "bb299f5c93cf0194fc4c9257d9f6ac3cf61fe84975c8ea50dcee6c689566d096"
     },
     {
       "path": "docs/architecture/dependency-graph/GRAPH_REPORT.md",
-      "size_bytes": 7519,
-      "sha256": "2eb0ca8dc05077407039c5c77de27a41ee701f6413ddddaa1125aa6e1d285482"
+      "size_bytes": 7686,
+      "sha256": "10a6dbe7d2004a3ff1261708e9496e276ee0df8dc4c2751a21b63c38f14751a6"
     },
     {
       "path": "docs/architecture/dependency-graph/metadata.json",
-      "size_bytes": 2205,
-      "sha256": "8c52efd608f844e7e1b60ba9f72a814a652c7f1d0f0ce676a706d3f084e6e3dd"
+      "size_bytes": 2214,
+      "sha256": "716477f390be0d43dbac00aa47034b8f68fc387cd216ca31d7e378172c69f445"
     },
     {
       "path": "docs/architecture/dependency-graph/README.md",
@@ -100,7 +100,12 @@
     {
       "path": "docs/architecture/dependency-graph/SHA256SUMS.txt",
       "size_bytes": 315,
-      "sha256": "16b57581e7f87b445c758dfab7a7090da23e00fc715b428070ea76e131c13ebd"
+      "sha256": "eb2bb1958df277d1fd3f156762935e1d0ec5baee741c7cffd06358a04d11a755"
+    },
+    {
+      "path": "docs/architecture/imports/WP-03.1_S2_NAVIGATION_CORE_IMPORT.md",
+      "size_bytes": 10010,
+      "sha256": "5c52fe8cf460613e5fb55813f10df1bf116375bdf8ad7d455048df8d82c6fa84"
     },
     {
       "path": "docs/architecture/machine_readable/architecture_status.json",
@@ -191,6 +196,16 @@
       "path": "docs/architecture/SIH26168_Verification_Strategy_v1.md",
       "size_bytes": 4503,
       "sha256": "eb29326040fccf634df8fde82bb1115427d86599a34a687dd01c259a62072f7f"
+    },
+    {
+      "path": "docs/architecture/SIH26168_WP09_7_Submission_UI_Wireframes_v1.md",
+      "size_bytes": 43828,
+      "sha256": "1a6334dde254e6d2b24153289e0b050f19e75afddd8fe13624c75546bec5e0be"
+    },
+    {
+      "path": "docs/architecture/SIH26168_WP15_7_Demo_Narrative_Storyboard_v1.md",
+      "size_bytes": 43722,
+      "sha256": "fe5042fece38d3197b3927042f91aae24f5aaeac7e6b7584edca256f80137a49"
     },
     {
       "path": "docs/architecture/START_HERE.md",

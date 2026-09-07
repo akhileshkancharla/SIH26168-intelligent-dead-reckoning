@@ -4,12 +4,12 @@
 
 - Snapshot classification: `generated-and-sanitized`
 - Source repository: `akhileshkancharla/SIH26168-intelligent-dead-reckoning`
-- Source branch: `chore/author-aware-review-policy`
-- Source parent commit: `6af81b4f16486bf79a4239e71697032db24e8ec3`
+- Source branch: `issue/WP-03.1-wp-03-1-import-accepted`
+- Source parent commit: `bbe87c3be85df89e8fb98773aa2ed7d9eccfb012`
 - Graphify version: `0.9.53`
 - Graphify mode: code-only static extraction; semantic document extraction disabled
-- Counts: 238 nodes, 394 edges, 28 communities
-- Edge evidence: 383 extracted, 11 inferred
+- Counts: 1513 nodes, 2223 edges, 149 communities
+- Edge evidence: 2180 extracted, 43 inferred
 - CI mode: `snapshot-validation-only`
 
 ## VERIFIED FROM CODE
@@ -22,10 +22,10 @@ Android, core, acquisition, JNI, training, map, and analyzer areas remain discon
 
 | Module | Extracted source files | Current interpretation |
 | --- | ---: | --- |
-| Android app | 5 | Launcher/UI scaffold; no sensor-to-position path |
-| Portable core | 3 | C++ contract-version smoke scaffold |
-| Contracts | 1 | Bootstrap replay schema and enum artifacts |
-| Repository automation | 6 | Repository and GitHub governance tooling |
+| Android app | 10 | Launcher/UI scaffold; no sensor-to-position path |
+| Portable core | 20 | C++ contract-version smoke scaffold |
+| Contracts | 22 | Bootstrap replay schema and enum artifacts |
+| Repository automation | 11 | Repository and GitHub governance tooling |
 | Policy CI | 6 | Repository validation and generated-file checks |
 | Acquisition/JNI/ML/maps/analyzer | 0 | README-only or disconnected placeholders |
 
@@ -52,37 +52,37 @@ Current high-degree nodes are primarily repository administration tooling, not n
 | Node | Degree | Source |
 | --- | ---: | --- |
 | `configure_project.mjs` | 37 | [tools/bootstrap/configure_project.mjs:L1](../../../tools/bootstrap/configure_project.mjs) |
+| `generate_contract_bindings.py` | 35 | [ci/generate_contract_bindings.py:L1](../../../ci/generate_contract_bindings.py) |
+| `reference_oracle.py` | 31 | [core/navigation/verification/python/reference_oracle.py:L1](../../../core/navigation/verification/python/reference_oracle.py) |
 | `sanitize_graph.py` | 27 | [tools/graphify/sanitize_graph.py:L1](../../../tools/graphify/sanitize_graph.py) |
-| `configure_github.py` | 19 | [tools/bootstrap/configure_github.py:L1](../../../tools/bootstrap/configure_github.py) |
-| `generate_repository.py` | 15 | [tools/bootstrap/generate_repository.py:L1](../../../tools/bootstrap/generate_repository.py) |
-| `Any` | 14 | external/unlocated symbol |
-| `verify_repository.py` | 13 | [ci/verify_repository.py:L1](../../../ci/verify_repository.py) |
-| `generate_snapshot()` | 13 | [tools/graphify/sanitize_graph.py:L564](../../../tools/graphify/sanitize_graph.py) |
-| `Path` | 13 | external/unlocated symbol |
-| `verify_graph.py` | 13 | [tools/graphify/verify_graph.py:L1](../../../tools/graphify/verify_graph.py) |
-| `configure_issues()` | 10 | [tools/bootstrap/configure_github.py:L332](../../../tools/bootstrap/configure_github.py) |
+| `run_python_tests.py` | 24 | [core/navigation/verification/python/run_python_tests.py:L1](../../../core/navigation/verification/python/run_python_tests.py) |
+| `5. Normative Interface Specifications (I-01 through I-22)` | 23 | [contracts/INTERFACE_SCHEMA_PLAN.md:L120](../../../contracts/INTERFACE_SCHEMA_PLAN.md) |
+| `SchemaField` | 21 | [ci/generate_contract_bindings.py:L193](../../../ci/generate_contract_bindings.py) |
+| `NominalState` | 21 | [core/navigation/verification/python/reference_oracle.py:L152](../../../core/navigation/verification/python/reference_oracle.py) |
+| `JacobianReport` | 20 | [core/navigation/tests/test_navigation_core.cpp:L29](../../../core/navigation/tests/test_navigation_core.cpp) |
+| `test_navigation_core.cpp` | 19 | [core/navigation/tests/test_navigation_core.cpp:L1](../../../core/navigation/tests/test_navigation_core.cpp) |
 
 ### Weakly connected or orphan candidates
 
-The raw Graphify report identified 52 isolated symbol nodes. This sanitizer independently found 85 repository-backed nodes with degree at most one; the bounded sample below is diagnostic, not deletion evidence.
+The raw Graphify report identified 685 isolated symbol nodes. This sanitizer independently found 810 repository-backed nodes with degree at most one; the bounded sample below is diagnostic, not deletion evidence.
 
 | Node | Degree | Source |
 | --- | ---: | --- |
+| `acquisition/README.md` | 0 | [android/acquisition/README.md](../../../android/acquisition/README.md) |
 | `app/build.gradle.kts` | 0 | [android/app/build.gradle.kts](../../../android/app/build.gradle.kts) |
 | `android/build.gradle.kts` | 0 | [android/build.gradle.kts](../../../android/build.gradle.kts) |
+| `navigation-jni/README.md` | 0 | [android/navigation-jni/README.md](../../../android/navigation-jni/README.md) |
 | `settings.gradle.kts` | 0 | [android/settings.gradle.kts](../../../android/settings.gradle.kts) |
-| `generate_contract_bindings.py` | 0 | [ci/generate_contract_bindings.py](../../../ci/generate_contract_bindings.py) |
 | `update_manifest.py` | 0 | [ci/update_manifest.py](../../../ci/update_manifest.py) |
 | `verify_repository.ps1` | 0 | [ci/verify_repository.ps1](../../../ci/verify_repository.ps1) |
 | `smoke.cpp` | 0 | [core/navigation/src/smoke.cpp](../../../core/navigation/src/smoke.cpp) |
+| `scenarios/README.md` | 0 | [demo/scenarios/README.md](../../../demo/scenarios/README.md) |
+| `protocols/README.md` | 0 | [docs/protocols/README.md](../../../docs/protocols/README.md) |
+| `experiments/manifests/README.md` | 0 | [experiments/manifests/README.md](../../../experiments/manifests/README.md) |
+| `public/README.md` | 0 | [fixtures/public/README.md](../../../fixtures/public/README.md) |
 | `sih26168-bootstrap` | 0 | [pyproject.toml](../../../pyproject.toml) |
-| `__init__.py` | 0 | [tools/bootstrap/src/sih26168_bootstrap/__init__.py](../../../tools/bootstrap/src/sih26168_bootstrap/__init__.py) |
-| `ReplayDisclosure` | 1 | [android/app/src/main/java/org/sih26168/app/MainActivity.kt](../../../android/app/src/main/java/org/sih26168/app/MainActivity.kt) |
-| `ReplayDisclosureTest.kt` | 1 | [android/app/src/test/java/org/sih26168/app/ReplayDisclosureTest.kt](../../../android/app/src/test/java/org/sih26168/app/ReplayDisclosureTest.kt) |
-| `.replayLabelIsUnmistakable()` | 1 | [android/app/src/test/java/org/sih26168/app/ReplayDisclosureTest.kt](../../../android/app/src/test/java/org/sih26168/app/ReplayDisclosureTest.kt) |
-| `governance_selftest.py` | 1 | [ci/governance_selftest.py](../../../ci/governance_selftest.py) |
-| `inactivity()` | 1 | [ci/governance_selftest.py](../../../ci/governance_selftest.py) |
-| `contracts()` | 1 | [ci/verify_repository.py](../../../ci/verify_repository.py) |
+| `claims/README.md` | 0 | [submission/claims/README.md](../../../submission/claims/README.md) |
+| `submission/manifests/README.md` | 0 | [submission/manifests/README.md](../../../submission/manifests/README.md) |
 
 ### Cycles
 

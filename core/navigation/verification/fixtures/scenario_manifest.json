@@ -1,0 +1,110 @@
+{
+  "schema_version": 1,
+  "generator": "python/generate_fixtures.py",
+  "random_generator": "NumPy PCG64",
+  "seed": 2616802,
+  "rights_basis": "Generated synthetic data; no IO-VNBD bytes or derived values used.",
+  "distinctions": {
+    "true_motion": "p_*, v_*, q_*",
+    "ideal_imu": "ideal_acc_*, ideal_gyro_*",
+    "noisy_bias_corrupted_imu": "observed_acc_*, observed_gyro_*",
+    "true_sensor_bias": "true_ba_*, true_bg_*",
+    "measurement_observations": "gnss_measurements.csv z0..z5",
+    "estimator_outputs": "generated during replay; compared in parity_results.json"
+  },
+  "required_scenarios": [
+    {
+      "id": 1,
+      "name": "stationary_level_imu",
+      "evidence": "phase=stationary"
+    },
+    {
+      "id": 2,
+      "name": "constant_velocity_straight",
+      "evidence": "phase=constant_velocity"
+    },
+    {
+      "id": 3,
+      "name": "constant_longitudinal_acceleration",
+      "evidence": "phase=accelerate"
+    },
+    {
+      "id": 4,
+      "name": "constant_radius_turn",
+      "evidence": "phase=constant_radius_turn"
+    },
+    {
+      "id": 5,
+      "name": "stop_accelerate_turn_stop",
+      "evidence": "complete 18 s fixture"
+    },
+    {
+      "id": 6,
+      "name": "known_accel_and_gyro_biases",
+      "evidence": "true_ba_*, true_bg_*"
+    },
+    {
+      "id": 7,
+      "name": "bias_random_walk",
+      "evidence": "seeded evolving bias columns"
+    },
+    {
+      "id": 8,
+      "name": "irregular_valid_sampling",
+      "evidence": "dt_s in [0.008,0.012] except gap"
+    },
+    {
+      "id": 9,
+      "name": "one_missing_sample_gap",
+      "evidence": "missing_sample_gap=1 at one row"
+    },
+    {
+      "id": 10,
+      "name": "gnss_position_updates",
+      "evidence": "kind=position"
+    },
+    {
+      "id": 11,
+      "name": "gnss_velocity_updates",
+      "evidence": "kind=velocity"
+    },
+    {
+      "id": 12,
+      "name": "combined_position_velocity_updates",
+      "evidence": "kind=position_velocity"
+    },
+    {
+      "id": 13,
+      "name": "gnss_outage_and_reacquisition",
+      "evidence": "no updates 7-12 s; good_reacquisition"
+    },
+    {
+      "id": 14,
+      "name": "biased_returning_gnss",
+      "evidence": "event=biased_return"
+    },
+    {
+      "id": 15,
+      "name": "duplicate_measurement_id",
+      "evidence": "event=duplicate_id"
+    }
+  ],
+  "files": {
+    "trajectory_fixture.csv": {
+      "bytes": 827832,
+      "sha256": "a4e59a24113f54a6741016fc214c6764e8c14b7fbade163bcc450395cb95d4db"
+    },
+    "gnss_measurements.csv": {
+      "bytes": 3298,
+      "sha256": "6af5f9a7339cbadfd7289baf4e3ce3b78feb84c798ad6f45d027b570483b3d44"
+    },
+    "initial_state.json": {
+      "bytes": 557,
+      "sha256": "aa6beea41da66c96dfbbe2c5f25ee185e8e818be5935b3c20dced2b08a5f6242"
+    },
+    "initial_state.csv": {
+      "bytes": 423,
+      "sha256": "57fcc17c7ae3af0f889465296960cb4d480a1d1e23a390bf8a50fca2e44a0c8e"
+    }
+  }
+}
