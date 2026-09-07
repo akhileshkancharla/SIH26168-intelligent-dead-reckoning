@@ -1,0 +1,9 @@
+{
+  "uip": "10.1",
+  "type": "private_dataset_workspace",
+  "created": "2026-09-07",
+  "immutable": true,
+  "version": "1.0.0",
+  "status": "bounded",
+  "parent": "11"
+}
