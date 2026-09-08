@@ -4,7 +4,7 @@
 Per C-15's "duplicate parent grouping" validation rule for I-20 and
 R-007's "Six schemas; no shared clock; duplicates" risk, every file that
 enters a DatasetManifest must resolve to exactly one immutable group_id
-(contracts/schemas/dataset_manifest_v1.schema.json's `group_ids`), so that
+(contracts/schemas/dataset_manifest_v2.schema.json's `group_ids`), so that
 WP-10.4's split construction can guarantee zero overlap between
 train/validation/test at the *group* level, not just the file level.
 
