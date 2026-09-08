@@ -1,8 +1,8 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://sih26168.invalid/contracts/schemas/dataset_manifest_v1.schema.json",
-  "title": "DatasetManifestV1",
-  "description": "Normative I-20 contract (WP-10 / C-15): private dataset/subset/split/leakage and rights lineage manifest for IO-VNBD-class ingestion. Records only hashes and structural metadata -- never raw private bytes. See docs/architecture/SIH26168_High_Level_Architecture_Revision3.md, contracts/INTERFACE_SCHEMA_PLAN.md#I-20 and docs/PRIVATE_ARTIFACT_POLICY.md.",
+  "$id": "https://sih26168.invalid/contracts/schemas/dataset_manifest_v2.schema.json",
+  "title": "DatasetManifestV2",
+  "description": "Normative I-20 contract (WP-10 / C-15), major version 2: private dataset/subset/split/leakage and rights lineage manifest for IO-VNBD-class ingestion. Records only hashes and structural metadata -- never raw private bytes. Version 2 adds the mandatory file_group_ids field (owner-ratified contract amendment recorded in contracts/INTERFACE_SCHEMA_PLAN.md#I-20 and formerly tracked as OD-18 in docs/architecture/SIH26168_Open_Decisions_v1.md) -- per this repository's own additive-field policy (INTERFACE_SCHEMA_PLAN.md section 2.2), adding a mandatory field is a breaking change and is never permitted in a minor revision, hence v1 -> v2 rather than v1.1. See docs/architecture/SIH26168_High_Level_Architecture_Revision3.md, contracts/INTERFACE_SCHEMA_PLAN.md#I-20 and docs/PRIVATE_ARTIFACT_POLICY.md.",
   "type": "object",
   "additionalProperties": false,
   "required": [
@@ -24,7 +24,7 @@
   "properties": {
     "schema_version": {
       "type": "integer",
-      "const": 1,
+      "const": 2,
       "description": "Major schema version of the dataset manifest contract."
     },
     "dataset_id": {

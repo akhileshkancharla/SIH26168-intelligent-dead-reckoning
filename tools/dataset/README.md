@@ -13,7 +13,7 @@ path under the repo root regardless of Git tracking status.
 
 - `manifest.py` — WP-10.1 (Issue #79). Builds, loads and validates
   `DatasetManifest` (I-20) documents against
-  `contracts/schemas/dataset_manifest_v1.schema.json`, and verifies that a
+  `contracts/schemas/dataset_manifest_v2.schema.json`, and verifies that a
   manifest's recorded SHA-256 hashes still match the files it describes
   (`verify_file_hashes`). A `DatasetManifest` is hash-only and safe to
   commit to Git; the files it describes are not.

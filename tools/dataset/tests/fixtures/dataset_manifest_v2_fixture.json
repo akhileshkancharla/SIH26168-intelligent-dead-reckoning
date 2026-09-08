@@ -1,5 +1,5 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "dataset_id": "SYNTHETIC-TEST-FIXTURE-0001",
   "source_revision": "synthetic-fixture-revision-01",
   "archive_hashes": {

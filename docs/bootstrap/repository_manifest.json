@@ -139,8 +139,8 @@
     },
     {
       "path": "docs/architecture/SIH26168_ADR_Register_v1.md",
-      "size_bytes": 4598,
-      "sha256": "769d3197275652ac248e135bc9951e299a9aefd7dc46cecd567dd0b79103546b"
+      "size_bytes": 5272,
+      "sha256": "0ec4b8bed9e81d50e8fa7e9397771f311d4dbb77405539cbf909158c910d3da1"
     },
     {
       "path": "docs/architecture/SIH26168_ARCHITECTURE_MANIFEST_v1.json",
@@ -179,8 +179,8 @@
     },
     {
       "path": "docs/architecture/SIH26168_Open_Decisions_v1.md",
-      "size_bytes": 3802,
-      "sha256": "6e1d2efd10c805245030b3226a6d073152805f92d838177f9ae62bb3e44a2c2e"
+      "size_bytes": 3746,
+      "sha256": "6790bb4d0a3f1e78848b06e0ee19613ad54c7af1849032865e97ee1e9fcf5685"
     },
     {
       "path": "docs/architecture/SIH26168_Repository_Blueprint_v1.md",

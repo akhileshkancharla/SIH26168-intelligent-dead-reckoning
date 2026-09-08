@@ -15,7 +15,7 @@ import unittest
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
-FIXTURE_PATH = Path(__file__).resolve().parent / "fixtures" / "dataset_manifest_v1_fixture.json"
+FIXTURE_PATH = Path(__file__).resolve().parent / "fixtures" / "dataset_manifest_v2_fixture.json"
 
 
 def _load_module(name: str, path: Path):
@@ -44,7 +44,7 @@ class DatasetManifestSchemaTest(unittest.TestCase):
         schema = manifest.load_schema()
         self.assertFalse(
             schema.get("additionalProperties", True),
-            "DatasetManifestV1 is a Tier A contract (I-20): additionalProperties must be false",
+            "DatasetManifestV2 is a Tier A contract (I-20): additionalProperties must be false",
         )
 
     def test_golden_fixture_validates(self):

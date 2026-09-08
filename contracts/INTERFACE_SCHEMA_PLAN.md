@@ -430,16 +430,17 @@ Data validation enforces mathematical and physical boundaries in addition to syn
 ### I-20: DatasetManifest
 - **Producer / Consumer:** `C-15 (Data Ingestion)` $\to$ `C-15 (Firewall)` / `C-16 (Training)` / `C-19 (Validator)`
 - **Direction:** Private Data Preparation $\to$ Training Harness
-- **Schema ID / Version:** `https://sih26168.invalid/contracts/schemas/dataset_manifest_v1.schema.json` / `1.0.0`
+- **Schema ID / Version:** `https://sih26168.invalid/contracts/schemas/dataset_manifest_v2.schema.json` / `2.0.0`
 - **Serialization:** Tier A (JSON Schema Draft 2020-12, `additionalProperties: false`)
-- **Required Fields:** `schema_version`, `dataset_id`, `source_revision`, `archive_hashes`, `file_hashes`, `schemas`, `units_status`, `group_ids`, `splits`, `exclusions`, `rights_status`, `privacy`, `redistribution`
+- **Required Fields:** `schema_version`, `dataset_id`, `source_revision`, `archive_hashes`, `file_hashes`, `schemas`, `units_status`, `group_ids`, `file_group_ids`, `splits`, `exclusions`, `rights_status`, `privacy`, `redistribution`
 - **Optional Fields:** None (full partition and rights lineage mandatory)
 - **Units:** Source-specific units with explicit conversion mappings
 - **Coordinate Frame:** Declared per subset schema
 - **Clock Domain:** Source clock semantics recorded
-- **Sequence & Ordering:** Immutable file list and grouped parent journey splits
-- **Quality & Validity:** Zero overlap between train/validation/test journey groups; runtime-feature and forbidden ground-truth label firewall check
+- **Sequence & Ordering:** Immutable file list, grouped parent journey splits, and a deterministic file-to-group membership map (`file_group_ids`) that lets downstream tooling verify group-safe splits directly from the manifest instead of recomputing membership from private, non-committed metadata
+- **Quality & Validity:** Zero overlap between train/validation/test journey groups; every `file_hashes` identifier resolves to exactly one `file_group_ids` entry and exactly one `group_ids` value (no orphaned or multiply-grouped files); runtime-feature and forbidden ground-truth label firewall check
 - **Rejection Behaviour:** Missing file hashes or leakage canary failures immediately quarantine the dataset and abort training
+- **Compatibility / Version Impact:** `1.0.0 -> 2.0.0` is a **breaking (MAJOR) change**: `file_group_ids` moved from an implementation-only field to an owner-ratified required field (owner decision on PR #142, formerly tracked as Open Decision OD-18). Per section 2.2, adding a required field is prohibited in a minor revision, so the schema file itself was renamed (`dataset_manifest_v1.schema.json` -> `dataset_manifest_v2.schema.json`) rather than revised in place; `schema_version`'s `const` moved from `1` to `2` to match. There is no v1-compatibility shim: any manifest lacking `file_group_ids` is a v1 document and must be regenerated, not silently accepted.
 
 ---
 

@@ -3,7 +3,7 @@
 
 This module owns exactly the "immutable source manifest" half of WP-10.1's
 scope: constructing, loading and structurally validating a DatasetManifest
-document against contracts/schemas/dataset_manifest_v1.schema.json, and
+document against contracts/schemas/dataset_manifest_v2.schema.json, and
 verifying that the hashes it records still match the files it describes.
 
 It deliberately does NOT implement:
@@ -29,7 +29,7 @@ from typing import Any, Dict, Iterable
 import jsonschema
 
 ROOT = Path(__file__).resolve().parents[2]
-SCHEMA_PATH = ROOT / "contracts/schemas/dataset_manifest_v1.schema.json"
+SCHEMA_PATH = ROOT / "contracts/schemas/dataset_manifest_v2.schema.json"
 
 # A read chunk size for streaming SHA-256 computation, so a large private
 # archive is never fully loaded into memory just to be hashed.
@@ -112,7 +112,7 @@ def new_manifest(
     so a caller cannot mistake scaffolding for a real manifest.
     """
     return {
-        "schema_version": 1,
+        "schema_version": 2,
         "dataset_id": dataset_id,
         "source_revision": source_revision,
         "archive_hashes": {},
