@@ -1,0 +1,11 @@
+uip: 10.2
+name: six_schema_10_vnib_validation
+allowed: true
+version: 1.0.0
+created: 2026-09-08
+schema:
+  - type: vnib
+    status: allowed
+  - type: validation
+    status: active
+parent: "11"
