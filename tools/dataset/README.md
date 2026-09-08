@@ -117,11 +117,13 @@ pipeline. As of this revision:
   can enforce anything against a real feature set or manifest until a
   human replaces the placeholders with real IO-VNBD-derived values and
   sets `status: ACTIVE`.
-- `dataset_manifest_v1.schema.json`'s `file_group_ids` field (WP-10.1,
-  coordinated from WP-10.3) is not yet listed in the authoritative
-  `INTERFACE_SCHEMA_PLAN.md#I-20` Required Fields -- see OD-18 in
-  `docs/architecture/SIH26168_Open_Decisions_v1.md` for the pending
-  contract-ratification decision this blocks on.
+- `dataset_manifest_v2.schema.json`'s `file_group_ids` field (WP-10.1,
+  coordinated from WP-10.3) is now an owner-ratified required I-20
+  field, listed in `INTERFACE_SCHEMA_PLAN.md#I-20`'s Required Fields
+  as of schema `2.0.0` -- see `ADR-022` in
+  `docs/architecture/SIH26168_ADR_Register_v1.md` (formerly tracked as
+  OD-18 in `docs/architecture/SIH26168_Open_Decisions_v1.md`, now
+  resolved).
 - The verification evidence in each PR description is a local
   `python -m unittest` / `ci/verify_repository.py` run, not a green CI
   run on GitHub -- rerun and attach real CI output once available.
