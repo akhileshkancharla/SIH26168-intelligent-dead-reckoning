@@ -1,0 +1,149 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://sih26168.invalid/contracts/schemas/raw_sensor_sample_v1.schema.json",
+  "title": "RawSensorSampleV1",
+  "description": "I-01 raw Android SensorManager observation. Values retain callback axes, source time, sequence, accuracy, and hardware metadata without calibration or interpolation.",
+  "type": "object",
+  "additionalProperties": true,
+  "required": [
+    "schema_version",
+    "evidence_id",
+    "session_id",
+    "stream_id",
+    "sequence",
+    "source_timestamp_ns",
+    "arrival_elapsed_realtime_ns",
+    "sensor_type",
+    "values",
+    "accuracy",
+    "source_metadata"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "evidence_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "session_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "stream_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "sequence": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 9223372036854775807
+    },
+    "source_timestamp_ns": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 9223372036854775807
+    },
+    "arrival_elapsed_realtime_ns": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 9223372036854775807
+    },
+    "sensor_type": {
+      "type": "string",
+      "enum": [
+        "ACCELEROMETER",
+        "GYROSCOPE",
+        "MAGNETIC_FIELD",
+        "AMBIENT_TEMPERATURE"
+      ]
+    },
+    "values": {
+      "type": "array",
+      "items": {
+        "type": "number"
+      },
+      "minItems": 1,
+      "maxItems": 3
+    },
+    "accuracy": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 3
+    },
+    "source_metadata": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": [
+        "android_sensor_type",
+        "sensor_name",
+        "vendor",
+        "version"
+      ],
+      "properties": {
+        "android_sensor_type": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "sensor_name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "vendor": {
+          "type": "string",
+          "minLength": 1
+        },
+        "version": {
+          "type": "integer",
+          "minimum": 1
+        }
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "sensor_type": {
+            "enum": [
+              "ACCELEROMETER",
+              "GYROSCOPE",
+              "MAGNETIC_FIELD"
+            ]
+          }
+        },
+        "required": [
+          "sensor_type"
+        ]
+      },
+      "then": {
+        "properties": {
+          "values": {
+            "minItems": 3,
+            "maxItems": 3
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "sensor_type": {
+            "const": "AMBIENT_TEMPERATURE"
+          }
+        },
+        "required": [
+          "sensor_type"
+        ]
+      },
+      "then": {
+        "properties": {
+          "values": {
+            "minItems": 1,
+            "maxItems": 1
+          }
+        }
+      }
+    }
+  ]
+}

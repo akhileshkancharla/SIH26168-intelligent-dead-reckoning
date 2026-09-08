@@ -1,0 +1,297 @@
+{
+  "fixture_version": 1,
+  "fixture_id": "s1-acquisition-round-trip-v1",
+  "classification": "SYNTHETIC_PUBLIC_TEST_ONLY",
+  "description": "Synthetic SensorManager and LocationManager evidence for I-01/I-02 schema and round-trip verification. Coordinates are synthetic equatorial values and do not describe a real route.",
+  "records": [
+    {
+      "schema_version": 1,
+      "payload_type": "RawSensorSample",
+      "timestamp": {
+        "epoch_ns": 1000000000,
+        "arrival_elapsed_realtime_ns": 1000050000,
+        "source_timestamp_ns": 1000000000,
+        "clock_id": "CLOCK_BOOTTIME"
+      },
+      "provenance": {
+        "evidence_id": "s1-synthetic-accel-0000",
+        "session_id": "s1-synthetic-session-v1",
+        "stream_id": "sensor-accelerometer",
+        "device_id": "synthetic-device",
+        "build_id": "synthetic-fixture-v1",
+        "provenance_type": "DETERMINISTIC_REPLAY",
+        "synthetic": true,
+        "contributing_evidence_ids": []
+      },
+      "payload": {
+        "schema_version": 1,
+        "evidence_id": "s1-synthetic-accel-0000",
+        "session_id": "s1-synthetic-session-v1",
+        "stream_id": "sensor-accelerometer",
+        "sequence": 0,
+        "source_timestamp_ns": 1000000000,
+        "arrival_elapsed_realtime_ns": 1000050000,
+        "sensor_type": "ACCELEROMETER",
+        "values": [
+          0.125,
+          -0.25,
+          9.75
+        ],
+        "accuracy": 3,
+        "source_metadata": {
+          "android_sensor_type": 1,
+          "sensor_name": "Synthetic accelerometer",
+          "vendor": "SIH26168 synthetic fixture",
+          "version": 1,
+          "coordinate_frame": "ANDROID_DEVICE_BODY_RAW",
+          "units": "m/s^2"
+        }
+      },
+      "validity_gate": {
+        "is_finite": true,
+        "is_valid": true,
+        "flags": 0
+      }
+    },
+    {
+      "schema_version": 1,
+      "payload_type": "RawSensorSample",
+      "timestamp": {
+        "epoch_ns": 1010000000,
+        "arrival_elapsed_realtime_ns": 1010060000,
+        "source_timestamp_ns": 1010000000,
+        "clock_id": "CLOCK_BOOTTIME"
+      },
+      "provenance": {
+        "evidence_id": "s1-synthetic-accel-0001",
+        "session_id": "s1-synthetic-session-v1",
+        "stream_id": "sensor-accelerometer",
+        "device_id": "synthetic-device",
+        "build_id": "synthetic-fixture-v1",
+        "provenance_type": "DETERMINISTIC_REPLAY",
+        "synthetic": true,
+        "contributing_evidence_ids": []
+      },
+      "payload": {
+        "schema_version": 1,
+        "evidence_id": "s1-synthetic-accel-0001",
+        "session_id": "s1-synthetic-session-v1",
+        "stream_id": "sensor-accelerometer",
+        "sequence": 1,
+        "source_timestamp_ns": 1010000000,
+        "arrival_elapsed_realtime_ns": 1010060000,
+        "sensor_type": "ACCELEROMETER",
+        "values": [
+          0.1875,
+          -0.21875,
+          9.78125
+        ],
+        "accuracy": 3,
+        "source_metadata": {
+          "android_sensor_type": 1,
+          "sensor_name": "Synthetic accelerometer",
+          "vendor": "SIH26168 synthetic fixture",
+          "version": 1,
+          "coordinate_frame": "ANDROID_DEVICE_BODY_RAW",
+          "units": "m/s^2"
+        }
+      },
+      "validity_gate": {
+        "is_finite": true,
+        "is_valid": true,
+        "flags": 0
+      }
+    },
+    {
+      "schema_version": 1,
+      "payload_type": "RawSensorSample",
+      "timestamp": {
+        "epoch_ns": 1002000000,
+        "arrival_elapsed_realtime_ns": 1002070000,
+        "source_timestamp_ns": 1002000000,
+        "clock_id": "CLOCK_BOOTTIME"
+      },
+      "provenance": {
+        "evidence_id": "s1-synthetic-gyro-0000",
+        "session_id": "s1-synthetic-session-v1",
+        "stream_id": "sensor-gyroscope",
+        "device_id": "synthetic-device",
+        "build_id": "synthetic-fixture-v1",
+        "provenance_type": "DETERMINISTIC_REPLAY",
+        "synthetic": true,
+        "contributing_evidence_ids": []
+      },
+      "payload": {
+        "schema_version": 1,
+        "evidence_id": "s1-synthetic-gyro-0000",
+        "session_id": "s1-synthetic-session-v1",
+        "stream_id": "sensor-gyroscope",
+        "sequence": 0,
+        "source_timestamp_ns": 1002000000,
+        "arrival_elapsed_realtime_ns": 1002070000,
+        "sensor_type": "GYROSCOPE",
+        "values": [
+          0.00125,
+          -0.0025,
+          0.00375
+        ],
+        "accuracy": 3,
+        "source_metadata": {
+          "android_sensor_type": 4,
+          "sensor_name": "Synthetic gyroscope",
+          "vendor": "SIH26168 synthetic fixture",
+          "version": 1,
+          "coordinate_frame": "ANDROID_DEVICE_BODY_RAW",
+          "units": "rad/s"
+        }
+      },
+      "validity_gate": {
+        "is_finite": true,
+        "is_valid": true,
+        "flags": 0
+      }
+    },
+    {
+      "schema_version": 1,
+      "payload_type": "RawSensorSample",
+      "timestamp": {
+        "epoch_ns": 1012000000,
+        "arrival_elapsed_realtime_ns": 1012080000,
+        "source_timestamp_ns": 1012000000,
+        "clock_id": "CLOCK_BOOTTIME"
+      },
+      "provenance": {
+        "evidence_id": "s1-synthetic-gyro-0001",
+        "session_id": "s1-synthetic-session-v1",
+        "stream_id": "sensor-gyroscope",
+        "device_id": "synthetic-device",
+        "build_id": "synthetic-fixture-v1",
+        "provenance_type": "DETERMINISTIC_REPLAY",
+        "synthetic": true,
+        "contributing_evidence_ids": []
+      },
+      "payload": {
+        "schema_version": 1,
+        "evidence_id": "s1-synthetic-gyro-0001",
+        "session_id": "s1-synthetic-session-v1",
+        "stream_id": "sensor-gyroscope",
+        "sequence": 1,
+        "source_timestamp_ns": 1012000000,
+        "arrival_elapsed_realtime_ns": 1012080000,
+        "sensor_type": "GYROSCOPE",
+        "values": [
+          0.0015,
+          -0.00225,
+          0.0035
+        ],
+        "accuracy": 3,
+        "source_metadata": {
+          "android_sensor_type": 4,
+          "sensor_name": "Synthetic gyroscope",
+          "vendor": "SIH26168 synthetic fixture",
+          "version": 1,
+          "coordinate_frame": "ANDROID_DEVICE_BODY_RAW",
+          "units": "rad/s"
+        }
+      },
+      "validity_gate": {
+        "is_finite": true,
+        "is_valid": true,
+        "flags": 0
+      }
+    },
+    {
+      "schema_version": 1,
+      "payload_type": "LocationGnssFix",
+      "timestamp": {
+        "epoch_ns": 1020000000,
+        "arrival_elapsed_realtime_ns": 1020100000,
+        "source_timestamp_ns": 1020000000,
+        "clock_id": "CLOCK_BOOTTIME"
+      },
+      "provenance": {
+        "evidence_id": "s1-synthetic-gnss-0000",
+        "session_id": "s1-synthetic-session-v1",
+        "stream_id": "location-gps-provider",
+        "device_id": "synthetic-device",
+        "build_id": "synthetic-fixture-v1",
+        "provenance_type": "DETERMINISTIC_REPLAY",
+        "synthetic": true,
+        "contributing_evidence_ids": []
+      },
+      "payload": {
+        "schema_version": 1,
+        "evidence_id": "s1-synthetic-gnss-0000",
+        "provider": "GPS_PROVIDER",
+        "source_timestamp_ns": 1020000000,
+        "arrival_elapsed_realtime_ns": 1020100000,
+        "lat_deg": 0.0,
+        "lon_deg": 0.0,
+        "alt_m": 10.0,
+        "hacc_m": 3.0,
+        "vacc_m": 5.0,
+        "speed_mps": 4.0,
+        "speed_acc_mps": 0.5,
+        "bearing_deg": 90.0,
+        "bearing_acc_deg": 4.0,
+        "is_mock": false,
+        "field_mask": [
+          "alt_m",
+          "vacc_m",
+          "speed_mps",
+          "speed_acc_mps",
+          "bearing_deg",
+          "bearing_acc_deg"
+        ]
+      },
+      "validity_gate": {
+        "is_finite": true,
+        "is_valid": true,
+        "flags": 0
+      }
+    },
+    {
+      "schema_version": 1,
+      "payload_type": "LocationGnssFix",
+      "timestamp": {
+        "epoch_ns": 2020000000,
+        "arrival_elapsed_realtime_ns": 2020120000,
+        "source_timestamp_ns": 2020000000,
+        "clock_id": "CLOCK_BOOTTIME"
+      },
+      "provenance": {
+        "evidence_id": "s1-synthetic-gnss-0001",
+        "session_id": "s1-synthetic-session-v1",
+        "stream_id": "location-gps-provider",
+        "device_id": "synthetic-device",
+        "build_id": "synthetic-fixture-v1",
+        "provenance_type": "DETERMINISTIC_REPLAY",
+        "synthetic": true,
+        "contributing_evidence_ids": []
+      },
+      "payload": {
+        "schema_version": 1,
+        "evidence_id": "s1-synthetic-gnss-0001",
+        "provider": "GPS_PROVIDER",
+        "source_timestamp_ns": 2020000000,
+        "arrival_elapsed_realtime_ns": 2020120000,
+        "lat_deg": 0.0,
+        "lon_deg": 0.0,
+        "alt_m": null,
+        "hacc_m": 3.5,
+        "vacc_m": null,
+        "speed_mps": null,
+        "speed_acc_mps": null,
+        "bearing_deg": null,
+        "bearing_acc_deg": null,
+        "is_mock": false,
+        "field_mask": []
+      },
+      "validity_gate": {
+        "is_finite": true,
+        "is_valid": true,
+        "flags": 0
+      }
+    }
+  ]
+}

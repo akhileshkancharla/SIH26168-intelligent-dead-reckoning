@@ -1,0 +1,126 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://sih26168.invalid/contracts/schemas/location_gnss_fix_v1.schema.json",
+  "title": "LocationGnssFixV1",
+  "description": "I-02 provenance-preserving Android LocationManager observation. Nullable measurement keys remain present and are governed by field_mask.",
+  "type": "object",
+  "additionalProperties": true,
+  "required": [
+    "schema_version",
+    "evidence_id",
+    "provider",
+    "source_timestamp_ns",
+    "arrival_elapsed_realtime_ns",
+    "lat_deg",
+    "lon_deg",
+    "alt_m",
+    "hacc_m",
+    "vacc_m",
+    "speed_mps",
+    "speed_acc_mps",
+    "bearing_deg",
+    "bearing_acc_deg",
+    "is_mock",
+    "field_mask"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "evidence_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "provider": {
+      "type": "string",
+      "minLength": 1
+    },
+    "source_timestamp_ns": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 9223372036854775807
+    },
+    "arrival_elapsed_realtime_ns": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 9223372036854775807
+    },
+    "lat_deg": {
+      "type": "number",
+      "minimum": -90.0,
+      "maximum": 90.0
+    },
+    "lon_deg": {
+      "type": "number",
+      "minimum": -180.0,
+      "maximum": 180.0
+    },
+    "alt_m": {
+      "type": [
+        "number",
+        "null"
+      ]
+    },
+    "hacc_m": {
+      "type": "number",
+      "minimum": 0.1
+    },
+    "vacc_m": {
+      "type": [
+        "number",
+        "null"
+      ],
+      "minimum": 0.0
+    },
+    "speed_mps": {
+      "type": [
+        "number",
+        "null"
+      ],
+      "minimum": 0.0,
+      "maximum": 100.0
+    },
+    "speed_acc_mps": {
+      "type": [
+        "number",
+        "null"
+      ],
+      "minimum": 0.0
+    },
+    "bearing_deg": {
+      "type": [
+        "number",
+        "null"
+      ],
+      "minimum": 0.0,
+      "exclusiveMaximum": 360.0
+    },
+    "bearing_acc_deg": {
+      "type": [
+        "number",
+        "null"
+      ],
+      "minimum": 0.0,
+      "maximum": 180.0
+    },
+    "is_mock": {
+      "type": "boolean"
+    },
+    "field_mask": {
+      "description": "Names of conditionally nullable measurements present in this fix.",
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "alt_m",
+          "vacc_m",
+          "speed_mps",
+          "speed_acc_mps",
+          "bearing_deg",
+          "bearing_acc_deg"
+        ]
+      },
+      "uniqueItems": true
+    }
+  }
+}
