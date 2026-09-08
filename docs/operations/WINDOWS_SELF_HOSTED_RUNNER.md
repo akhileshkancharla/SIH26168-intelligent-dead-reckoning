@@ -8,7 +8,7 @@ The repository uses one Windows x64 self-hosted GitHub Actions runner to preserv
 runs-on: [self-hosted, Windows, X64, sih26168]
 ```
 
-All 22 repository workflows are routed to this label set. No workflow retains an automatic GitHub-hosted fallback. Existing workflow names and job/check names remain unchanged. The repository-policy workflow also contains an isolated `runner-preflight` job; it is an additional diagnostic check and does not replace `repository-policy-check`.
+The migration targets all 22 repository workflows with no automatic GitHub-hosted fallback. During staged validation, only the repository-policy workflow is routed to this label set; the remaining workflows must not be pushed until preflight passes. Existing workflow names and job/check names remain unchanged. The repository-policy workflow contains an isolated `runner-preflight` job; it is an additional diagnostic check and does not replace `repository-policy-check`.
 
 Checkout-based pull-request jobs fail before checkout when the pull request originates from a fork. A fork contributor must have a maintainer reproduce the commit on a reviewed branch in this repository. This keeps required checks fail-closed without executing fork-controlled code on the machine. Governance jobs that do not checkout repository content continue to evaluate pull-request or issue metadata.
 
@@ -39,7 +39,7 @@ The preflight intentionally reports only bounded tool versions, command visibili
 
 ## Toolchain verification
 
-`ci/self_hosted_runner_preflight.ps1` runs after the repository's existing pinned setup actions. It fails when the expected Windows/X64 service context, Python 3.12, Java 17, Gradle 8.10.2, CMake, C++ compiler, Android SDK components, disk capacity, or workspace writability is unavailable.
+`ci/self_hosted_runner_preflight.ps1` runs before any tool-provisioning action so its output reflects what the service account can actually use from the host. It fails when the expected Windows/X64 service context, Python 3.12, Java 17, Gradle 8.10.2, CMake, C++ compiler, Android SDK components, disk capacity, or workspace writability is unavailable.
 
 For an interactive diagnostic from a clean checkout, run:
 
