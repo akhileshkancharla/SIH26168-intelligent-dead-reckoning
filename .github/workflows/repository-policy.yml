@@ -10,10 +10,15 @@ concurrency:
 jobs:
   runner-preflight:
     runs-on: [self-hosted, Windows, X64, sih26168]
+    env:
+      PSExecutionPolicyPreference: Bypass
+    defaults:
+      run:
+        shell: powershell -NoProfile -ExecutionPolicy Bypass -Command ". '{0}'"
     steps:
       - name: Reject untrusted fork code
         if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name != github.repository
-        shell: powershell
+        shell: powershell -NoProfile -ExecutionPolicy Bypass -Command ". '{0}'"
         run: |
           Write-Error 'Fork-origin pull requests cannot execute code on the self-hosted runner. Reproduce the change on a trusted repository branch.'
           exit 1
@@ -31,14 +36,18 @@ jobs:
         with:
           gradle-version: '8.10.2'
       - name: Run runner preflight
-        shell: powershell
         run: ./ci/self_hosted_runner_preflight.ps1
   repository-policy-check:
     runs-on: [self-hosted, Windows, X64, sih26168]
+    env:
+      PSExecutionPolicyPreference: Bypass
+    defaults:
+      run:
+        shell: powershell -NoProfile -ExecutionPolicy Bypass -Command ". '{0}'"
     steps:
       - name: Reject untrusted fork code
         if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name != github.repository
-        shell: powershell
+        shell: powershell -NoProfile -ExecutionPolicy Bypass -Command ". '{0}'"
         run: |
           Write-Error 'Fork-origin pull requests cannot execute code on the self-hosted runner. Reproduce the change on a trusted repository branch.'
           exit 1
