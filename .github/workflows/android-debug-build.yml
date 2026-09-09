@@ -10,6 +10,9 @@ concurrency:
 jobs:
   android-debug-build-check:
     runs-on: [self-hosted, Windows, X64, sih26168]
+    env:
+      ANDROID_SDK_ROOT: C:\Android\Sdk
+      ANDROID_HOME: C:\Android\Sdk
     defaults:
       run:
         shell: cmd
