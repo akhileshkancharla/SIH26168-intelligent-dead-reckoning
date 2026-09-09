@@ -11,6 +11,11 @@ ACTION = re.compile(r"^\s*-?\s*uses:\s*[^@\s]+@([0-9a-f]{40})(?:\s+#.*)?$", re.M
 ABSOLUTE = re.compile(r"(?i)((?<![A-Za-z0-9_])[A-Z]:[\\/]|C:/Users/|/Users/[^/]+/|/home/[^/]+/|/workspace/|/tmp/)")
 WEB_URL = re.compile(r"https?://[^\s<>()\"']+")
 SCANNER_SOURCES = {"ci/verify_repository.py", "tools/bootstrap/generate_repository.py"}
+APPROVED_MACHINE_PATHS = {
+    ".github/workflows/android-debug-build.yml": (r"C:\Android\Sdk",),
+    ".github/workflows/android-jvm.yml": (r"C:\Android\Sdk",),
+    ".github/workflows/android-lint.yml": (r"C:\Android\Sdk",),
+}
 SECRETS = [re.compile(r"gh[pousr]_[A-Za-z0-9]{20,}"), re.compile(r"github_pat_[A-Za-z0-9_]{20,}"), re.compile(r"AKIA[0-9A-Z]{16}"), re.compile(r"-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----")]
 def files():
     for p in ROOT.rglob("*"):
@@ -38,6 +43,8 @@ def forbidden(errors):
         if p.stat().st_size > 5*1024*1024: errors.append(f"file exceeds 5 MiB: {rel}")
         value=text(p)
         scan_value=WEB_URL.sub("",value)
+        for approved in APPROVED_MACHINE_PATHS.get(rel, ()):
+            scan_value=scan_value.replace(approved, "")
         if rel not in SCANNER_SOURCES and scan_value and ABSOLUTE.search(scan_value): errors.append(f"absolute/local path pattern: {rel}")
 def secrets(errors):
     for p in files():
