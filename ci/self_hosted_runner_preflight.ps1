@@ -79,7 +79,8 @@ $git = Require-Command -Name "git"
 $powershell = Require-Command -Name "powershell"
 $python = Require-Command -Name "python"
 $java = Require-Command -Name "java"
-$gradle = Require-Command -Name "gradle"
+$gradle = Get-Command -Name "gradle" -ErrorAction SilentlyContinue
+Write-Check -Name "Command visible (gradle, informational)" -Value ($null -ne $gradle).ToString()
 $cmake = Require-Command -Name "cmake"
 
 if ($git) {
@@ -118,13 +119,12 @@ if ($java) {
 if ($gradle) {
     try {
         $gradleVersionLine = (Invoke-Tool -Executable $gradle.Source -Arguments @("--version") | Where-Object { $_ -match '^Gradle\s+' } | Select-Object -First 1) -join " "
-        Write-Check -Name "Gradle" -Value ($gradleVersionLine.Trim())
-        if ($gradleVersionLine -notmatch '^Gradle\s+8\.10\.2$') {
-            Add-Failure -Message "Gradle 8.10.2 is required after the pinned setup action."
-        }
+        Write-Check -Name "Host Gradle (informational)" -Value ($gradleVersionLine.Trim())
     } catch {
-        Add-Failure -Message "Gradle is visible but cannot be executed by the runner service account."
+        Write-Check -Name "Host Gradle (informational)" -Value "visible but version could not be determined"
     }
+} else {
+    Write-Check -Name "Host Gradle (informational)" -Value "not found; Gradle jobs use the pinned setup action"
 }
 
 if ($cmake) {
@@ -188,18 +188,13 @@ if (-not $sdkRoot -or -not (Test-Path -LiteralPath $sdkRoot -PathType Container)
         Add-Failure -Message "Android SDK platform 35 is unavailable."
     }
 
-    $buildToolsRoot = Join-Path $sdkRoot "build-tools"
-    $buildTools = @()
-    if (Test-Path -LiteralPath $buildToolsRoot -PathType Container) {
-        $buildTools = @(Get-ChildItem -LiteralPath $buildToolsRoot -Directory | Where-Object {
-            (Test-Path -LiteralPath (Join-Path $_.FullName "aapt2.exe") -PathType Leaf) -and
-            (Test-Path -LiteralPath (Join-Path $_.FullName "apksigner.bat") -PathType Leaf)
-        } | Sort-Object Name -Descending)
-    }
-    $buildToolsVersion = if ($buildTools.Count) { $buildTools[0].Name } else { "not found" }
-    Write-Check -Name "Android build tools" -Value $buildToolsVersion
-    if (-not $buildTools.Count) {
-        Add-Failure -Message "No complete Android SDK build-tools installation is available."
+    $requiredBuildTools = Join-Path $sdkRoot "build-tools\35.0.0"
+    $buildToolsAvailable =
+        (Test-Path -LiteralPath (Join-Path $requiredBuildTools "aapt2.exe") -PathType Leaf) -and
+        (Test-Path -LiteralPath (Join-Path $requiredBuildTools "apksigner.bat") -PathType Leaf)
+    Write-Check -Name "Android build tools 35.0.0" -Value $buildToolsAvailable.ToString()
+    if (-not $buildToolsAvailable) {
+        Add-Failure -Message "Android SDK build-tools 35.0.0 is unavailable or incomplete."
     }
 }
 
