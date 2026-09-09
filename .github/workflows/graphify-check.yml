@@ -10,25 +10,23 @@ concurrency:
 jobs:
   graphify-snapshot-check:
     runs-on: [self-hosted, Windows, X64, sih26168]
+    defaults:
+      run:
+        shell: cmd
     steps:
       - name: Reject untrusted fork code
         if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name != github.repository
-        shell: powershell
+        shell: cmd
         run: |
-          Write-Error 'Fork-origin pull requests cannot execute code on the self-hosted runner. Reproduce the change on a trusted repository branch.'
-          exit 1
+          echo Fork-origin pull requests cannot execute code on the self-hosted runner. Reproduce the change on a trusted repository branch. 1>&2
+          exit /b 1
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           persist-credentials: false
       - name: Verify machine Python 3.12
-        shell: powershell
         run: |
-          $pythonVersion = (& python --version 2>&1).Trim()
-          Write-Host "Machine Python: $pythonVersion"
-          if ($LASTEXITCODE -ne 0 -or $pythonVersion -notmatch '^Python 3\.12\.\d+$') {
-            Write-Error "Expected machine Python 3.12.x, found: $pythonVersion"
-            exit 1
-          }
+          python --version
+          python -c "import sys; print('Machine Python:', sys.version.split()[0]); raise SystemExit(sys.version_info[:2] != (3, 12))"
       - name: Run deterministic Graphify workflow tests
         run: python -m unittest discover -s tools/graphify/tests -v
       - name: Verify committed sanitized snapshot
