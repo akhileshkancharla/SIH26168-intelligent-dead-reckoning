@@ -1,0 +1,36 @@
+{
+  "timestamp_ns": 0,
+  "position_n_m": [
+    0.4,
+    -0.3,
+    0.1
+  ],
+  "velocity_n_mps": [
+    0.1,
+    -0.05,
+    0.0
+  ],
+  "q_n_b_wxyz": [
+    0.9999337464427983,
+    0.004363226767667335,
+    -0.006108517474734269,
+    0.00872645353533467
+  ],
+  "accel_bias_b_mps2": [
+    0.0,
+    0.0,
+    0.0
+  ],
+  "gyro_bias_b_radps": [
+    0.0,
+    0.0,
+    0.0
+  ],
+  "covariance_standard_deviations": {
+    "position_m": 1.0,
+    "velocity_mps": 0.5,
+    "attitude_rad": 0.08726646259971647,
+    "accel_bias_mps2": 0.05,
+    "gyro_bias_radps": 0.005
+  }
+}

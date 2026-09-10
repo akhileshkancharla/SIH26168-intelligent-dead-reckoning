@@ -9,11 +9,22 @@ concurrency:
   cancel-in-progress: true
 jobs:
   cpp-smoke-check:
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, Windows, X64, sih26168]
+    defaults:
+      run:
+        shell: cmd
     steps:
+      - name: Reject untrusted fork code
+        if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name != github.repository
+        shell: cmd
+        run: |
+          echo Fork-origin pull requests cannot execute code on the self-hosted runner. Reproduce the change on a trusted repository branch. 1>&2
+          exit /b 1
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
       - name: Configure
-        run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+        run: cmake -S . -B build -G "Visual Studio 17 2022" -A x64 -DCMAKE_BUILD_TYPE=Release
       - name: Build
         run: cmake --build build --config Release
       - name: Test
