@@ -27,15 +27,17 @@ jobs:
         run: |
           python --version
           python -c "import sys; print('Machine Python:', sys.version.split()[0]); raise SystemExit(sys.version_info[:2] != (3, 12))"
-      - name: Create clean virtual environment
+      - name: Create clean external virtual environment
         run: |
-          if exist .ci-venv rmdir /s /q .ci-venv
-          python -m venv .ci-venv
+          if exist "%TEMP%\.dataset-ci-venv" rmdir /s /q "%TEMP%\.dataset-ci-venv"
+          python -m venv "%TEMP%\.dataset-ci-venv"
       - name: Install dependencies
-        run: .\.ci-venv\Scripts\python.exe -m pip install "jsonschema==4.23.0" "referencing==0.35.1"
-      - name: Install project (editable)
-        run: .\.ci-venv\Scripts\python.exe -m pip install -e .
+        run: "%TEMP%\\.dataset-ci-venv\\Scripts\\python.exe" -m pip install "jsonschema==4.23.0" "referencing==0.35.1"
       - name: Run WP-10 dataset tooling tests
-        run: .\.ci-venv\Scripts\python.exe -m unittest discover -s tools/dataset/tests -v
+        run: "%TEMP%\\.dataset-ci-venv\\Scripts\\python.exe" -m unittest discover -s tools/dataset/tests -v
+      - name: Cleanup external virtual environment
+        if: always()
+        run: |
+          if exist "%TEMP%\.dataset-ci-venv" rmdir /s /q "%TEMP%\.dataset-ci-venv"
       - name: Run forbidden-file policy scan
-        run: .\.ci-venv\Scripts\python.exe ci/verify_repository.py forbidden
+        run: python ci/verify_repository.py forbidden
