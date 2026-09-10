@@ -9,9 +9,23 @@ concurrency:
   cancel-in-progress: true
 jobs:
   android-jvm-check:
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, Windows, X64, sih26168]
+    env:
+      ANDROID_SDK_ROOT: C:\Android\Sdk
+      ANDROID_HOME: C:\Android\Sdk
+    defaults:
+      run:
+        shell: cmd
     steps:
+      - name: Reject untrusted fork code
+        if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name != github.repository
+        shell: cmd
+        run: |
+          echo Fork-origin pull requests cannot execute code on the self-hosted runner. Reproduce the change on a trusted repository branch. 1>&2
+          exit /b 1
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
       - uses: actions/setup-java@cf277c60eb25467037889841efdb72551f06f6c3 # v4
         with:
           distribution: temurin
@@ -19,5 +33,14 @@ jobs:
       - uses: gradle/actions/setup-gradle@48b5f213c81028ace310571dc5ec0fbbca0b2947 # v4
         with:
           gradle-version: '8.10.2'
+      - name: Verify provisioned Gradle and Android SDK
+        run: |
+          gradle --version | findstr /B /C:"Gradle 8.10.2"
+          if errorlevel 1 exit /b 1
+          if not exist "%ANDROID_SDK_ROOT%\platforms\android-35\android.jar" exit /b 1
+          if not exist "%ANDROID_SDK_ROOT%\build-tools\35.0.0\aapt2.exe" exit /b 1
+          if not exist "%ANDROID_SDK_ROOT%\build-tools\35.0.0\apksigner.bat" exit /b 1
+          echo Android platform 35: True
+          echo Android build tools 35.0.0: True
       - name: Run Android scaffold check
         run: gradle -p android --no-daemon testDebugUnitTest

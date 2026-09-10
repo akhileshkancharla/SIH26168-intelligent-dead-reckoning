@@ -4,3 +4,4 @@ PBF source files and private SQLite graphs
 Credentials, tokens, signing keys and keystores
 Absolute local machine paths
 Unapproved model weights and large binaries
+GitHub runner state, diagnostics, credentials and service configuration

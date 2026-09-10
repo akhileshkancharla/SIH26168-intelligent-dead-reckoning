@@ -6,10 +6,16 @@ ROOT = Path(__file__).resolve().parents[1]
 EXCLUDED = {".git", "graphify-out", "build", ".gradle", ".cxx", "__pycache__"}
 REQUIRED = ["README.md", "CONTRIBUTING.md", "SECURITY.md", "CODE_OF_CONDUCT.md", "AGENTS.md", ".gitignore", ".graphifyignore", ".pre-commit-config.yaml", ".github/CODEOWNERS", ".github/pull_request_template.md", ".github/workflows/graphify-check.yml", "docs/DEVELOPMENT_STATUS.md", "docs/PRIVATE_ARTIFACT_POLICY.md", "docs/GENERATED_FILE_POLICY.md", "docs/CLAIMS_AND_EVIDENCE_POLICY.md", "docs/BRANCH_AND_RELEASE_POLICY.md", "docs/TEAM_RESPONSIBILITY_MATRIX.md", "docs/SUBMISSION_FREEZE_POLICY.md", "docs/architecture/ADR_INDEX.md", "docs/architecture/START_HERE.md", "docs/architecture/dependency-graph/README.md", "docs/architecture/dependency-graph/GRAPH_REPORT.md", "docs/architecture/dependency-graph/graph.json", "docs/architecture/dependency-graph/metadata.json", "docs/architecture/dependency-graph/SHA256SUMS.txt", "tools/graphify/README.md", "tools/graphify/graphify_config.json", "tools/graphify/update_graph.ps1", "tools/graphify/update_graph.sh", "tools/graphify/sanitize_graph.py", "tools/graphify/verify_graph.py", "tools/graphify/tests/test_graphify_workflow.py"]
 FORBIDDEN_SUFFIXES = {".pbf", ".sqlite", ".sqlite3", ".db", ".apk", ".aab", ".onnx", ".pt", ".pth", ".tflite", ".keystore", ".jks", ".pem", ".key", ".jsonl"}
+RUNNER_LOCAL_NAMES = {"_work", "_diag", ".runner", ".credentials", ".credentials_rsaparams", ".service"}
 ACTION = re.compile(r"^\s*-?\s*uses:\s*[^@\s]+@([0-9a-f]{40})(?:\s+#.*)?$", re.M)
 ABSOLUTE = re.compile(r"(?i)((?<![A-Za-z0-9_])[A-Z]:[\\/]|C:/Users/|/Users/[^/]+/|/home/[^/]+/|/workspace/|/tmp/)")
 WEB_URL = re.compile(r"https?://[^\s<>()\"']+")
 SCANNER_SOURCES = {"ci/verify_repository.py", "tools/bootstrap/generate_repository.py"}
+APPROVED_MACHINE_PATHS = {
+    ".github/workflows/android-debug-build.yml": (r"C:\Android\Sdk",),
+    ".github/workflows/android-jvm.yml": (r"C:\Android\Sdk",),
+    ".github/workflows/android-lint.yml": (r"C:\Android\Sdk",),
+}
 SECRETS = [re.compile(r"gh[pousr]_[A-Za-z0-9]{20,}"), re.compile(r"github_pat_[A-Za-z0-9_]{20,}"), re.compile(r"AKIA[0-9A-Z]{16}"), re.compile(r"-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----")]
 def files():
     for p in ROOT.rglob("*"):
@@ -33,9 +39,12 @@ def forbidden(errors):
     for p in files():
         rel=p.relative_to(ROOT).as_posix(); lower=rel.lower()
         if p.suffix.lower() in FORBIDDEN_SUFFIXES or p.name==".env" or lower.startswith(("data/","private/")): errors.append(f"forbidden file: {rel}")
+        if any(part in RUNNER_LOCAL_NAMES for part in p.relative_to(ROOT).parts): errors.append(f"runner-local artifact: {rel}")
         if p.stat().st_size > 5*1024*1024: errors.append(f"file exceeds 5 MiB: {rel}")
         value=text(p)
         scan_value=WEB_URL.sub("",value)
+        for approved in APPROVED_MACHINE_PATHS.get(rel, ()):
+            scan_value=scan_value.replace(approved, "")
         if rel not in SCANNER_SOURCES and scan_value and ABSOLUTE.search(scan_value): errors.append(f"absolute/local path pattern: {rel}")
 def secrets(errors):
     for p in files():
