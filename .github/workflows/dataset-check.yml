@@ -32,12 +32,15 @@ jobs:
           if exist "%TEMP%\.dataset-ci-venv" rmdir /s /q "%TEMP%\.dataset-ci-venv"
           python -m venv "%TEMP%\.dataset-ci-venv"
       - name: Install dependencies
-        run: "%TEMP%\\.dataset-ci-venv\\Scripts\\python.exe" -m pip install "jsonschema==4.23.0" "referencing==0.35.1"
+        run: |
+          "%TEMP%\.dataset-ci-venv\Scripts\python.exe" -m pip install "jsonschema==4.23.0" "referencing==0.35.1"
       - name: Run WP-10 dataset tooling tests
-        run: "%TEMP%\\.dataset-ci-venv\\Scripts\\python.exe" -m unittest discover -s tools/dataset/tests -v
+        run: |
+          "%TEMP%\.dataset-ci-venv\Scripts\python.exe" -m unittest discover -s tools/dataset/tests -v
       - name: Cleanup external virtual environment
         if: always()
         run: |
           if exist "%TEMP%\.dataset-ci-venv" rmdir /s /q "%TEMP%\.dataset-ci-venv"
       - name: Run forbidden-file policy scan
-        run: python ci/verify_repository.py forbidden
+        run: |
+          python ci/verify_repository.py forbidden
