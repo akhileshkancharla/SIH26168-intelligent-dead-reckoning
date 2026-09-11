@@ -92,7 +92,7 @@ try {
     $metadataPath = Join-Path $repositoryRoot "docs\architecture\dependency-graph\metadata.json"
     $metadata = Get-Content -Raw -LiteralPath $metadataPath | ConvertFrom-Json
     Write-Output "Snapshot verified: $($metadata.node_count) nodes, $($metadata.edge_count) edges, $($metadata.community_count) communities."
-    git status --short -- ".gitignore" ".graphifyignore" "AGENTS.md" ".github/workflows/graphify-check.yml" "ci" "docs" "tools/graphify"
+    git status --short -- ".gitignore" ".graphifyignore" "AGENTS.md" ".github/workflows/ci.yml" "ci" "docs" "tools/graphify"
     if ($LASTEXITCODE -ne 0) {
         throw "Unable to print the Graphify change summary."
     }

@@ -19,6 +19,8 @@ Project execution is tracked in the private [SIH26168 Development Roadmap](https
 - Android: `gradle -p android testDebugUnitTest lintDebug assembleDebug`
 - Full policy verification: `python ci/verify_repository.py all`
 
+Pull requests use [selective CI](docs/CI_WORKFLOW.md); pushes to `main` and manual runs execute the full public/synthetic suite.
+
 The Android application may use deterministic local replay for the submission demonstration. Every replayed screen must display `REPLAY` unmistakably.
 
 ## Licence

@@ -13,21 +13,7 @@ import subprocess
 
 REPOSITORY = "akhileshkancharla/SIH26168-intelligent-dead-reckoning"
 REQUIRED_CHECKS = [
-    "repository-policy-check",
-    "forbidden-files-check",
-    "secret-scanning-check",
-    "markdown-check",
-    "internal-links-check",
-    "json-check",
-    "csv-check",
-    "contracts-check",
-    "python-smoke-check",
-    "cpp-smoke-check",
-    "android-jvm-check",
-    "android-lint-check",
-    "android-debug-build-check",
-    "manifest-check",
-    "generated-file-drift-check",
+    "ci-required",
     "pull-request-governance-check",
     "sensitive-review-check",
 ]

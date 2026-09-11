@@ -1,0 +1,156 @@
+name: Selective CI
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event_name }}-${{ github.ref }}
+  cancel-in-progress: true
+defaults:
+  run:
+    shell: cmd
+jobs:
+  changes:
+    runs-on: [self-hosted, Windows, X64, sih26168]
+    timeout-minutes: 5
+    outputs:
+      dataset: ${{ steps.select.outputs.dataset }}
+      python: ${{ steps.select.outputs.python }}
+      cpp: ${{ steps.select.outputs.cpp }}
+      android: ${{ steps.select.outputs.android }}
+    steps:
+      - name: Reject untrusted fork code
+        if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name != github.repository
+        run: |
+          echo Fork-origin pull requests cannot execute code on the self-hosted runner. Reproduce the change on a trusted repository branch. 1>&2
+          exit /b 1
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 2
+          persist-credentials: false
+      - name: Verify machine Python 3.12
+        run: python -c "import sys; print(sys.version); raise SystemExit(sys.version_info[:2] != (3, 12))"
+      - name: Select affected groups
+        id: select
+        run: python ci/select_checks.py
+
+  policy:
+    needs: changes
+    runs-on: [self-hosted, Windows, X64, sih26168]
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - name: Test CI selection and gate
+        run: python -m unittest discover -s ci/tests -v
+      - name: Test Graphify sanitizer and verifier
+        run: python -m unittest discover -s tools/graphify/tests -v
+      - name: Check generated contract bindings
+        run: python ci/generate_contract_bindings.py --check
+      - name: Check governance model
+        run: python ci/governance_selftest.py
+      - name: Verify all repository policies and sanitized snapshot
+        run: python ci/verify_repository.py all
+
+  dataset:
+    needs: changes
+    if: needs.changes.outputs.dataset == 'true'
+    runs-on: [self-hosted, Windows, X64, sih26168]
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - name: Run dataset tests in a clean external environment
+        run: python ci/run_python_checks.py dataset
+      - name: Verify no forbidden artifacts remain
+        if: always()
+        run: python ci/verify_repository.py forbidden
+
+  python:
+    needs: changes
+    if: needs.changes.outputs.python == 'true'
+    runs-on: [self-hosted, Windows, X64, sih26168]
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - name: Run Python tests in a clean external environment
+        run: python ci/run_python_checks.py python
+
+  cpp:
+    needs: changes
+    if: needs.changes.outputs.cpp == 'true'
+    runs-on: [self-hosted, Windows, X64, sih26168]
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - name: Configure
+        run: cmake -S . -B build -G "Visual Studio 17 2022" -A x64 -DCMAKE_BUILD_TYPE=Release
+      - name: Build
+        run: cmake --build build --config Release
+      - name: Test
+        run: ctest --test-dir build --output-on-failure -C Release
+
+  android:
+    needs: changes
+    if: needs.changes.outputs.android == 'true'
+    runs-on: [self-hosted, Windows, X64, sih26168]
+    timeout-minutes: 30
+    env:
+      ANDROID_SDK_ROOT: C:\Android\Sdk
+      ANDROID_HOME: C:\Android\Sdk
+      PSExecutionPolicyPreference: Bypass
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-java@cf277c60eb25467037889841efdb72551f06f6c3 # v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: gradle/actions/setup-gradle@48b5f213c81028ace310571dc5ec0fbbca0b2947 # v4
+        with:
+          gradle-version: '8.10.2'
+      - name: Verify provisioned runner toolchain
+        shell: powershell -NoProfile -ExecutionPolicy Bypass -Command ". '{0}'"
+        run: ./ci/self_hosted_runner_preflight.ps1
+      - name: Verify pinned Gradle
+        run: |
+          gradle --version | findstr /B /C:"Gradle 8.10.2"
+          if errorlevel 1 exit /b 1
+      - name: JVM tests, lint and debug build
+        run: gradle -p android --no-daemon --build-cache --continue testDebugUnitTest lintDebug assembleDebug
+
+  ci-required:
+    if: ${{ always() }}
+    needs: [changes, policy, dataset, python, cpp, android]
+    runs-on: [self-hosted, Windows, X64, sih26168]
+    timeout-minutes: 5
+    steps:
+      - name: Reject untrusted fork code
+        if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name != github.repository
+        run: |
+          echo Fork-origin pull requests cannot execute code on the self-hosted runner. Reproduce the change on a trusted repository branch. 1>&2
+          exit /b 1
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - name: Validate required results
+        env:
+          NEEDS_JSON: ${{ toJSON(needs) }}
+        run: python ci/verify_ci_result.py

@@ -63,4 +63,4 @@ fi
 "${python_bin}" tools/graphify/verify_graph.py
 
 "${python_bin}" -c "import json; m=json.load(open('docs/architecture/dependency-graph/metadata.json', encoding='utf-8')); print(f\"Snapshot verified: {m['node_count']} nodes, {m['edge_count']} edges, {m['community_count']} communities.\")"
-git status --short -- .gitignore .graphifyignore AGENTS.md .github/workflows/graphify-check.yml ci docs tools/graphify
+git status --short -- .gitignore .graphifyignore AGENTS.md .github/workflows/ci.yml ci docs tools/graphify

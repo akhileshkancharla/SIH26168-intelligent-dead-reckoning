@@ -1290,6 +1290,8 @@ def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--architecture-zip", type=Path, required=True)
     args = parser.parse_args()
+    if (ROOT / ".github/workflows/ci.yml").exists():
+        parser.error("This historical bootstrap generator cannot overwrite a repository using selective CI. Edit the maintained files directly.")
     basic_files()
     import_architecture(args.architecture_zip.resolve())
     governance_files()

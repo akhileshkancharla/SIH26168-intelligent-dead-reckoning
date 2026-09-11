@@ -46,7 +46,7 @@ Both wrappers:
 
 ## CI mode
 
-CI is `snapshot-validation-only`. It runs the deterministic sanitizer/verifier tests, verifies the committed snapshot, and runs the integrated repository policy without installing Graphify.
+CI is `snapshot-validation-only`. The always-running `policy` job in `.github/workflows/ci.yml` runs the deterministic sanitizer/verifier tests and integrated repository policy, including verification of the committed snapshot, without installing Graphify.
 
 Full CI regeneration is deferred until the project has an approved, hash-locked transitive Graphify dependency set and licence inventory. This limitation is not represented as successful regeneration.
 

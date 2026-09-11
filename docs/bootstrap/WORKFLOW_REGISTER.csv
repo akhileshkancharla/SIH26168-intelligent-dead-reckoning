@@ -1,23 +1,14 @@
 Workflow,Required check/job,Purpose,Required on main
-repository-policy.yml,repository-policy-check,repository policy check,yes
-forbidden-files.yml,forbidden-files-check,forbidden files check,yes
-secret-scanning.yml,secret-scanning-check,secret scanning check,yes
-markdown.yml,markdown-check,markdown check,yes
-internal-links.yml,internal-links-check,internal links check,yes
-json.yml,json-check,json check,yes
-csv.yml,csv-check,csv check,yes
-contracts.yml,contracts-check,contracts check,yes
-python.yml,python-smoke-check,python smoke check,yes
-cpp.yml,cpp-smoke-check,cpp smoke check,yes
-android-jvm.yml,android-jvm-check,android jvm check,yes
-android-lint.yml,android-lint-check,android lint check,yes
-android-debug-build.yml,android-debug-build-check,android debug build check,yes
-manifest.yml,manifest-check,manifest check,yes
-generated-drift.yml,generated-file-drift-check,generated file drift check,yes
-graphify-check.yml,graphify-snapshot-check,sanitized dependency graph validation,yes
-issue-governance.yml,issue-governance-check,issue governance check,no
-pull-request-governance.yml,pull-request-governance-check,pull request governance check,yes
-sensitive-review.yml,sensitive-review-check,author-aware review policy check,yes
-issue-close-guard.yml,issue-close-guard,issue close guard,no
-wip-limit.yml,wip-limit-enforcement,wip limit enforcement,no
-inactivity-accountability.yml,inactivity-accountability,inactivity accountability,no
+ci.yml,changes,Conservative complete PR diff classification,no
+ci.yml,policy,Repository policies generated drift and graph validation,no
+ci.yml,dataset,Conditional synthetic dataset tests,no
+ci.yml,python,Conditional Python bootstrap and binding tests,no
+ci.yml,cpp,Conditional native build and tests,no
+ci.yml,android,Conditional JVM lint debug build and runner preflight,no
+ci.yml,ci-required,Required aggregate of policy and selected tests,yes
+issue-governance.yml,issue-governance-check,Issue governance,no
+pull-request-governance.yml,pull-request-governance-check,Pull request governance,yes
+sensitive-review.yml,sensitive-review-check,Author-aware review policy,yes
+issue-close-guard.yml,issue-close-guard,Issue close guard,no
+wip-limit.yml,wip-limit-enforcement,WIP limit enforcement,no
+inactivity-accountability.yml,inactivity-accountability,Inactivity accountability,no

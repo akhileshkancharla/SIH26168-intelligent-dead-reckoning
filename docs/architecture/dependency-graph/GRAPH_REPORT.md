@@ -4,12 +4,12 @@
 
 - Snapshot classification: `generated-and-sanitized`
 - Source repository: `akhileshkancharla/SIH26168-intelligent-dead-reckoning`
-- Source branch: `issue/WP-03.1-wp-03-1-import-accepted`
-- Source parent commit: `bbe87c3be85df89e8fb98773aa2ed7d9eccfb012`
+- Source branch: `codex/selective-ci`
+- Source parent commit: `e3f32a354befafe38a4fbb2466014d471e8f7e23`
 - Graphify version: `0.9.53`
 - Graphify mode: code-only static extraction; semantic document extraction disabled
-- Counts: 1513 nodes, 2223 edges, 149 communities
-- Edge evidence: 2180 extracted, 43 inferred
+- Counts: 1707 nodes, 2636 edges, 142 communities
+- Edge evidence: 2596 extracted, 40 inferred
 - CI mode: `snapshot-validation-only`
 
 ## VERIFIED FROM CODE
@@ -22,11 +22,11 @@ Android, core, acquisition, JNI, training, map, and analyzer areas remain discon
 
 | Module | Extracted source files | Current interpretation |
 | --- | ---: | --- |
-| Android app | 10 | Launcher/UI scaffold; no sensor-to-position path |
-| Portable core | 20 | C++ contract-version smoke scaffold |
-| Contracts | 22 | Bootstrap replay schema and enum artifacts |
-| Repository automation | 11 | Repository and GitHub governance tooling |
-| Policy CI | 6 | Repository validation and generated-file checks |
+| Android app | 8 | Launcher/UI scaffold; no sensor-to-position path |
+| Portable core | 19 | C++ contract-version smoke scaffold |
+| Contracts | 23 | Bootstrap replay schema and enum artifacts |
+| Repository automation | 12 | Repository and GitHub governance tooling |
+| Policy CI | 13 | Repository validation and generated-file checks |
 | Acquisition/JNI/ML/maps/analyzer | 0 | README-only or disconnected placeholders |
 
 ### Entry points
@@ -56,7 +56,7 @@ Current high-degree nodes are primarily repository administration tooling, not n
 | `reference_oracle.py` | 31 | [core/navigation/verification/python/reference_oracle.py:L1](../../../core/navigation/verification/python/reference_oracle.py) |
 | `sanitize_graph.py` | 27 | [tools/graphify/sanitize_graph.py:L1](../../../tools/graphify/sanitize_graph.py) |
 | `run_python_tests.py` | 24 | [core/navigation/verification/python/run_python_tests.py:L1](../../../core/navigation/verification/python/run_python_tests.py) |
-| `5. Normative Interface Specifications (I-01 through I-22)` | 23 | [contracts/INTERFACE_SCHEMA_PLAN.md:L120](../../../contracts/INTERFACE_SCHEMA_PLAN.md) |
+| `S1FixtureRoundTripTest` | 22 | [tools/bootstrap/tests/test_s1_fixture_round_trip.py:L15](../../../tools/bootstrap/tests/test_s1_fixture_round_trip.py) |
 | `SchemaField` | 21 | [ci/generate_contract_bindings.py:L193](../../../ci/generate_contract_bindings.py) |
 | `NominalState` | 21 | [core/navigation/verification/python/reference_oracle.py:L152](../../../core/navigation/verification/python/reference_oracle.py) |
 | `JacobianReport` | 20 | [core/navigation/tests/test_navigation_core.cpp:L29](../../../core/navigation/tests/test_navigation_core.cpp) |
@@ -64,25 +64,25 @@ Current high-degree nodes are primarily repository administration tooling, not n
 
 ### Weakly connected or orphan candidates
 
-The raw Graphify report identified 685 isolated symbol nodes. This sanitizer independently found 810 repository-backed nodes with degree at most one; the bounded sample below is diagnostic, not deletion evidence.
+The raw Graphify report identified 664 isolated symbol nodes. This sanitizer independently found 799 repository-backed nodes with degree at most one; the bounded sample below is diagnostic, not deletion evidence.
 
 | Node | Degree | Source |
 | --- | ---: | --- |
-| `acquisition/README.md` | 0 | [android/acquisition/README.md](../../../android/acquisition/README.md) |
 | `app/build.gradle.kts` | 0 | [android/app/build.gradle.kts](../../../android/app/build.gradle.kts) |
 | `android/build.gradle.kts` | 0 | [android/build.gradle.kts](../../../android/build.gradle.kts) |
-| `navigation-jni/README.md` | 0 | [android/navigation-jni/README.md](../../../android/navigation-jni/README.md) |
 | `settings.gradle.kts` | 0 | [android/settings.gradle.kts](../../../android/settings.gradle.kts) |
 | `update_manifest.py` | 0 | [ci/update_manifest.py](../../../ci/update_manifest.py) |
 | `verify_repository.ps1` | 0 | [ci/verify_repository.ps1](../../../ci/verify_repository.ps1) |
 | `smoke.cpp` | 0 | [core/navigation/src/smoke.cpp](../../../core/navigation/src/smoke.cpp) |
-| `scenarios/README.md` | 0 | [demo/scenarios/README.md](../../../demo/scenarios/README.md) |
-| `protocols/README.md` | 0 | [docs/protocols/README.md](../../../docs/protocols/README.md) |
-| `experiments/manifests/README.md` | 0 | [experiments/manifests/README.md](../../../experiments/manifests/README.md) |
-| `public/README.md` | 0 | [fixtures/public/README.md](../../../fixtures/public/README.md) |
 | `sih26168-bootstrap` | 0 | [pyproject.toml](../../../pyproject.toml) |
-| `claims/README.md` | 0 | [submission/claims/README.md](../../../submission/claims/README.md) |
-| `submission/manifests/README.md` | 0 | [submission/manifests/README.md](../../../submission/manifests/README.md) |
+| `sih26168_bootstrap/__init__.py` | 0 | [tools/bootstrap/src/sih26168_bootstrap/__init__.py](../../../tools/bootstrap/src/sih26168_bootstrap/__init__.py) |
+| `tests/__init__.py` | 0 | [tools/dataset/tests/__init__.py](../../../tools/dataset/tests/__init__.py) |
+| `ReplayDisclosure` | 1 | [android/app/src/main/java/org/sih26168/app/MainActivity.kt](../../../android/app/src/main/java/org/sih26168/app/MainActivity.kt) |
+| `SLIP_SUSPECTED` | 1 | [android/app/src/main/java/org/sih26168/contracts/enums/Enums.kt](../../../android/app/src/main/java/org/sih26168/contracts/enums/Enums.kt) |
+| `UNCERTAIN` | 1 | [android/app/src/main/java/org/sih26168/contracts/enums/Enums.kt](../../../android/app/src/main/java/org/sih26168/contracts/enums/Enums.kt) |
+| `UNINITIALIZED` | 1 | [android/app/src/main/java/org/sih26168/contracts/enums/Enums.kt](../../../android/app/src/main/java/org/sih26168/contracts/enums/Enums.kt) |
+| `VALID` | 1 | [android/app/src/main/java/org/sih26168/contracts/enums/Enums.kt](../../../android/app/src/main/java/org/sih26168/contracts/enums/Enums.kt) |
+| `DETERMINISTIC_REPLAY` | 1 | [android/app/src/main/java/org/sih26168/contracts/enums/Enums.kt](../../../android/app/src/main/java/org/sih26168/contracts/enums/Enums.kt) |
 
 ### Cycles
 
