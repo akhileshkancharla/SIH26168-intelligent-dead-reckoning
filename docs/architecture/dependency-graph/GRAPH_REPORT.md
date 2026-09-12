@@ -5,11 +5,11 @@
 - Snapshot classification: `generated-and-sanitized`
 - Source repository: `akhileshkancharla/SIH26168-intelligent-dead-reckoning`
 - Source branch: `codex/selective-ci`
-- Source parent commit: `e3f32a354befafe38a4fbb2466014d471e8f7e23`
+- Source parent commit: `34eda0060802c3e0084902e0e3e38b15b64a50eb`
 - Graphify version: `0.9.53`
 - Graphify mode: code-only static extraction; semantic document extraction disabled
-- Counts: 1707 nodes, 2636 edges, 142 communities
-- Edge evidence: 2596 extracted, 40 inferred
+- Counts: 1715 nodes, 2645 edges, 144 communities
+- Edge evidence: 2605 extracted, 40 inferred
 - CI mode: `snapshot-validation-only`
 
 ## VERIFIED FROM CODE
@@ -26,7 +26,7 @@ Android, core, acquisition, JNI, training, map, and analyzer areas remain discon
 | Portable core | 19 | C++ contract-version smoke scaffold |
 | Contracts | 23 | Bootstrap replay schema and enum artifacts |
 | Repository automation | 12 | Repository and GitHub governance tooling |
-| Policy CI | 13 | Repository validation and generated-file checks |
+| Policy CI | 14 | Repository validation and generated-file checks |
 | Acquisition/JNI/ML/maps/analyzer | 0 | README-only or disconnected placeholders |
 
 ### Entry points
@@ -64,7 +64,7 @@ Current high-degree nodes are primarily repository administration tooling, not n
 
 ### Weakly connected or orphan candidates
 
-The raw Graphify report identified 664 isolated symbol nodes. This sanitizer independently found 799 repository-backed nodes with degree at most one; the bounded sample below is diagnostic, not deletion evidence.
+The raw Graphify report identified 664 isolated symbol nodes. This sanitizer independently found 800 repository-backed nodes with degree at most one; the bounded sample below is diagnostic, not deletion evidence.
 
 | Node | Degree | Source |
 | --- | ---: | --- |
