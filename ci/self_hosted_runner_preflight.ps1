@@ -235,3 +235,6 @@ if ($failures.Count -gt 0) {
 }
 
 Write-Host "PASS: Windows self-hosted runner preflight"
+# The Actions PowerShell wrapper propagates LASTEXITCODE after this script.
+# A handled native-tool probe must not turn a successful preflight into failure.
+exit 0
