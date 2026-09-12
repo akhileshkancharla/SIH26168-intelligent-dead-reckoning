@@ -42,6 +42,15 @@ path under the repo root regardless of Git tracking status.
   `duplicate_members_by_group` reports which groups contain an exact
   duplicate, for audit evidence.
 
+  Group IDs hash a compact JSON array of sorted unique member identifiers,
+  preserving boundaries even when identifiers contain control characters.
+  This replaces the earlier unit-separator encoding and changes generated
+  IDs for existing groups. Regenerate `group_ids`, `file_group_ids`, and all
+  derived splits together from the original file/session records under a new
+  manifest revision; never combine old and regenerated IDs or overwrite an
+  immutable manifest. Downstream training runs must reference that new
+  manifest and its regenerated splits.
+
 ## Scope boundaries
 
 This directory intentionally does **not** yet implement:

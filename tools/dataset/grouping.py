@@ -26,6 +26,7 @@ processing order -- no randomness, no wall-clock, no incidental ordering.
 from __future__ import annotations
 
 import hashlib
+import json
 import re
 from dataclasses import dataclass
 from typing import Dict, List, Optional
@@ -83,9 +84,11 @@ def _deterministic_group_id(member_identifiers: List[str]) -> str:
 
     Using a hash of the *sorted* member set (rather than, say, the first
     member seen) means the resulting group_id does not depend on input
-    ordering or on which record happened to be processed first.
+    ordering or on which record happened to be processed first. JSON
+    array encoding preserves member boundaries even when an identifier
+    contains delimiters, quotes, backslashes or control characters.
     """
-    canonical = "\x1f".join(sorted(member_identifiers))
+    canonical = json.dumps(sorted(member_identifiers), ensure_ascii=True, separators=(",", ":"))
     digest = hashlib.sha256(canonical.encode("utf-8")).hexdigest()
     return f"grp-{digest[:16]}"
 
@@ -103,7 +106,7 @@ def _validate_record(record: FileRecord) -> None:
     """
     if not record.identifier or not record.identifier.strip():
         raise ValueError(f"FileRecord has an empty or blank identifier: {record!r}")
-    if not _SHA256_HEX_PATTERN.match(record.sha256):
+    if not _SHA256_HEX_PATTERN.fullmatch(record.sha256):
         raise ValueError(
             f"FileRecord {record.identifier!r} has a malformed sha256 (must be exactly 64 "
             f"lowercase hex characters): {record.sha256!r}"

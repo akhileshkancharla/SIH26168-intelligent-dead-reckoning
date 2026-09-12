@@ -64,6 +64,21 @@ class ComputeGroupsTest(unittest.TestCase):
         self.assertEqual(groups["f1"], groups["f2"])
         self.assertNotEqual(groups["f1"], groups["f3"])
 
+    def test_separator_in_identifiers_does_not_merge_unrelated_groups(self):
+        # Both member lists produced "a\x1fb\x1fc" with separator joining.
+        # The two duplicate pairs have different content and no shared session.
+        records = [
+            grouping.FileRecord("a\x1fb", _h("first-pair")),
+            grouping.FileRecord("c", _h("first-pair")),
+            grouping.FileRecord("a", _h("second-pair")),
+            grouping.FileRecord("b\x1fc", _h("second-pair")),
+        ]
+        groups = grouping.compute_groups(records)
+        self.assertEqual(groups["a\x1fb"], groups["c"])
+        self.assertEqual(groups["a"], groups["b\x1fc"])
+        self.assertNotEqual(groups["a"], groups["c"])
+        self.assertEqual(groups, grouping.compute_groups(list(reversed(records)) + records))
+
     def test_shared_parent_session_shares_a_group_even_with_different_hashes(self):
         records = [
             grouping.FileRecord("f1", _h("a"), parent_session_id="session-1"),
@@ -155,6 +170,16 @@ class ComputeGroupsTest(unittest.TestCase):
             with self.subTest(sha256=bad_hash):
                 with self.assertRaises(ValueError):
                     grouping.compute_groups([grouping.FileRecord("f1", bad_hash)])
+
+    def test_rejects_duplicate_digest_with_trailing_newline(self):
+        # Accepting the newline would give this duplicate a different hash key
+        # and let it enter a different group (and eventually a different split).
+        records = [
+            grouping.FileRecord("original", _h("same-content")),
+            grouping.FileRecord("duplicate", _h("same-content") + "\n"),
+        ]
+        with self.assertRaisesRegex(ValueError, "malformed sha256"):
+            grouping.compute_groups(records)
 
     def test_rejects_whitespace_only_parent_session_id(self):
         # A blank session id must never be accepted as if it meant "no
