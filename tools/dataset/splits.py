@@ -26,6 +26,7 @@ inherent, expected property of grouped/journey-safe splitting, not a bug.
 from __future__ import annotations
 
 import hashlib
+import math
 from typing import Dict, Iterable, List
 
 DEFAULT_SPLIT_RATIOS: Dict[str, float] = {"train": 0.7, "validation": 0.15, "test": 0.15}
@@ -42,6 +43,14 @@ def _validate_ratios(ratios: Dict[str, float]) -> None:
     if set(ratios) != set(SPLIT_NAMES):
         raise SplitError(f"split ratios must cover exactly {SPLIT_NAMES}, got {sorted(ratios)}")
     for name, value in ratios.items():
+        if isinstance(value, bool) or not isinstance(value, (int, float)):
+            raise SplitError(f"split ratio for {name!r} must be a finite number, got {value!r}")
+        try:
+            finite = math.isfinite(value)
+        except OverflowError:
+            finite = False
+        if not finite:
+            raise SplitError(f"split ratio for {name!r} must be finite, got {value!r}")
         if value < 0:
             raise SplitError(f"split ratio for {name!r} must be non-negative, got {value}")
     total = sum(ratios.values())

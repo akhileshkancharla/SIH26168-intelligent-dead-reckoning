@@ -77,6 +77,50 @@ class AssignSplitsTest(unittest.TestCase):
         with self.assertRaises(splits_mod.SplitError):
             splits_mod.assign_splits(["g1"], ratios={"train": 1.1, "validation": -0.1, "test": 0.0})
 
+    def test_rejects_nonfinite_ratio_in_every_split(self):
+        for name in splits_mod.SPLIT_NAMES:
+            for value in (float("nan"), float("inf"), float("-inf")):
+                with self.subTest(split=name, value=value):
+                    ratios = dict(splits_mod.DEFAULT_SPLIT_RATIOS)
+                    ratios[name] = value
+                    with self.assertRaises(splits_mod.SplitError):
+                        splits_mod.assign_splits(["g1", "g2"], ratios=ratios)
+
+    def test_rejects_nan_even_when_all_groups_fit_an_earlier_bucket(self):
+        # Previously every group entered train before the NaN bucket
+        # was reached, so this invalid configuration silently succeeded.
+        with self.assertRaises(splits_mod.SplitError):
+            splits_mod.assign_splits(
+                ["g1", "g2"], ratios={"train": 1.0, "validation": float("nan"), "test": 0.15}
+            )
+
+    def test_rejects_nonfinite_ratios_before_empty_group_assignment(self):
+        for name in splits_mod.SPLIT_NAMES:
+            for value in (float("nan"), float("inf"), float("-inf")):
+                with self.subTest(split=name, value=value):
+                    ratios = dict(splits_mod.DEFAULT_SPLIT_RATIOS)
+                    ratios[name] = value
+                    with self.assertRaises(splits_mod.SplitError):
+                        splits_mod.assign_splits([], ratios=ratios)
+
+    def test_rejects_nonnumeric_and_boolean_ratio_values(self):
+        for value in (None, "0.7", True, False):
+            with self.subTest(value=value):
+                ratios = dict(splits_mod.DEFAULT_SPLIT_RATIOS)
+                ratios["train"] = value
+                with self.assertRaises(splits_mod.SplitError):
+                    splits_mod.assign_splits(["g1"], ratios=ratios)
+
+    def test_rejects_integer_ratio_too_large_for_float_conversion(self):
+        with self.assertRaises(splits_mod.SplitError):
+            splits_mod.assign_splits(["g1"], ratios={"train": 10**1000, "validation": 0, "test": 0})
+
+    def test_accepts_integer_ratios(self):
+        self.assertEqual(
+            splits_mod.assign_splits(["g1", "g2"], ratios={"train": 1, "validation": 0, "test": 0}),
+            {"train": ["g1", "g2"], "validation": [], "test": []},
+        )
+
     def test_rejects_missing_split_name_in_ratios(self):
         with self.assertRaises(splits_mod.SplitError):
             splits_mod.assign_splits(["g1"], ratios={"train": 0.5, "validation": 0.5})
