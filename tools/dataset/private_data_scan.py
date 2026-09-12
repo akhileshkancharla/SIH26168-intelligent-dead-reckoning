@@ -83,7 +83,7 @@ def scan_tree(root: Path) -> List[str]:
     for path in _iter_files(root):
         rel = path.relative_to(root)
         rel_parts = rel.parts
-        if any(part in FORBIDDEN_PATH_SEGMENTS for part in rel_parts[:-1]):
+        if any(part.casefold() in FORBIDDEN_PATH_SEGMENTS for part in rel_parts[:-1]):
             violations.append(f"forbidden path segment (data/ or private/): {rel.as_posix()}")
         if path.suffix.lower() in FORBIDDEN_DATA_SUFFIXES:
             violations.append(f"forbidden data-file suffix {path.suffix.lower()!r}: {rel.as_posix()}")

@@ -85,6 +85,25 @@ class ScanTreeDetectsViolationsTest(unittest.TestCase):
             cache.write_bytes(b"\x00\x01\x02")
             self.assertEqual(scan_mod.scan_tree(root), [])
 
+    def test_forbidden_directory_names_are_case_insensitive(self):
+        for parts in (
+            ("Data",),
+            ("Private",),
+            ("some", "nested", "dAtA"),
+            ("some", "nested", "pRiVaTe"),
+        ):
+            with self.subTest(parts=parts), tempfile.TemporaryDirectory() as tmp:
+                # Use a fresh tree for each spelling: Windows may alias
+                # differently cased directory names in a shared tree.
+                root = Path(tmp)
+                nested = root.joinpath(*parts, "canary.json")
+                nested.parent.mkdir(parents=True)
+                nested.write_text("{}", encoding="utf-8")
+                violations = scan_mod.scan_tree(root)
+                self.assertTrue(any("forbidden path segment" in v for v in violations))
+                with self.assertRaisesRegex(scan_mod.PrivateDataScanError, "forbidden path segment"):
+                    scan_mod.assert_tree_is_clean(root)
+
     def test_assert_tree_is_clean_raises_on_violation(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
