@@ -12,12 +12,13 @@ tools/dataset/grouping.py and tools/dataset/splits.py guard against; this
 module is the deny-by-default gate for that failure mode.
 
 This module is the enforcement *engine* only. This repository does not
-have a frozen, organizer-supplied list of either (a) which feature names
-are genuinely available to the on-device runtime, or (b) which IO-VNBD
-field names are ground-truth-only. A search of this repository's own
-contracts and fixtures turns up only informal, non-frozen mentions (e.g.
-"ACCELEROMETER" in one test fixture) -- not a committed enum this module
-could safely treat as authoritative. Fabricating either list here would
+have a frozen, reviewed list of either (a) exact runtime feature names or
+(b) exact IO-VNBD ground-truth field names. Development Design Baseline
+section 5 does specify candidate input categories and prohibited sources.
+FEATURE_CONTRACT_PROPOSAL.md derives a minimal named profile from those
+requirements; feature_provenance.py validates its metadata. Source mappings
+and exact inventories still need evidence and owner review. Fabricating
+an approved inventory here would
 violate this repository's "no fabricated architecture/evidence" rule just
 as surely as guessing the six IO-VNBD schema names would (see
 schema_allowlist.py). The shipped config/feature_firewall.json is
@@ -214,3 +215,20 @@ def enforce_feature_set(proposed_features: List[str], firewall_document: Dict[st
             f"firewall; quarantine and stop the experiment: forbidden_labels={forbidden}, "
             f"not_runtime_available={not_available}"
         )
+
+
+def enforce_feature_window(records: list[dict], firewall_document: Dict[str, Any],
+                           *, start_ns: int, end_ns: int, clock_id: str) -> None:
+    """Compose active configuration enforcement with the proposed metadata gate.
+
+    A trusted extractor must construct provenance from the reviewed source map.
+    The shipped TEMPLATE still stops real-data use at the first gate.
+    """
+    from tools.dataset.feature_provenance import validate_minimal_window
+
+    require_active_firewall(firewall_document)
+    try:
+        validate_minimal_window(records, start_ns=start_ns, end_ns=end_ns, clock_id=clock_id)
+    except ValueError as exc:
+        raise FeatureFirewallError(str(exc)) from exc
+    enforce_feature_set([record["name"] for record in records], firewall_document)
