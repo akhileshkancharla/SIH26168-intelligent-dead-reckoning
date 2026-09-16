@@ -292,7 +292,7 @@ void writeTestResults(const std::string& path, const std::vector<TestRecord>& re
     std::ofstream output(path);
     require(static_cast<bool>(output), "Cannot write C++ test result JSON");
     output << std::setprecision(17)
-           << "{\n  \"schema_version\": 1,\n  \"language\": \"C++17\",\n"
+           << "{\n  \"schema_version\": 1,\n  \"language\": \"C++20\",\n"
            << "  \"total\": " << records.size() << ",\n"
            << "  \"passed\": " << passed << ",\n"
            << "  \"failed\": " << (static_cast<int>(records.size()) - passed) << ",\n"
@@ -311,7 +311,7 @@ void writeJacobianResults(const std::string& path, const JacobianReport& report)
     std::ofstream output(path);
     require(static_cast<bool>(output), "Cannot write C++ Jacobian result JSON");
     output << std::setprecision(17)
-           << "{\n  \"schema_version\": 1,\n  \"language\": \"C++17\",\n"
+           << "{\n  \"schema_version\": 1,\n  \"language\": \"C++20\",\n"
            << "  \"perturbation_convention\": \"right-multiplicative attitude; additive p,v,bias; central finite differences\",\n"
            << "  \"step_sizes\": {\"position_m\": 1e-6, \"velocity_mps\": 1e-6, "
               "\"attitude_rad\": 1e-7, \"accel_bias_mps2\": 1e-6, \"gyro_bias_radps\": 1e-6},\n"
