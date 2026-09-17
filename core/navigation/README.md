@@ -41,6 +41,28 @@ The production library exports only `core/navigation/include` and Eigen's
 header-only target to consumers. Python and NumPy remain offline verification
 tools and are not CMake or production dependencies.
 
+## Portable public API
+
+Issue #39 defines the public C++20 contract in
+`include/sih26168/navigation_core.hpp`. It deliberately exposes standard-library
+value types rather than Eigen or Android/JNI types. Source and callback-arrival
+timestamps use distinct strong types in the same boot-scoped monotonic
+nanosecond domain. Sequence and evidence identifiers are explicit, coordinate
+frames and SI units are documented at every boundary, and propagation and
+measurement decisions use typed results.
+
+`sih26168::navigation::NavigationCore` exclusively owns the accepted S2 core,
+operational biases, covariance and presented-evidence ledger. State and
+covariance are returned only as value snapshots, so callers cannot mutate the
+internal estimate. A nonempty evidence ID is consumed on first presentation,
+including precheck-invalid and rejected measurements. The wrapper performs no
+unit conversion and does not change the accepted estimator equations, noise
+values or innovation gates.
+
+The API makes no stable binary-ABI promise. Issue #40 may adapt this value
+contract to JNI later without adding Android types or JNI lifecycle concerns to
+the portable core.
+
 This work does not define the portable public API assigned to issue #39, add
 JNI assigned to issue #40, or claim the C++/NumPy parity work assigned to issue
 #41. The replay executable is a host verification driver; Android integration

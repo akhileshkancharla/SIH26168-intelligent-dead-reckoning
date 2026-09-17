@@ -60,7 +60,11 @@ add_executable(sih26168_navigation_smoke_test tests/smoke_test.cpp)
 target_link_libraries(sih26168_navigation_smoke_test PRIVATE sih26168_navigation_smoke)
 add_test(NAME navigation-smoke COMMAND sih26168_navigation_smoke_test)
 
-add_library(sih26168_navigation_core STATIC src/navigation_core.cpp)
+add_library(
+    sih26168_navigation_core STATIC
+    src/navigation_core.cpp
+    src/navigation_api.cpp
+)
 target_include_directories(
     sih26168_navigation_core
     PUBLIC
@@ -82,6 +86,19 @@ add_test(
     COMMAND sih26168_navigation_core_tests
         "${CMAKE_CURRENT_BINARY_DIR}/cpp_test_results.json"
         "${CMAKE_CURRENT_BINARY_DIR}/cpp_jacobian_results.json"
+)
+
+add_executable(
+    sih26168_navigation_api_tests
+    tests/test_navigation_api.cpp
+)
+target_link_libraries(
+    sih26168_navigation_api_tests
+    PRIVATE sih26168_navigation_core
+)
+add_test(
+    NAME navigation-core-api
+    COMMAND sih26168_navigation_api_tests
 )
 
 add_executable(
