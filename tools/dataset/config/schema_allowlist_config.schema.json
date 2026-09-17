@@ -21,7 +21,7 @@
         "TEMPLATE_PENDING_S0_AUDIT_ASSIGNMENT",
         "ACTIVE"
       ],
-      "description": "TEMPLATE_PENDING_S0_AUDIT_ASSIGNMENT until a human with the SIH26168_IO_VNBD_Dataset_Feasibility_Audit_v1.1 document (referenced as an evidence input in docs/architecture/SIH26168_ARCHITECTURE_MANIFEST_v1.json, not itself present in this repository) replaces the six placeholder entries with the real allowlisted IO-VNBD schema identifiers and sets this to ACTIVE. tools/dataset/schema_allowlist.py refuses to enforce a non-ACTIVE allowlist."
+      "description": "ACTIVE for the reviewed six-schema inventory. TEMPLATE_PENDING_S0_AUDIT_ASSIGNMENT remains available only for unresolved replacement documents; tools/dataset/schema_allowlist.py refuses to enforce any non-ACTIVE or placeholder-bearing allowlist."
     },
     "allowlist": {
       "type": "array",
