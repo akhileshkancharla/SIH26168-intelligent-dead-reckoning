@@ -5,7 +5,7 @@
   "graphify_version": "0.9.53",
   "raw_output": "graphify-out",
   "shared_output": "docs/architecture/dependency-graph",
-  "update_command": ["graphify", "update", "."],
+  "update_command": ["graphify", "extract", ".", "--code-only"],
   "bootstrap_commands": [
     ["graphify", "extract", ".", "--code-only"],
     ["graphify", "cluster-only", ".", "--no-label"]

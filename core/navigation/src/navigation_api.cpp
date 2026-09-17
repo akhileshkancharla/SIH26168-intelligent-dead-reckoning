@@ -74,6 +74,26 @@ bool validMeasurementKind(MeasurementKind kind) {
         || kind == MeasurementKind::PositionVelocity;
 }
 
+constexpr std::uint32_t flagValue(CovarianceQualityFlag flag) {
+    return static_cast<std::uint32_t>(flag);
+}
+
+CovarianceQualityFlags covarianceQualityFlags(const s2::Mat15& covariance) {
+    CovarianceQualityFlags flags = flagValue(CovarianceQualityFlag::None);
+    if (!covariance.allFinite()) flags |= flagValue(CovarianceQualityFlag::NonFinite);
+    if (covariance.allFinite()
+        && (covariance - covariance.transpose()).cwiseAbs().maxCoeff() > 1.0e-12) {
+        flags |= flagValue(CovarianceQualityFlag::NonSymmetric);
+    }
+    if (covariance.allFinite() && (flags & flagValue(CovarianceQualityFlag::NonSymmetric)) == 0U) {
+        const Eigen::SelfAdjointEigenSolver<s2::Mat15> solver(covariance);
+        if (solver.info() != Eigen::Success || solver.eigenvalues().minCoeff() < -1.0e-12) {
+            flags |= flagValue(CovarianceQualityFlag::PsdDefect);
+        }
+    }
+    return flags;
+}
+
 s2::MeasurementKind toS2Kind(MeasurementKind kind) {
     switch (kind) {
         case MeasurementKind::Position:
@@ -138,7 +158,17 @@ bool MeasurementResult::accepted() const {
 class NavigationCore::Impl {
 public:
     explicit Impl(const InitialState& initial_state)
-        : core(makeState(initial_state)), state_sequence(initial_state.state_sequence) {}
+        : core(makeState(initial_state)),
+          state_sequence(initial_state.state_sequence),
+          clock_id(initial_state.clock_id),
+          origin_id(initial_state.origin_id),
+          mode(initial_state.mode) {
+        if (clock_id.value.empty()) throw std::invalid_argument("Initial clock_id must not be empty");
+        if (origin_id.value.empty()) throw std::invalid_argument("Initial origin_id must not be empty");
+        if (mode == NavigationMode::Fault) {
+            throw std::invalid_argument("Initial navigation mode must not be FAULT");
+        }
+    }
 
     static s2::NominalState makeState(const InitialState& input) {
         if (input.navigation_frame != NavigationFrame::LocalNorthEastDown
@@ -175,11 +205,36 @@ public:
         if (!isSymmetricPositiveSemidefinite<15>(state.covariance)) {
             throw std::invalid_argument("Initial covariance must be symmetric positive semidefinite");
         }
+        for (int index = 0; index < 3; ++index) {
+            if (state.covariance(index, index) < 1.0e-4) {
+                throw std::invalid_argument("Initial position variance must be at least 1e-4 m^2");
+            }
+        }
+        for (int index = 3; index < 6; ++index) {
+            if (state.covariance(index, index) < 1.0e-4) {
+                throw std::invalid_argument(
+                    "Initial velocity variance must be at least 1e-4 (m/s)^2");
+            }
+        }
+        for (int index = 6; index < 9; ++index) {
+            if (state.covariance(index, index) < 1.0e-6) {
+                throw std::invalid_argument("Initial attitude variance must be at least 1e-6 rad^2");
+            }
+        }
         return state;
+    }
+
+    void markFault() {
+        mode = NavigationMode::Fault;
+        validity = StateValidity::Invalid;
     }
 
     s2::NavigationCore core;
     SequenceIdentifier state_sequence{};
+    ClockIdentifier clock_id{};
+    OriginIdentifier origin_id{};
+    NavigationMode mode{NavigationMode::Initializing};
+    StateValidity validity{StateValidity::Valid};
     std::optional<std::uint64_t> last_propagation_sequence;
     std::optional<std::uint64_t> last_measurement_sequence;
     std::unordered_set<std::string> consumed_evidence_ids;
@@ -192,42 +247,101 @@ NavigationCore::~NavigationCore() = default;
 NavigationCore::NavigationCore(NavigationCore&&) noexcept = default;
 NavigationCore& NavigationCore::operator=(NavigationCore&&) noexcept = default;
 
-PropagationResult NavigationCore::propagate(const PropagationInput& input) {
+PropagationResult NavigationCore::propagate(const ImuBatch& input) {
     PropagationResult output;
     output.state_sequence = impl_->state_sequence;
 
-    if (impl_->last_propagation_sequence
-        && input.sequence.value <= *impl_->last_propagation_sequence) {
-        output.status = PropagationStatus::RejectedInvalidSequence;
+    if (input.batch_id.value.empty()) {
+        output.status = PropagationStatus::RejectedEmptyBatchIdentifier;
         return output;
     }
-    impl_->last_propagation_sequence = input.sequence.value;
+    if (input.clock_id.value.empty()) {
+        output.status = PropagationStatus::RejectedEmptyClockIdentifier;
+        return output;
+    }
+    if (input.clock_id.value != impl_->clock_id.value) {
+        output.status = PropagationStatus::RejectedClockMismatch;
+        return output;
+    }
+    if (input.samples.empty()) {
+        output.status = PropagationStatus::RejectedEmptyBatch;
+        return output;
+    }
+    if (input.first_seq.value != input.samples.front().sequence.value
+        || input.last_seq.value != input.samples.back().sequence.value
+        || input.first_seq.value > input.last_seq.value) {
+        output.status = PropagationStatus::RejectedInvalidSequenceRange;
+        return output;
+    }
 
-    if (input.body_frame != BodyFrame::PhysicalImuBody) {
-        output.status = PropagationStatus::RejectedInvalidFrame;
+    bool empty_evidence = false;
+    bool duplicate_evidence = false;
+    for (const ImuSample& sample : input.samples) {
+        if (sample.evidence_id.value.empty()) {
+            empty_evidence = true;
+        } else if (!impl_->consumed_evidence_ids.insert(sample.evidence_id.value).second) {
+            duplicate_evidence = true;
+        }
+    }
+    if (empty_evidence) {
+        output.status = PropagationStatus::RejectedEmptyEvidenceIdentifier;
         return output;
     }
-    if (input.arrival_timestamp.nanoseconds < input.source_timestamp.nanoseconds) {
-        output.status = PropagationStatus::RejectedArrivalBeforeSource;
-        return output;
-    }
-    if (!allFinite(input.specific_force_b_mps2) || !allFinite(input.angular_rate_b_radps)) {
-        output.status = PropagationStatus::RejectedNonFinite;
+    if (duplicate_evidence) {
+        output.status = PropagationStatus::RejectedDuplicateEvidenceIdentifier;
         return output;
     }
 
-    s2::ImuSample sample;
-    sample.timestamp_ns = input.source_timestamp.nanoseconds;
-    sample.specific_force_b = toVec3(input.specific_force_b_mps2);
-    sample.angular_rate_b = toVec3(input.angular_rate_b_radps);
-    const s2::PropagationResult result = impl_->core.propagate(sample);
-    output.status = mapPropagationStatus(result);
-    output.delta_time_seconds = result.dt_s;
-    output.gap_detected = result.gap_detected;
-    if (output.accepted()) {
+    std::uint64_t prior_sequence = 0;
+    bool first = true;
+    for (const ImuSample& sample : input.samples) {
+        if ((!first && sample.sequence.value <= prior_sequence)
+            || (impl_->last_propagation_sequence
+                && sample.sequence.value <= *impl_->last_propagation_sequence)) {
+            output.status = PropagationStatus::RejectedInvalidSequence;
+            return output;
+        }
+        first = false;
+        prior_sequence = sample.sequence.value;
+        if (sample.body_frame != BodyFrame::PhysicalImuBody) {
+            output.status = PropagationStatus::RejectedInvalidFrame;
+            return output;
+        }
+        if (sample.arrival_timestamp.nanoseconds < sample.source_timestamp.nanoseconds) {
+            output.status = PropagationStatus::RejectedArrivalBeforeSource;
+            return output;
+        }
+        if (!allFinite(sample.specific_force_b_mps2) || !allFinite(sample.angular_rate_b_radps)) {
+            output.status = PropagationStatus::RejectedNonFinite;
+            return output;
+        }
+    }
+
+    output.status = PropagationStatus::Accepted;
+    output.gap_detected = input.gap_flags != static_cast<ImuGapFlags>(ImuGapFlag::None);
+    for (const ImuSample& input_sample : input.samples) {
+        impl_->last_propagation_sequence = input_sample.sequence.value;
+        s2::ImuSample sample;
+        sample.timestamp_ns = input_sample.source_timestamp.nanoseconds;
+        sample.specific_force_b = toVec3(input_sample.specific_force_b_mps2);
+        sample.angular_rate_b = toVec3(input_sample.angular_rate_b_radps);
+        try {
+            const s2::PropagationResult result = impl_->core.propagate(sample);
+            output.status = mapPropagationStatus(result);
+            output.delta_time_seconds += result.dt_s;
+            output.gap_detected = output.gap_detected || result.gap_detected;
+        } catch (const std::runtime_error&) {
+            output.status = PropagationStatus::NumericalFailure;
+        }
+        if (!output.accepted()) {
+            if (output.status == PropagationStatus::NumericalFailure) impl_->markFault();
+            output.state_sequence = impl_->state_sequence;
+            return output;
+        }
         ++impl_->state_sequence.value;
-        output.state_sequence = impl_->state_sequence;
     }
+    if (output.gap_detected) output.status = PropagationStatus::AcceptedGap;
+    output.state_sequence = impl_->state_sequence;
     return output;
 }
 
@@ -235,11 +349,11 @@ MeasurementResult NavigationCore::update(const MeasurementInput& input) {
     MeasurementResult output;
     output.state_sequence = impl_->state_sequence;
 
-    if (input.evidence_id.value.empty()) {
+    if (input.measurement_id.value.empty()) {
         output.status = MeasurementStatus::RejectedEmptyEvidenceIdentifier;
         return output;
     }
-    if (!impl_->consumed_evidence_ids.insert(input.evidence_id.value).second) {
+    if (!impl_->consumed_evidence_ids.insert(input.measurement_id.value).second) {
         output.status = MeasurementStatus::RejectedDuplicateEvidenceIdentifier;
         return output;
     }
@@ -250,8 +364,22 @@ MeasurementResult NavigationCore::update(const MeasurementInput& input) {
     }
     impl_->last_measurement_sequence = input.sequence.value;
 
-    if (input.validity != MeasurementValidity::Valid) {
-        output.status = MeasurementStatus::RejectedInvalidValidity;
+    if (input.precheck.status != MeasurementPrecheckStatus::Passed) {
+        output.status = MeasurementStatus::RejectedPrecheck;
+        return output;
+    }
+    if (input.origin_id.value.empty()) {
+        output.status = MeasurementStatus::RejectedEmptyOriginIdentifier;
+        return output;
+    }
+    if (input.origin_id.value != impl_->origin_id.value) {
+        output.status = MeasurementStatus::RejectedOriginMismatch;
+        return output;
+    }
+    if (input.provider_evidence_ids.empty()
+        || std::any_of(input.provider_evidence_ids.begin(), input.provider_evidence_ids.end(),
+                       [](const EvidenceIdentifier& id) { return id.value.empty(); })) {
+        output.status = MeasurementStatus::RejectedEmptyProviderEvidence;
         return output;
     }
     if (input.navigation_frame != NavigationFrame::LocalNorthEastDown) {
@@ -262,21 +390,20 @@ MeasurementResult NavigationCore::update(const MeasurementInput& input) {
         output.status = MeasurementStatus::RejectedInvalidKind;
         return output;
     }
-    if (input.arrival_timestamp.nanoseconds < input.source_timestamp.nanoseconds) {
+    if (input.arrival_timestamp.nanoseconds < input.state_epoch_ns.nanoseconds) {
         output.status = MeasurementStatus::RejectedArrivalBeforeSource;
         return output;
     }
-    if (input.source_timestamp.nanoseconds != impl_->core.state().timestamp_ns) {
+    if (input.state_epoch_ns.nanoseconds != impl_->core.state().timestamp_ns) {
         output.status = MeasurementStatus::RejectedTimestampMismatch;
         return output;
     }
-    if (!allFinite(input.position_n_m) || !allFinite(input.velocity_n_mps)
-        || !allFinite(input.covariance)) {
+    if (!allFinite(input.z) || !allFinite(input.R)) {
         output.status = MeasurementStatus::RejectedNonFinite;
         return output;
     }
 
-    const s2::Mat6 covariance = toMat6(input.covariance);
+    const s2::Mat6 covariance = toMat6(input.R);
     const bool covariance_valid = input.kind == MeasurementKind::PositionVelocity
         ? isSymmetricPositiveSemidefinite<6>(covariance)
         : isSymmetricPositiveSemidefinite<3>(covariance.topLeftCorner<3, 3>());
@@ -286,15 +413,15 @@ MeasurementResult NavigationCore::update(const MeasurementInput& input) {
     }
 
     s2::GnssMeasurement measurement;
-    measurement.id = input.evidence_id.value;
-    measurement.timestamp_ns = input.source_timestamp.nanoseconds;
+    measurement.id = input.measurement_id.value;
+    measurement.timestamp_ns = input.state_epoch_ns.nanoseconds;
     measurement.kind = toS2Kind(input.kind);
     if (input.kind == MeasurementKind::Velocity) {
-        measurement.value.head<3>() = toVec3(input.velocity_n_mps);
+        measurement.value.head<3>() = toVec3({input.z[0], input.z[1], input.z[2]});
     } else {
-        measurement.value.head<3>() = toVec3(input.position_n_m);
+        measurement.value.head<3>() = toVec3({input.z[0], input.z[1], input.z[2]});
         if (input.kind == MeasurementKind::PositionVelocity) {
-            measurement.value.tail<3>() = toVec3(input.velocity_n_mps);
+            measurement.value.tail<3>() = toVec3({input.z[3], input.z[4], input.z[5]});
         }
     }
     measurement.covariance = covariance;
@@ -306,6 +433,7 @@ MeasurementResult NavigationCore::update(const MeasurementInput& input) {
         output.normalized_innovation_squared = result.nis;
     } catch (const std::runtime_error&) {
         output.status = MeasurementStatus::NumericalFailure;
+        impl_->markFault();
         return output;
     }
     if (output.accepted()) {
@@ -318,21 +446,32 @@ MeasurementResult NavigationCore::update(const MeasurementInput& input) {
 StateSnapshot NavigationCore::stateSnapshot() const {
     const s2::NominalState& state = impl_->core.state();
     StateSnapshot output;
-    output.state_sequence = impl_->state_sequence;
-    output.source_timestamp.nanoseconds = state.timestamp_ns;
+    output.sequence = impl_->state_sequence;
+    output.epoch_ns.nanoseconds = state.timestamp_ns;
     output.position_n_m = fromVec3(state.position_n);
     output.velocity_n_mps = fromVec3(state.velocity_n);
     output.q_n_b_wxyz = {state.q_n_b.w(), state.q_n_b.x(), state.q_n_b.y(), state.q_n_b.z()};
     output.accel_bias_b_mps2 = fromVec3(state.accel_bias_b);
     output.gyro_bias_b_radps = fromVec3(state.gyro_bias_b);
+    output.origin_id = impl_->origin_id;
+    output.mode = impl_->mode;
+    output.validity = impl_->validity;
+    if (covarianceQualityFlags(state.covariance) != 0U || !state.position_n.allFinite()
+        || !state.velocity_n.allFinite() || !state.q_n_b.coeffs().allFinite()
+        || !state.accel_bias_b.allFinite() || !state.gyro_bias_b.allFinite()) {
+        output.mode = NavigationMode::Fault;
+        output.validity = StateValidity::Invalid;
+    }
     return output;
 }
 
 CovarianceSnapshot NavigationCore::covarianceSnapshot() const {
     CovarianceSnapshot output;
     output.state_sequence = impl_->state_sequence;
-    output.source_timestamp.nanoseconds = impl_->core.state().timestamp_ns;
-    output.covariance = fromMat15(impl_->core.state().covariance);
+    output.epoch_ns.nanoseconds = impl_->core.state().timestamp_ns;
+    output.ordering_id = "s2-error-state-v1:p_n,v_n,theta_b,bias_accel_b,bias_gyro_b";
+    output.covariance_15x15 = fromMat15(impl_->core.state().covariance);
+    output.quality_flags = covarianceQualityFlags(impl_->core.state().covariance);
     return output;
 }
 
@@ -344,6 +483,18 @@ const char* toString(PropagationStatus status) {
     switch (status) {
         case PropagationStatus::Accepted: return "accepted";
         case PropagationStatus::AcceptedGap: return "accepted_gap";
+        case PropagationStatus::RejectedEmptyBatch: return "rejected_empty_batch";
+        case PropagationStatus::RejectedEmptyBatchIdentifier:
+            return "rejected_empty_batch_identifier";
+        case PropagationStatus::RejectedEmptyClockIdentifier:
+            return "rejected_empty_clock_identifier";
+        case PropagationStatus::RejectedClockMismatch: return "rejected_clock_mismatch";
+        case PropagationStatus::RejectedInvalidSequenceRange:
+            return "rejected_invalid_sequence_range";
+        case PropagationStatus::RejectedEmptyEvidenceIdentifier:
+            return "rejected_empty_evidence_identifier";
+        case PropagationStatus::RejectedDuplicateEvidenceIdentifier:
+            return "rejected_duplicate_evidence_identifier";
         case PropagationStatus::RejectedInvalidSequence: return "rejected_invalid_sequence";
         case PropagationStatus::RejectedNonMonotonicSourceTimestamp:
             return "rejected_nonmonotonic_source_timestamp";
@@ -364,7 +515,12 @@ const char* toString(MeasurementStatus status) {
         case MeasurementStatus::RejectedDuplicateEvidenceIdentifier:
             return "rejected_duplicate_evidence_identifier";
         case MeasurementStatus::RejectedInvalidSequence: return "rejected_invalid_sequence";
-        case MeasurementStatus::RejectedInvalidValidity: return "rejected_invalid_validity";
+        case MeasurementStatus::RejectedPrecheck: return "rejected_precheck";
+        case MeasurementStatus::RejectedEmptyOriginIdentifier:
+            return "rejected_empty_origin_identifier";
+        case MeasurementStatus::RejectedOriginMismatch: return "rejected_origin_mismatch";
+        case MeasurementStatus::RejectedEmptyProviderEvidence:
+            return "rejected_empty_provider_evidence";
         case MeasurementStatus::RejectedTimestampMismatch: return "rejected_timestamp_mismatch";
         case MeasurementStatus::RejectedArrivalBeforeSource: return "rejected_arrival_before_source";
         case MeasurementStatus::RejectedInvalidFrame: return "rejected_invalid_frame";

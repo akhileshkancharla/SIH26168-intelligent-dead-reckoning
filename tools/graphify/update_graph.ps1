@@ -70,14 +70,17 @@ try {
     $sourceParentCommit = (git rev-parse HEAD).Trim()
     $trackedChanges = git status --porcelain --untracked-files=all
     $sourceState = if ($trackedChanges) { "working-tree" } else { "clean" }
-    $rawGraph = Join-Path $repositoryRoot "graphify-out\graph.json"
+    $rawDirectory = [IO.Path]::GetFullPath((Join-Path $repositoryRoot "graphify-out"))
 
     Write-Output "Graphify $installedVersion; source $sourceBranch at $sourceParentCommit ($sourceState)"
-    if (Test-Path -LiteralPath $rawGraph) {
-        Invoke-Checked $graphify.Source "update" "."
-    } else {
-        Invoke-Checked $graphify.Source "extract" "." "--code-only"
+    if ((Split-Path -Parent $rawDirectory) -ne $repositoryRoot `
+        -or (Split-Path -Leaf $rawDirectory) -ne "graphify-out") {
+        throw "Refusing to replace raw Graphify output outside the repository."
     }
+    if (Test-Path -LiteralPath $rawDirectory) {
+        Remove-Item -LiteralPath $rawDirectory -Recurse -Force
+    }
+    Invoke-Checked $graphify.Source "extract" "." "--code-only"
     Invoke-Checked $graphify.Source "cluster-only" "." "--no-label"
 
     $sanitize = Join-Path $repositoryRoot "tools\graphify\sanitize_graph.py"

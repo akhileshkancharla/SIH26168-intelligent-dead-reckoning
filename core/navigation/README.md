@@ -63,7 +63,6 @@ The API makes no stable binary-ABI promise. Issue #40 may adapt this value
 contract to JNI later without adding Android types or JNI lifecycle concerns to
 the portable core.
 
-This work does not define the portable public API assigned to issue #39, add
-JNI assigned to issue #40, or claim the C++/NumPy parity work assigned to issue
-#41. The replay executable is a host verification driver; Android integration
-remains outside this build.
+This work does not add JNI assigned to issue #40 or claim the C++/NumPy parity
+work assigned to issue #41. The replay executable is a host verification
+driver; Android integration remains outside this build.

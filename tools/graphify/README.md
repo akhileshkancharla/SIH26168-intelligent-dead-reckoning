@@ -7,7 +7,8 @@ This tooling keeps Graphify's raw machine-local output separate from the sanitiz
 - Product: Graphify
 - Python package: `graphifyy`
 - Required version: `0.9.53`
-- Existing raw graph update: `graphify update .`
+- Deterministic raw graph rebuild: remove ignored `graphify-out/`, then run
+  `graphify extract . --code-only`
 - First raw graph bootstrap: `graphify extract . --code-only`
 - Report/community refresh: `graphify cluster-only . --no-label`
 
@@ -38,11 +39,17 @@ Both wrappers:
 1. derive and validate the repository root;
 2. validate the expected origin;
 3. identify and enforce the exact Graphify version;
-4. update or bootstrap ignored raw output;
+4. replace ignored raw output with a fresh code-only extraction;
 5. refresh clustering and the raw report;
 6. generate the deterministic sanitized snapshot;
 7. verify paths, secrets, structure, metadata, ordering, and hashes;
 8. print a concise Git change summary.
+
+The fresh extraction is intentional. Graphify 0.9.53's incremental `update`
+result depends on the prior contents of `graphify-out/` and produced different
+node, edge, and community counts for the same source tree. Rebuilding the
+ignored raw directory removes that hidden input; two unchanged-source rebuilds
+must produce byte-identical sanitized artifacts and checksum manifests.
 
 ## CI mode
 

@@ -5,6 +5,7 @@
 #include <cstdint>
 #include <memory>
 #include <string>
+#include <vector>
 
 namespace sih26168::navigation {
 
@@ -27,6 +28,18 @@ struct EvidenceIdentifier {
     std::string value;
 };
 
+struct BatchIdentifier {
+    std::string value;
+};
+
+struct ClockIdentifier {
+    std::string value;
+};
+
+struct OriginIdentifier {
+    std::string value;
+};
+
 enum class NavigationFrame {
     LocalNorthEastDown,
 };
@@ -35,10 +48,46 @@ enum class BodyFrame {
     PhysicalImuBody,
 };
 
-enum class MeasurementValidity {
+enum class NavigationMode {
+    Initializing,
+    GnssAided,
+    Degraded,
+    BlackoutDeadReckoning,
+    Reacquiring,
+    Fault,
+};
+
+enum class StateValidity {
     Valid,
     Invalid,
 };
+
+enum class MeasurementPrecheckStatus {
+    Passed,
+    Rejected,
+};
+
+struct MeasurementPrecheck {
+    MeasurementPrecheckStatus status{MeasurementPrecheckStatus::Rejected};
+    std::string reason_code;
+};
+
+enum class ImuGapFlag : std::uint32_t {
+    None = 0,
+    MissingSamples = 1U << 0U,
+    TimingGap = 1U << 1U,
+};
+
+using ImuGapFlags = std::uint32_t;
+
+enum class CovarianceQualityFlag : std::uint32_t {
+    None = 0,
+    NonFinite = 1U << 0U,
+    NonSymmetric = 1U << 1U,
+    PsdDefect = 1U << 2U,
+};
+
+using CovarianceQualityFlags = std::uint32_t;
 
 enum class MeasurementKind {
     Position,
@@ -55,6 +104,9 @@ Covariance15 identityCovariance(double diagonal = 1.0);
 struct InitialState {
     SequenceIdentifier state_sequence{};
     SourceTimestamp source_timestamp{};
+    ClockIdentifier clock_id{};
+    OriginIdentifier origin_id{};
+    NavigationMode mode{NavigationMode::Initializing};
     NavigationFrame navigation_frame{NavigationFrame::LocalNorthEastDown};
     BodyFrame body_frame{BodyFrame::PhysicalImuBody};
     std::array<double, 3> position_n_m{};          // local NED [north,east,down], metres
@@ -65,8 +117,9 @@ struct InitialState {
     Covariance15 covariance{identityCovariance()}; // row-major S2 error ordering; squared SI units
 };
 
-struct PropagationInput {
+struct ImuSample {
     SequenceIdentifier sequence{};
+    EvidenceIdentifier evidence_id{};
     SourceTimestamp source_timestamp{};
     ArrivalTimestamp arrival_timestamp{};
     BodyFrame body_frame{BodyFrame::PhysicalImuBody};
@@ -74,25 +127,46 @@ struct PropagationInput {
     std::array<double, 3> angular_rate_b_radps{};  // physical IMU body, radians/second
 };
 
+// I-03 bounded ordered input. Every sample belongs to clock_id and retains its
+// immutable constituent evidence ID; no JNI layout or serialization is implied.
+struct ImuBatch {
+    BatchIdentifier batch_id{};
+    std::vector<ImuSample> samples;
+    SequenceIdentifier first_seq{};
+    SequenceIdentifier last_seq{};
+    ImuGapFlags gap_flags{static_cast<ImuGapFlags>(ImuGapFlag::None)};
+    ClockIdentifier clock_id{};
+};
+
 struct MeasurementInput {
     SequenceIdentifier sequence{};
-    EvidenceIdentifier evidence_id{};
-    SourceTimestamp source_timestamp{};
+    EvidenceIdentifier measurement_id{};
+    SourceTimestamp state_epoch_ns{};
     ArrivalTimestamp arrival_timestamp{};
-    MeasurementValidity validity{MeasurementValidity::Invalid};
     MeasurementKind kind{MeasurementKind::Position};
     NavigationFrame navigation_frame{NavigationFrame::LocalNorthEastDown};
-    std::array<double, 3> position_n_m{};       // local NED, metres
-    std::array<double, 3> velocity_n_mps{};    // local NED, metres/second
+    OriginIdentifier origin_id{};
+    std::vector<EvidenceIdentifier> provider_evidence_ids;
+    MeasurementPrecheck precheck{};
+    // I-12 z in local NED: position metres in [0:3], velocity metres/second
+    // in [0:3] for Velocity or [3:6] for PositionVelocity.
+    std::array<double, 6> z{};
     // Row-major. Position covariance occupies [0:3,0:3], velocity-only also
     // uses [0:3,0:3], and combined position/velocity uses the full 6x6 matrix.
     // Entries carry the squared/cross SI units implied by measurement kind.
-    MeasurementCovariance covariance{};
+    MeasurementCovariance R{};
 };
 
 enum class PropagationStatus {
     Accepted,
     AcceptedGap,
+    RejectedEmptyBatch,
+    RejectedEmptyBatchIdentifier,
+    RejectedEmptyClockIdentifier,
+    RejectedClockMismatch,
+    RejectedInvalidSequenceRange,
+    RejectedEmptyEvidenceIdentifier,
+    RejectedDuplicateEvidenceIdentifier,
     RejectedInvalidSequence,
     RejectedNonMonotonicSourceTimestamp,
     RejectedArrivalBeforeSource,
@@ -107,7 +181,10 @@ enum class MeasurementStatus {
     RejectedEmptyEvidenceIdentifier,
     RejectedDuplicateEvidenceIdentifier,
     RejectedInvalidSequence,
-    RejectedInvalidValidity,
+    RejectedPrecheck,
+    RejectedEmptyOriginIdentifier,
+    RejectedOriginMismatch,
+    RejectedEmptyProviderEvidence,
     RejectedTimestampMismatch,
     RejectedArrivalBeforeSource,
     RejectedInvalidFrame,
@@ -138,8 +215,8 @@ struct MeasurementResult {
 };
 
 struct StateSnapshot {
-    SequenceIdentifier state_sequence{};
-    SourceTimestamp source_timestamp{};
+    SequenceIdentifier sequence{};
+    SourceTimestamp epoch_ns{};
     NavigationFrame navigation_frame{NavigationFrame::LocalNorthEastDown};
     BodyFrame body_frame{BodyFrame::PhysicalImuBody};
     std::array<double, 3> position_n_m{};
@@ -147,14 +224,21 @@ struct StateSnapshot {
     std::array<double, 4> q_n_b_wxyz{};
     std::array<double, 3> accel_bias_b_mps2{};
     std::array<double, 3> gyro_bias_b_radps{};
+    OriginIdentifier origin_id{};
+    NavigationMode mode{NavigationMode::Fault};
+    StateValidity validity{StateValidity::Invalid};
 };
 
 struct CovarianceSnapshot {
     SequenceIdentifier state_sequence{};
-    SourceTimestamp source_timestamp{};
+    SourceTimestamp epoch_ns{};
+    // Versioned row/column convention identifier for the matrix below.
+    std::string ordering_id;
     // Row-major covariance in S2 order [position_n_m, velocity_n_mps,
     // attitude_error_rad, accel_bias_b_mps2, gyro_bias_b_radps].
-    Covariance15 covariance{};
+    Covariance15 covariance_15x15{};
+    CovarianceQualityFlags quality_flags{static_cast<CovarianceQualityFlags>(
+        CovarianceQualityFlag::None)};
 };
 
 class NavigationCore {
@@ -167,7 +251,7 @@ public:
     NavigationCore(const NavigationCore&) = delete;
     NavigationCore& operator=(const NavigationCore&) = delete;
 
-    PropagationResult propagate(const PropagationInput& input);
+    PropagationResult propagate(const ImuBatch& input);
     MeasurementResult update(const MeasurementInput& input);
 
     [[nodiscard]] StateSnapshot stateSnapshot() const;

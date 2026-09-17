@@ -49,11 +49,15 @@ if [[ -n "$(git status --porcelain --untracked-files=all)" ]]; then
 fi
 
 echo "Graphify ${installed_version}; source ${source_branch} at ${source_parent_commit} (${source_state})"
-if [[ -f graphify-out/graph.json ]]; then
-  "${graphify_bin}" update .
-else
-  "${graphify_bin}" extract . --code-only
+raw_dir="${repo_root}/graphify-out"
+raw_parent="$(CDPATH= cd -- "$(dirname -- "${raw_dir}")" && pwd)"
+raw_name="$(basename -- "${raw_dir}")"
+if [[ "${raw_parent}" != "${repo_root}" || "${raw_name}" != "graphify-out" ]]; then
+  echo "ERROR: refusing to replace raw Graphify output outside the repository" >&2
+  exit 1
 fi
+rm -rf -- "${raw_dir}"
+"${graphify_bin}" extract . --code-only
 "${graphify_bin}" cluster-only . --no-label
 "${python_bin}" tools/graphify/sanitize_graph.py \
   --graphify-version "${installed_version}" \
