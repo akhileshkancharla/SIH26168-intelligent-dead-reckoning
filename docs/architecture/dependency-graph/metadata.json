@@ -1,9 +1,9 @@
 {
   "architecture_authority_statement": "Architecture Revision 3 is authoritative; this static graph is supporting evidence only.",
   "ci_mode": "snapshot-validation-only",
-  "community_count": 171,
-  "edge_count": 3380,
-  "extracted_edge_count": 3342,
+  "community_count": 175,
+  "edge_count": 3481,
+  "extracted_edge_count": 3443,
   "generator_script_version": "1.0.0",
   "graph_bootstrap_commands": [
     [
@@ -44,15 +44,15 @@
     "Static relationships do not prove runtime reachability, correctness, performance, or scientific validity.",
     "Community and centrality results can change with Graphify version and extraction mode."
   ],
-  "node_count": 2219,
-  "raw_graph_built_at_commit": "e7ec5c1708b70e47b38d922b50913530a43b9d53",
+  "node_count": 2284,
+  "raw_graph_built_at_commit": "7826bc51d307bbcb35d733eb3fdb87017542904e",
   "removed_volatile_fields": [],
   "sanitizer_script_sha256": "69657380942a27dc643f80ab4323d20bc5f9d05ba22072e1bc1cfed1f253db33",
   "schema_version": 1,
   "snapshot_classification": "generated-and-sanitized",
-  "source_branch": "issue/WP-10.5-wp-10-5-implement-runtime",
+  "source_branch": "issue/WP-10.6-wp-10-6-add-leakage",
   "source_includes_working_tree": false,
-  "source_parent_commit": "e7ec5c1708b70e47b38d922b50913530a43b9d53",
+  "source_parent_commit": "7826bc51d307bbcb35d733eb3fdb87017542904e",
   "source_repository": "akhileshkancharla/SIH26168-intelligent-dead-reckoning",
   "verification_script_sha256": "836bbe62c458fb04e88b5d1c4d707d8c8f68e2066b9eeed054c6a8f2994a78a8"
 }
