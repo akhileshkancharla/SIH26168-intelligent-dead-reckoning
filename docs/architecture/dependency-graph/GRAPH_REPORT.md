@@ -4,12 +4,12 @@
 
 - Snapshot classification: `generated-and-sanitized`
 - Source repository: `akhileshkancharla/SIH26168-intelligent-dead-reckoning`
-- Source branch: `issue/WP-10.2-wp-10-2-implement-six`
-- Source parent commit: `891a81c796f6aa424ed17d9b6757a2f99bab3cfc`
+- Source branch: `issue/WP-10.3-wp-10-3-implement-duplicate`
+- Source parent commit: `dbc2bdaf7f823fce19086c5bd064f716961f6293`
 - Graphify version: `0.9.53`
 - Graphify mode: code-only static extraction; semantic document extraction disabled
-- Counts: 2000 nodes, 3058 edges, 165 communities
-- Edge evidence: 3021 extracted, 37 inferred
+- Counts: 2057 nodes, 3148 edges, 167 communities
+- Edge evidence: 3111 extracted, 37 inferred
 - CI mode: `snapshot-validation-only`
 
 ## VERIFIED FROM CODE
@@ -62,14 +62,14 @@ Current high-degree nodes are primarily repository administration tooling, not n
 | `sanitize_graph.py` | 27 | [tools/graphify/sanitize_graph.py:L1](../../../tools/graphify/sanitize_graph.py) |
 | `InitialState` | 26 | [core/navigation/include/sih26168/navigation_core.hpp:L104](../../../core/navigation/include/sih26168/navigation_core.hpp) |
 | `navigation_api.cpp` | 26 | [core/navigation/src/navigation_api.cpp:L1](../../../core/navigation/src/navigation_api.cpp) |
+| `_h()` | 25 | [tools/dataset/tests/test_grouping.py:L38](../../../tools/dataset/tests/test_grouping.py) |
 | `MeasurementInput` | 24 | [core/navigation/include/sih26168/navigation_core.hpp:L141](../../../core/navigation/include/sih26168/navigation_core.hpp) |
 | `run_python_tests.py` | 24 | [core/navigation/verification/python/run_python_tests.py:L1](../../../core/navigation/verification/python/run_python_tests.py) |
 | `StateSnapshot` | 23 | [core/navigation/include/sih26168/navigation_core.hpp:L217](../../../core/navigation/include/sih26168/navigation_core.hpp) |
-| `NavigationCore::Impl` | 23 | [core/navigation/src/navigation_api.cpp:L158](../../../core/navigation/src/navigation_api.cpp) |
 
 ### Weakly connected or orphan candidates
 
-The raw Graphify report identified 775 isolated symbol nodes. This sanitizer independently found 934 repository-backed nodes with degree at most one; the bounded sample below is diagnostic, not deletion evidence.
+The raw Graphify report identified 775 isolated symbol nodes. This sanitizer independently found 948 repository-backed nodes with degree at most one; the bounded sample below is diagnostic, not deletion evidence.
 
 | Node | Degree | Source |
 | --- | ---: | --- |
