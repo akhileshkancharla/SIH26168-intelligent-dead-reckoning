@@ -299,7 +299,9 @@ private class MapLibreViewportController(private val mapView: MapView) {
             if (location == null || !state.isHeadingStable) {
                 emptyFeatureCollection()
             } else {
-                FeatureCollection.fromFeature(Feature.fromGeometry(headingCone(location, heading)))
+                headingCone(location, heading)?.let { polygon ->
+                    FeatureCollection.fromFeature(Feature.fromGeometry(polygon))
+                } ?: emptyFeatureCollection()
             },
         )
 
@@ -413,12 +415,26 @@ private fun LatLng.toPoint(): Point = Point.fromLngLat(longitude, latitude)
 private fun emptyFeatureCollection(): FeatureCollection =
     FeatureCollection.fromFeatures(emptyArray())
 
-private fun headingCone(origin: LatLng, headingDegrees: Double): Polygon {
+/**
+ * Builds presentation-only heading geometry. A cone that crosses the antimeridian is suppressed
+ * instead of emitting a normalized GeoJSON ring that MapLibre could fill across the world.
+ */
+internal fun headingCone(origin: LatLng, headingDegrees: Double): Polygon? {
     val left = destination(origin, headingDegrees - 18.0, 35.0)
     val right = destination(origin, headingDegrees + 18.0, 35.0)
-    return Polygon.fromLngLats(
-        listOf(listOf(origin.toPoint(), left.toPoint(), right.toPoint(), origin.toPoint())),
-    )
+    val ring = listOf(origin, left, right, origin)
+    val crossesAntimeridian = listOf(left, right).any { destination ->
+        kotlin.math.abs(origin.longitude - destination.longitude) > 180.0
+    } || ring.zipWithNext().any { (start, end) ->
+        kotlin.math.abs(start.longitude - end.longitude) > 180.0
+    }
+    if (crossesAntimeridian) return null
+
+    val longitudes = ring.map { it.longitude }
+    val longitudeSpan = longitudes.maxOrNull()!! - longitudes.minOrNull()!!
+    if (longitudeSpan >= MAX_HEADING_CONE_LONGITUDE_SPAN_DEGREES) return null
+
+    return Polygon.fromLngLats(listOf(ring.map(LatLng::toPoint)))
 }
 
 internal fun destination(origin: LatLng, bearingDegrees: Double, distanceMeters: Double): LatLng {
@@ -465,4 +481,5 @@ private fun createVehicleChevron(): Bitmap {
 }
 
 private const val EARTH_RADIUS_METERS = 6_371_008.8
+private const val MAX_HEADING_CONE_LONGITUDE_SPAN_DEGREES = 1.0
 private const val MAP_SAVED_STATE_KEY = "maplibre-map-viewport"
