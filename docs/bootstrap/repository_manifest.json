@@ -78,11 +78,6 @@
       "sha256": "059203f67ff9e9f58d3ecc05a5c929cede2dc6a120dc26dd4a3781bb112e5ca0"
     },
     {
-      "path": "docs/architecture/dependency-graph/cache/last_query_stamp",
-      "size_bytes": 18,
-      "sha256": "b34208f1926a9b7f3aec82e661b5660ad968de5849a0e430990d99cda2128df0"
-    },
-    {
       "path": "docs/architecture/dependency-graph/graph.json",
       "size_bytes": 2014534,
       "sha256": "f7ac58c8b93e03b07ff35495176ec664779994f1482d0ea30d257589076465a8"
