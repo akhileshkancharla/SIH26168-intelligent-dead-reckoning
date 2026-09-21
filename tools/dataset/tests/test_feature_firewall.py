@@ -1,8 +1,7 @@
 """WP-10.5 (Issue #83): tests for tools/dataset/feature_firewall.py.
 
-Uses only synthetic feature/label names constructed in-test -- never the
-shipped template config's real intended purpose, and never a real IO-VNBD
-feature or label name.
+Uses synthetic names for malformed-input coverage and exact structural IDs from
+the accepted sanitized audit for the shipped configuration.
 """
 from __future__ import annotations
 
@@ -119,24 +118,53 @@ class FirewallConfigSchemaTest(unittest.TestCase):
                 firewall_mod.load_firewall_document(path)
 
 
-class ShippedTemplateTest(unittest.TestCase):
-    """The actual config/feature_firewall.json shipped by this PR must
-    always be recognized as a template -- these tests fail loudly if
-    someone edits it to claim ACTIVE without replacing the placeholders,
-    which is exactly the mistake require_active_firewall must catch.
-    """
+class ShippedFirewallTest(unittest.TestCase):
+    EXPECTED_RUNTIME = [
+        "imu.accel.x", "imu.accel.y", "imu.accel.z",
+        "imu.gyro.x", "imu.gyro.y", "imu.gyro.z",
+        "imu.dt", "imu.gap_mask", "imu.valid_mask",
+    ]
+    EXPECTED_FORBIDDEN = [
+        "V29_MAIN.no_of_gps_satellites_available", "V29_MAIN.time_since_start_of_day",
+        "V29_MAIN.latitude", "V29_MAIN.longitude", "V29_MAIN.velocity",
+        "V29_MAIN.heading", "V29_MAIN.height", "V29_MAIN.vertical_velocity",
+        "V29_MAIN.sample_period", "V29_MAIN.steering_angle",
+        "V29_MAIN.wheel_speed_front_left", "V29_MAIN.wheel_speed_front_right",
+        "V29_MAIN.wheel_speed_rear_left", "V29_MAIN.wheel_speed_rear_right",
+        "V29_MAIN.yaw_rate", "V29_MAIN.indicated_vehicle_speed",
+        "V29_MAIN.indicated_longitudinal_acceleration",
+        "V29_MAIN.indicated_lateral_acceleration", "V29_MAIN.handbrake",
+        "V29_MAIN.gear_requested", "V29_MAIN.gear", "V29_MAIN.engine_speed",
+        "V29_MAIN.coolant_temperature", "V29_MAIN.clutch_position",
+        "V29_MAIN.brake_pressure", "V29_MAIN.brake_position",
+        "V29_MAIN.battery_voltage", "V29_MAIN.air_temperature",
+        "V29_MAIN.accelerator_pedal_position",
+    ]
 
-    def test_shipped_template_is_structurally_valid(self):
+    def test_shipped_firewall_is_structurally_valid(self):
         firewall_mod.load_firewall_document(firewall_mod.DEFAULT_FIREWALL_CONFIG_PATH)
 
-    def test_shipped_template_is_recognized_as_a_template(self):
+    def test_shipped_firewall_has_exact_audited_values(self):
         document = firewall_mod.load_firewall_document(firewall_mod.DEFAULT_FIREWALL_CONFIG_PATH)
-        self.assertTrue(firewall_mod.is_template_firewall(document))
+        self.assertEqual(document["status"], "ACTIVE")
+        self.assertEqual(document["runtime_allowed_features"], self.EXPECTED_RUNTIME)
+        self.assertEqual(document["forbidden_labels"], self.EXPECTED_FORBIDDEN)
+        self.assertFalse(firewall_mod.is_template_firewall(document))
 
-    def test_shipped_template_is_refused_for_enforcement(self):
+    def test_shipped_firewall_accepts_only_the_runtime_inventory(self):
         document = firewall_mod.load_firewall_document(firewall_mod.DEFAULT_FIREWALL_CONFIG_PATH)
-        with self.assertRaises(firewall_mod.FeatureFirewallError):
-            firewall_mod.require_active_firewall(document)
+        firewall_mod.enforce_feature_set(self.EXPECTED_RUNTIME, document)
+
+    def test_every_v29_field_is_rejected_as_runtime_leakage(self):
+        document = firewall_mod.load_firewall_document(firewall_mod.DEFAULT_FIREWALL_CONFIG_PATH)
+        for field in self.EXPECTED_FORBIDDEN:
+            with self.subTest(field=field):
+                self.assertEqual(
+                    firewall_mod.audit_feature_set([field], document)[field],
+                    firewall_mod.FORBIDDEN_LABEL,
+                )
+                with self.assertRaises(firewall_mod.FeatureFirewallError):
+                    firewall_mod.enforce_feature_set([self.EXPECTED_RUNTIME[0], field], document)
 
 
 class TemplateDetectionTest(unittest.TestCase):
@@ -250,7 +278,12 @@ class AuditFeatureSetTest(unittest.TestCase):
         )
 
     def test_audit_against_template_firewall_is_rejected(self):
-        template = firewall_mod.load_firewall_document(firewall_mod.DEFAULT_FIREWALL_CONFIG_PATH)
+        template = {
+            "schema_version": 1,
+            "status": "TEMPLATE_PENDING_REVIEW",
+            "runtime_allowed_features": ["PENDING_FEATURE_1_REPLACE_FROM_RUNTIME_SPEC"],
+            "forbidden_labels": ["PENDING_LABEL_1_REPLACE_FROM_S0_AUDIT"],
+        }
         with self.assertRaises(firewall_mod.FeatureFirewallError):
             firewall_mod.audit_feature_set(["anything"], template)
 
@@ -274,7 +307,12 @@ class EnforceFeatureSetTest(unittest.TestCase):
         # Even if the proposed features happen to overlap the template's
         # placeholder text, a template firewall can never be used to pass
         # enforcement -- require_active_firewall must fire first.
-        template = firewall_mod.load_firewall_document(firewall_mod.DEFAULT_FIREWALL_CONFIG_PATH)
+        template = {
+            "schema_version": 1,
+            "status": "TEMPLATE_PENDING_REVIEW",
+            "runtime_allowed_features": ["PENDING_FEATURE_1_REPLACE_FROM_RUNTIME_SPEC"],
+            "forbidden_labels": ["PENDING_LABEL_1_REPLACE_FROM_S0_AUDIT"],
+        }
         with self.assertRaises(firewall_mod.FeatureFirewallError):
             firewall_mod.enforce_feature_set([template["runtime_allowed_features"][0]], template)
 

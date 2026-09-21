@@ -1,5 +1,5 @@
 {
-  "built_at_commit": "e7ec5c1708b70e47b38d922b50913530a43b9d53",
+  "built_at_commit": "48ac74d3f998dba3fae7c95e430f34dfc078019f",
   "directed": false,
   "graph": {},
   "hyperedges": [],
@@ -31251,7 +31251,7 @@
       "relation": "contains",
       "source": "tools_dataset_feature_firewall",
       "source_file": "tools/dataset/feature_firewall.py",
-      "source_location": "L185",
+      "source_location": "L175",
       "target": "tools_dataset_feature_firewall_audit_feature_set",
       "weight": 1.0
     },
@@ -31262,7 +31262,7 @@
       "relation": "contains",
       "source": "tools_dataset_feature_firewall",
       "source_file": "tools/dataset/feature_firewall.py",
-      "source_location": "L165",
+      "source_location": "L155",
       "target": "tools_dataset_feature_firewall_classify_feature",
       "weight": 1.0
     },
@@ -31273,7 +31273,7 @@
       "relation": "contains",
       "source": "tools_dataset_feature_firewall",
       "source_file": "tools/dataset/feature_firewall.py",
-      "source_location": "L200",
+      "source_location": "L190",
       "target": "tools_dataset_feature_firewall_enforce_feature_set",
       "weight": 1.0
     },
@@ -31284,7 +31284,7 @@
       "relation": "contains",
       "source": "tools_dataset_feature_firewall",
       "source_file": "tools/dataset/feature_firewall.py",
-      "source_location": "L220",
+      "source_location": "L210",
       "target": "tools_dataset_feature_firewall_enforce_feature_window",
       "weight": 1.0
     },
@@ -31295,7 +31295,7 @@
       "relation": "contains",
       "source": "tools_dataset_feature_firewall",
       "source_file": "tools/dataset/feature_firewall.py",
-      "source_location": "L55",
+      "source_location": "L45",
       "target": "tools_dataset_feature_firewall_featurefirewallerror",
       "weight": 1.0
     },
@@ -31306,7 +31306,7 @@
       "relation": "contains",
       "source": "tools_dataset_feature_firewall",
       "source_file": "tools/dataset/feature_firewall.py",
-      "source_location": "L100",
+      "source_location": "L90",
       "target": "tools_dataset_feature_firewall_is_template_firewall",
       "weight": 1.0
     },
@@ -31317,7 +31317,7 @@
       "relation": "contains",
       "source": "tools_dataset_feature_firewall",
       "source_file": "tools/dataset/feature_firewall.py",
-      "source_location": "L63",
+      "source_location": "L53",
       "target": "tools_dataset_feature_firewall_load_firewall_config_schema",
       "weight": 1.0
     },
@@ -31328,7 +31328,7 @@
       "relation": "contains",
       "source": "tools_dataset_feature_firewall",
       "source_file": "tools/dataset/feature_firewall.py",
-      "source_location": "L67",
+      "source_location": "L57",
       "target": "tools_dataset_feature_firewall_load_firewall_document",
       "weight": 1.0
     },
@@ -31339,7 +31339,7 @@
       "relation": "contains",
       "source": "tools_dataset_feature_firewall",
       "source_file": "tools/dataset/feature_firewall.py",
-      "source_location": "L122",
+      "source_location": "L112",
       "target": "tools_dataset_feature_firewall_require_active_firewall",
       "weight": 1.0
     },
@@ -31351,7 +31351,7 @@
       "relation": "imports",
       "source": "tools_dataset_feature_firewall",
       "source_file": "tools/dataset/feature_firewall.py",
-      "source_location": "L227",
+      "source_location": "L217",
       "target": "tools_dataset_feature_provenance_validate_minimal_window",
       "weight": 1.0
     },
@@ -31363,7 +31363,7 @@
       "relation": "calls",
       "source": "tools_dataset_feature_firewall_audit_feature_set",
       "source_file": "tools/dataset/feature_firewall.py",
-      "source_location": "L195",
+      "source_location": "L185",
       "target": "tools_dataset_feature_firewall_classify_feature",
       "weight": 1.0
     },
@@ -31375,7 +31375,7 @@
       "relation": "references",
       "source": "tools_dataset_feature_firewall_audit_feature_set",
       "source_file": "tools/dataset/feature_firewall.py",
-      "source_location": "L185",
+      "source_location": "L175",
       "target": "tools_dataset_feature_firewall_py_any",
       "weight": 1.0
     },
@@ -31387,7 +31387,7 @@
       "relation": "calls",
       "source": "tools_dataset_feature_firewall_audit_feature_set",
       "source_file": "tools/dataset/feature_firewall.py",
-      "source_location": "L193",
+      "source_location": "L183",
       "target": "tools_dataset_feature_firewall_require_active_firewall",
       "weight": 1.0
     },
@@ -31399,7 +31399,7 @@
       "relation": "calls",
       "source": "tools_dataset_feature_firewall_enforce_feature_set",
       "source_file": "tools/dataset/feature_firewall.py",
-      "source_location": "L209",
+      "source_location": "L199",
       "target": "tools_dataset_feature_firewall_audit_feature_set",
       "weight": 1.0
     },
@@ -31411,7 +31411,7 @@
       "relation": "calls",
       "source": "tools_dataset_feature_firewall_enforce_feature_set",
       "source_file": "tools/dataset/feature_firewall.py",
-      "source_location": "L213",
+      "source_location": "L203",
       "target": "tools_dataset_feature_firewall_featurefirewallerror",
       "weight": 1.0
     },
@@ -31423,7 +31423,7 @@
       "relation": "references",
       "source": "tools_dataset_feature_firewall_enforce_feature_set",
       "source_file": "tools/dataset/feature_firewall.py",
-      "source_location": "L200",
+      "source_location": "L190",
       "target": "tools_dataset_feature_firewall_py_any",
       "weight": 1.0
     },
@@ -31435,7 +31435,7 @@
       "relation": "calls",
       "source": "tools_dataset_feature_firewall_enforce_feature_window",
       "source_file": "tools/dataset/feature_firewall.py",
-      "source_location": "L234",
+      "source_location": "L224",
       "target": "tools_dataset_feature_firewall_enforce_feature_set",
       "weight": 1.0
     },
@@ -31447,7 +31447,7 @@
       "relation": "calls",
       "source": "tools_dataset_feature_firewall_enforce_feature_window",
       "source_file": "tools/dataset/feature_firewall.py",
-      "source_location": "L233",
+      "source_location": "L223",
       "target": "tools_dataset_feature_firewall_featurefirewallerror",
       "weight": 1.0
     },
@@ -31459,7 +31459,7 @@
       "relation": "references",
       "source": "tools_dataset_feature_firewall_enforce_feature_window",
       "source_file": "tools/dataset/feature_firewall.py",
-      "source_location": "L220",
+      "source_location": "L210",
       "target": "tools_dataset_feature_firewall_py_any",
       "weight": 1.0
     },
@@ -31471,7 +31471,7 @@
       "relation": "calls",
       "source": "tools_dataset_feature_firewall_enforce_feature_window",
       "source_file": "tools/dataset/feature_firewall.py",
-      "source_location": "L229",
+      "source_location": "L219",
       "target": "tools_dataset_feature_firewall_require_active_firewall",
       "weight": 1.0
     },
@@ -31483,7 +31483,7 @@
       "relation": "calls",
       "source": "tools_dataset_feature_firewall_enforce_feature_window",
       "source_file": "tools/dataset/feature_firewall.py",
-      "source_location": "L231",
+      "source_location": "L221",
       "target": "tools_dataset_feature_provenance_validate_minimal_window",
       "weight": 1.0
     },
@@ -31494,7 +31494,7 @@
       "relation": "inherits",
       "source": "tools_dataset_feature_firewall_featurefirewallerror",
       "source_file": "tools/dataset/feature_firewall.py",
-      "source_location": "L55",
+      "source_location": "L45",
       "target": "tools_dataset_feature_firewall_py_exception",
       "weight": 1.0
     },
@@ -31506,7 +31506,7 @@
       "relation": "references",
       "source": "tools_dataset_feature_firewall_is_template_firewall",
       "source_file": "tools/dataset/feature_firewall.py",
-      "source_location": "L100",
+      "source_location": "L90",
       "target": "tools_dataset_feature_firewall_py_any",
       "weight": 1.0
     },
@@ -31518,7 +31518,7 @@
       "relation": "references",
       "source": "tools_dataset_feature_firewall_load_firewall_config_schema",
       "source_file": "tools/dataset/feature_firewall.py",
-      "source_location": "L63",
+      "source_location": "L53",
       "target": "tools_dataset_feature_firewall_py_any",
       "weight": 1.0
     },
@@ -31530,7 +31530,7 @@
       "relation": "calls",
       "source": "tools_dataset_feature_firewall_load_firewall_document",
       "source_file": "tools/dataset/feature_firewall.py",
-      "source_location": "L82",
+      "source_location": "L72",
       "target": "tools_dataset_feature_firewall_featurefirewallerror",
       "weight": 1.0
     },
@@ -31542,7 +31542,7 @@
       "relation": "calls",
       "source": "tools_dataset_feature_firewall_load_firewall_document",
       "source_file": "tools/dataset/feature_firewall.py",
-      "source_location": "L83",
+      "source_location": "L73",
       "target": "tools_dataset_feature_firewall_load_firewall_config_schema",
       "weight": 1.0
     },
@@ -31554,7 +31554,7 @@
       "relation": "references",
       "source": "tools_dataset_feature_firewall_load_firewall_document",
       "source_file": "tools/dataset/feature_firewall.py",
-      "source_location": "L67",
+      "source_location": "L57",
       "target": "tools_dataset_feature_firewall_py_any",
       "weight": 1.0
     },
@@ -31566,7 +31566,7 @@
       "relation": "references",
       "source": "tools_dataset_feature_firewall_load_firewall_document",
       "source_file": "tools/dataset/feature_firewall.py",
-      "source_location": "L67",
+      "source_location": "L57",
       "target": "tools_dataset_feature_firewall_py_path",
       "weight": 1.0
     },
@@ -31575,20 +31575,9 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "relation": "rationale_for",
-      "source": "tools_dataset_feature_firewall_rationale_101",
+      "source": "tools_dataset_feature_firewall_rationale_113",
       "source_file": "tools/dataset/feature_firewall.py",
-      "source_location": "L101",
-      "target": "tools_dataset_feature_firewall_is_template_firewall",
-      "weight": 1.0
-    },
-    {
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "relation": "rationale_for",
-      "source": "tools_dataset_feature_firewall_rationale_123",
-      "source_file": "tools/dataset/feature_firewall.py",
-      "source_location": "L123",
+      "source_location": "L113",
       "target": "tools_dataset_feature_firewall_require_active_firewall",
       "weight": 1.0
     },
@@ -31597,9 +31586,9 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "relation": "rationale_for",
-      "source": "tools_dataset_feature_firewall_rationale_166",
+      "source": "tools_dataset_feature_firewall_rationale_156",
       "source_file": "tools/dataset/feature_firewall.py",
-      "source_location": "L166",
+      "source_location": "L156",
       "target": "tools_dataset_feature_firewall_classify_feature",
       "weight": 1.0
     },
@@ -31608,9 +31597,9 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "relation": "rationale_for",
-      "source": "tools_dataset_feature_firewall_rationale_186",
+      "source": "tools_dataset_feature_firewall_rationale_176",
       "source_file": "tools/dataset/feature_firewall.py",
-      "source_location": "L186",
+      "source_location": "L176",
       "target": "tools_dataset_feature_firewall_audit_feature_set",
       "weight": 1.0
     },
@@ -31619,9 +31608,9 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "relation": "rationale_for",
-      "source": "tools_dataset_feature_firewall_rationale_201",
+      "source": "tools_dataset_feature_firewall_rationale_191",
       "source_file": "tools/dataset/feature_firewall.py",
-      "source_location": "L201",
+      "source_location": "L191",
       "target": "tools_dataset_feature_firewall_enforce_feature_set",
       "weight": 1.0
     },
@@ -31630,9 +31619,9 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "relation": "rationale_for",
-      "source": "tools_dataset_feature_firewall_rationale_222",
+      "source": "tools_dataset_feature_firewall_rationale_212",
       "source_file": "tools/dataset/feature_firewall.py",
-      "source_location": "L222",
+      "source_location": "L212",
       "target": "tools_dataset_feature_firewall_enforce_feature_window",
       "weight": 1.0
     },
@@ -31641,9 +31630,9 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "relation": "rationale_for",
-      "source": "tools_dataset_feature_firewall_rationale_56",
+      "source": "tools_dataset_feature_firewall_rationale_46",
       "source_file": "tools/dataset/feature_firewall.py",
-      "source_location": "L56",
+      "source_location": "L46",
       "target": "tools_dataset_feature_firewall_featurefirewallerror",
       "weight": 1.0
     },
@@ -31652,9 +31641,9 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "relation": "rationale_for",
-      "source": "tools_dataset_feature_firewall_rationale_68",
+      "source": "tools_dataset_feature_firewall_rationale_58",
       "source_file": "tools/dataset/feature_firewall.py",
-      "source_location": "L68",
+      "source_location": "L58",
       "target": "tools_dataset_feature_firewall_load_firewall_document",
       "weight": 1.0
     },
@@ -31662,23 +31651,10 @@
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
-      "context": "call",
-      "relation": "calls",
-      "source": "tools_dataset_feature_firewall_require_active_firewall",
+      "relation": "rationale_for",
+      "source": "tools_dataset_feature_firewall_rationale_91",
       "source_file": "tools/dataset/feature_firewall.py",
-      "source_location": "L140",
-      "target": "tools_dataset_feature_firewall_featurefirewallerror",
-      "weight": 1.0
-    },
-    {
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "call",
-      "relation": "calls",
-      "source": "tools_dataset_feature_firewall_require_active_firewall",
-      "source_file": "tools/dataset/feature_firewall.py",
-      "source_location": "L151",
+      "source_location": "L91",
       "target": "tools_dataset_feature_firewall_is_template_firewall",
       "weight": 1.0
     },
@@ -31690,7 +31666,31 @@
       "relation": "calls",
       "source": "tools_dataset_feature_firewall_require_active_firewall",
       "source_file": "tools/dataset/feature_firewall.py",
-      "source_location": "L136",
+      "source_location": "L130",
+      "target": "tools_dataset_feature_firewall_featurefirewallerror",
+      "weight": 1.0
+    },
+    {
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "relation": "calls",
+      "source": "tools_dataset_feature_firewall_require_active_firewall",
+      "source_file": "tools/dataset/feature_firewall.py",
+      "source_location": "L141",
+      "target": "tools_dataset_feature_firewall_is_template_firewall",
+      "weight": 1.0
+    },
+    {
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "relation": "calls",
+      "source": "tools_dataset_feature_firewall_require_active_firewall",
+      "source_file": "tools/dataset/feature_firewall.py",
+      "source_location": "L126",
       "target": "tools_dataset_feature_firewall_load_firewall_config_schema",
       "weight": 1.0
     },
@@ -31702,7 +31702,7 @@
       "relation": "references",
       "source": "tools_dataset_feature_firewall_require_active_firewall",
       "source_file": "tools/dataset/feature_firewall.py",
-      "source_location": "L122",
+      "source_location": "L112",
       "target": "tools_dataset_feature_firewall_py_any",
       "weight": 1.0
     },
@@ -33104,7 +33104,7 @@
       "relation": "contains",
       "source": "tools_dataset_tests_test_feature_firewall",
       "source_file": "tools/dataset/tests/test_feature_firewall.py",
-      "source_location": "L237",
+      "source_location": "L265",
       "target": "tools_dataset_tests_test_feature_firewall_auditfeaturesettest",
       "weight": 1.0
     },
@@ -33115,7 +33115,7 @@
       "relation": "contains",
       "source": "tools_dataset_tests_test_feature_firewall",
       "source_file": "tools/dataset/tests/test_feature_firewall.py",
-      "source_location": "L216",
+      "source_location": "L244",
       "target": "tools_dataset_tests_test_feature_firewall_classifyfeaturetest",
       "weight": 1.0
     },
@@ -33126,7 +33126,7 @@
       "relation": "contains",
       "source": "tools_dataset_tests_test_feature_firewall",
       "source_file": "tools/dataset/tests/test_feature_firewall.py",
-      "source_location": "L258",
+      "source_location": "L291",
       "target": "tools_dataset_tests_test_feature_firewall_enforcefeaturesettest",
       "weight": 1.0
     },
@@ -33137,7 +33137,7 @@
       "relation": "contains",
       "source": "tools_dataset_tests_test_feature_firewall",
       "source_file": "tools/dataset/tests/test_feature_firewall.py",
-      "source_location": "L45",
+      "source_location": "L44",
       "target": "tools_dataset_tests_test_feature_firewall_firewallconfigschematest",
       "weight": 1.0
     },
@@ -33148,7 +33148,7 @@
       "relation": "contains",
       "source": "tools_dataset_tests_test_feature_firewall",
       "source_file": "tools/dataset/tests/test_feature_firewall.py",
-      "source_location": "L17",
+      "source_location": "L16",
       "target": "tools_dataset_tests_test_feature_firewall_load_module",
       "weight": 1.0
     },
@@ -33159,7 +33159,7 @@
       "relation": "contains",
       "source": "tools_dataset_tests_test_feature_firewall",
       "source_file": "tools/dataset/tests/test_feature_firewall.py",
-      "source_location": "L188",
+      "source_location": "L216",
       "target": "tools_dataset_tests_test_feature_firewall_requireactivefirewalltest",
       "weight": 1.0
     },
@@ -33170,8 +33170,8 @@
       "relation": "contains",
       "source": "tools_dataset_tests_test_feature_firewall",
       "source_file": "tools/dataset/tests/test_feature_firewall.py",
-      "source_location": "L122",
-      "target": "tools_dataset_tests_test_feature_firewall_shippedtemplatetest",
+      "source_location": "L121",
+      "target": "tools_dataset_tests_test_feature_firewall_shippedfirewalltest",
       "weight": 1.0
     },
     {
@@ -33181,7 +33181,7 @@
       "relation": "contains",
       "source": "tools_dataset_tests_test_feature_firewall",
       "source_file": "tools/dataset/tests/test_feature_firewall.py",
-      "source_location": "L29",
+      "source_location": "L28",
       "target": "tools_dataset_tests_test_feature_firewall_synthetic_active_document",
       "weight": 1.0
     },
@@ -33192,7 +33192,7 @@
       "relation": "contains",
       "source": "tools_dataset_tests_test_feature_firewall",
       "source_file": "tools/dataset/tests/test_feature_firewall.py",
-      "source_location": "L142",
+      "source_location": "L170",
       "target": "tools_dataset_tests_test_feature_firewall_templatedetectiontest",
       "weight": 1.0
     },
@@ -33203,7 +33203,7 @@
       "relation": "method",
       "source": "tools_dataset_tests_test_feature_firewall_auditfeaturesettest",
       "source_file": "tools/dataset/tests/test_feature_firewall.py",
-      "source_location": "L252",
+      "source_location": "L280",
       "target": "tools_dataset_tests_test_feature_firewall_auditfeaturesettest_test_audit_against_template_firewall_is_rejected",
       "weight": 1.0
     },
@@ -33214,7 +33214,7 @@
       "relation": "method",
       "source": "tools_dataset_tests_test_feature_firewall_auditfeaturesettest",
       "source_file": "tools/dataset/tests/test_feature_firewall.py",
-      "source_location": "L238",
+      "source_location": "L266",
       "target": "tools_dataset_tests_test_feature_firewall_auditfeaturesettest_test_audit_classifies_every_proposed_feature",
       "weight": 1.0
     },
@@ -33226,7 +33226,7 @@
       "relation": "calls",
       "source": "tools_dataset_tests_test_feature_firewall_auditfeaturesettest_test_audit_classifies_every_proposed_feature",
       "source_file": "tools/dataset/tests/test_feature_firewall.py",
-      "source_location": "L239",
+      "source_location": "L267",
       "target": "tools_dataset_tests_test_feature_firewall_synthetic_active_document",
       "weight": 1.0
     },
@@ -33237,7 +33237,7 @@
       "relation": "method",
       "source": "tools_dataset_tests_test_feature_firewall_classifyfeaturetest",
       "source_file": "tools/dataset/tests/test_feature_firewall.py",
-      "source_location": "L217",
+      "source_location": "L245",
       "target": "tools_dataset_tests_test_feature_firewall_classifyfeaturetest_test_allowed_feature_is_allowed",
       "weight": 1.0
     },
@@ -33248,7 +33248,7 @@
       "relation": "method",
       "source": "tools_dataset_tests_test_feature_firewall_classifyfeaturetest",
       "source_file": "tools/dataset/tests/test_feature_firewall.py",
-      "source_location": "L221",
+      "source_location": "L249",
       "target": "tools_dataset_tests_test_feature_firewall_classifyfeaturetest_test_forbidden_label_is_forbidden",
       "weight": 1.0
     },
@@ -33259,7 +33259,7 @@
       "relation": "method",
       "source": "tools_dataset_tests_test_feature_firewall_classifyfeaturetest",
       "source_file": "tools/dataset/tests/test_feature_firewall.py",
-      "source_location": "L229",
+      "source_location": "L257",
       "target": "tools_dataset_tests_test_feature_firewall_classifyfeaturetest_test_forbidden_wins_if_a_name_is_on_both_lists",
       "weight": 1.0
     },
@@ -33270,7 +33270,7 @@
       "relation": "method",
       "source": "tools_dataset_tests_test_feature_firewall_classifyfeaturetest",
       "source_file": "tools/dataset/tests/test_feature_firewall.py",
-      "source_location": "L225",
+      "source_location": "L253",
       "target": "tools_dataset_tests_test_feature_firewall_classifyfeaturetest_test_unknown_name_is_not_runtime_available",
       "weight": 1.0
     },
@@ -33281,7 +33281,7 @@
       "relation": "method",
       "source": "tools_dataset_tests_test_feature_firewall_enforcefeaturesettest",
       "source_file": "tools/dataset/tests/test_feature_firewall.py",
-      "source_location": "L273",
+      "source_location": "L306",
       "target": "tools_dataset_tests_test_feature_firewall_enforcefeaturesettest_test_feature_set_against_template_firewall_is_rejected",
       "weight": 1.0
     },
@@ -33292,7 +33292,7 @@
       "relation": "method",
       "source": "tools_dataset_tests_test_feature_firewall_enforcefeaturesettest",
       "source_file": "tools/dataset/tests/test_feature_firewall.py",
-      "source_location": "L263",
+      "source_location": "L296",
       "target": "tools_dataset_tests_test_feature_firewall_enforcefeaturesettest_test_feature_set_containing_a_forbidden_label_is_rejected",
       "weight": 1.0
     },
@@ -33303,7 +33303,7 @@
       "relation": "method",
       "source": "tools_dataset_tests_test_feature_firewall_enforcefeaturesettest",
       "source_file": "tools/dataset/tests/test_feature_firewall.py",
-      "source_location": "L268",
+      "source_location": "L301",
       "target": "tools_dataset_tests_test_feature_firewall_enforcefeaturesettest_test_feature_set_containing_an_unknown_name_is_rejected",
       "weight": 1.0
     },
@@ -33314,7 +33314,7 @@
       "relation": "method",
       "source": "tools_dataset_tests_test_feature_firewall_enforcefeaturesettest",
       "source_file": "tools/dataset/tests/test_feature_firewall.py",
-      "source_location": "L259",
+      "source_location": "L292",
       "target": "tools_dataset_tests_test_feature_firewall_enforcefeaturesettest_test_feature_set_of_only_allowed_names_passes",
       "weight": 1.0
     },
@@ -33326,7 +33326,7 @@
       "relation": "calls",
       "source": "tools_dataset_tests_test_feature_firewall_enforcefeaturesettest_test_feature_set_containing_a_forbidden_label_is_rejected",
       "source_file": "tools/dataset/tests/test_feature_firewall.py",
-      "source_location": "L264",
+      "source_location": "L297",
       "target": "tools_dataset_tests_test_feature_firewall_synthetic_active_document",
       "weight": 1.0
     },
@@ -33338,7 +33338,7 @@
       "relation": "calls",
       "source": "tools_dataset_tests_test_feature_firewall_enforcefeaturesettest_test_feature_set_containing_an_unknown_name_is_rejected",
       "source_file": "tools/dataset/tests/test_feature_firewall.py",
-      "source_location": "L269",
+      "source_location": "L302",
       "target": "tools_dataset_tests_test_feature_firewall_synthetic_active_document",
       "weight": 1.0
     },
@@ -33350,7 +33350,7 @@
       "relation": "calls",
       "source": "tools_dataset_tests_test_feature_firewall_enforcefeaturesettest_test_feature_set_of_only_allowed_names_passes",
       "source_file": "tools/dataset/tests/test_feature_firewall.py",
-      "source_location": "L260",
+      "source_location": "L293",
       "target": "tools_dataset_tests_test_feature_firewall_synthetic_active_document",
       "weight": 1.0
     },
@@ -33361,7 +33361,7 @@
       "relation": "method",
       "source": "tools_dataset_tests_test_feature_firewall_firewallconfigschematest",
       "source_file": "tools/dataset/tests/test_feature_firewall.py",
-      "source_location": "L46",
+      "source_location": "L45",
       "target": "tools_dataset_tests_test_feature_firewall_firewallconfigschematest_test_config_schema_is_valid_draft_2020_12",
       "weight": 1.0
     },
@@ -33372,7 +33372,7 @@
       "relation": "method",
       "source": "tools_dataset_tests_test_feature_firewall_firewallconfigschematest",
       "source_file": "tools/dataset/tests/test_feature_firewall.py",
-      "source_location": "L85",
+      "source_location": "L84",
       "target": "tools_dataset_tests_test_feature_firewall_firewallconfigschematest_test_duplicate_entries_within_a_list_are_rejected",
       "weight": 1.0
     },
@@ -33383,7 +33383,7 @@
       "relation": "method",
       "source": "tools_dataset_tests_test_feature_firewall_firewallconfigschematest",
       "source_file": "tools/dataset/tests/test_feature_firewall.py",
-      "source_location": "L73",
+      "source_location": "L72",
       "target": "tools_dataset_tests_test_feature_firewall_firewallconfigschematest_test_empty_forbidden_labels_is_rejected",
       "weight": 1.0
     },
@@ -33394,7 +33394,7 @@
       "relation": "method",
       "source": "tools_dataset_tests_test_feature_firewall_firewallconfigschematest",
       "source_file": "tools/dataset/tests/test_feature_firewall.py",
-      "source_location": "L61",
+      "source_location": "L60",
       "target": "tools_dataset_tests_test_feature_firewall_firewallconfigschematest_test_empty_runtime_allowed_features_is_rejected",
       "weight": 1.0
     },
@@ -33405,7 +33405,7 @@
       "relation": "method",
       "source": "tools_dataset_tests_test_feature_firewall_firewallconfigschematest",
       "source_file": "tools/dataset/tests/test_feature_firewall.py",
-      "source_location": "L109",
+      "source_location": "L108",
       "target": "tools_dataset_tests_test_feature_firewall_firewallconfigschematest_test_name_present_in_both_lists_is_rejected",
       "weight": 1.0
     },
@@ -33416,7 +33416,7 @@
       "relation": "method",
       "source": "tools_dataset_tests_test_feature_firewall_firewallconfigschematest",
       "source_file": "tools/dataset/tests/test_feature_firewall.py",
-      "source_location": "L51",
+      "source_location": "L50",
       "target": "tools_dataset_tests_test_feature_firewall_firewallconfigschematest_test_synthetic_active_document_validates",
       "weight": 1.0
     },
@@ -33427,7 +33427,7 @@
       "relation": "method",
       "source": "tools_dataset_tests_test_feature_firewall_firewallconfigschematest",
       "source_file": "tools/dataset/tests/test_feature_firewall.py",
-      "source_location": "L97",
+      "source_location": "L96",
       "target": "tools_dataset_tests_test_feature_firewall_firewallconfigschematest_test_unknown_status_is_rejected",
       "weight": 1.0
     },
@@ -33439,7 +33439,7 @@
       "relation": "calls",
       "source": "tools_dataset_tests_test_feature_firewall_firewallconfigschematest_test_duplicate_entries_within_a_list_are_rejected",
       "source_file": "tools/dataset/tests/test_feature_firewall.py",
-      "source_location": "L92",
+      "source_location": "L91",
       "target": "tools_dataset_tests_test_feature_firewall_py_path",
       "weight": 1.0
     },
@@ -33451,7 +33451,7 @@
       "relation": "calls",
       "source": "tools_dataset_tests_test_feature_firewall_firewallconfigschematest_test_duplicate_entries_within_a_list_are_rejected",
       "source_file": "tools/dataset/tests/test_feature_firewall.py",
-      "source_location": "L89",
+      "source_location": "L88",
       "target": "tools_dataset_tests_test_feature_firewall_synthetic_active_document",
       "weight": 1.0
     },
@@ -33463,7 +33463,7 @@
       "relation": "calls",
       "source": "tools_dataset_tests_test_feature_firewall_firewallconfigschematest_test_empty_forbidden_labels_is_rejected",
       "source_file": "tools/dataset/tests/test_feature_firewall.py",
-      "source_location": "L80",
+      "source_location": "L79",
       "target": "tools_dataset_tests_test_feature_firewall_py_path",
       "weight": 1.0
     },
@@ -33475,7 +33475,7 @@
       "relation": "calls",
       "source": "tools_dataset_tests_test_feature_firewall_firewallconfigschematest_test_empty_forbidden_labels_is_rejected",
       "source_file": "tools/dataset/tests/test_feature_firewall.py",
-      "source_location": "L77",
+      "source_location": "L76",
       "target": "tools_dataset_tests_test_feature_firewall_synthetic_active_document",
       "weight": 1.0
     },
@@ -33487,7 +33487,7 @@
       "relation": "calls",
       "source": "tools_dataset_tests_test_feature_firewall_firewallconfigschematest_test_empty_runtime_allowed_features_is_rejected",
       "source_file": "tools/dataset/tests/test_feature_firewall.py",
-      "source_location": "L68",
+      "source_location": "L67",
       "target": "tools_dataset_tests_test_feature_firewall_py_path",
       "weight": 1.0
     },
@@ -33499,7 +33499,7 @@
       "relation": "calls",
       "source": "tools_dataset_tests_test_feature_firewall_firewallconfigschematest_test_empty_runtime_allowed_features_is_rejected",
       "source_file": "tools/dataset/tests/test_feature_firewall.py",
-      "source_location": "L65",
+      "source_location": "L64",
       "target": "tools_dataset_tests_test_feature_firewall_synthetic_active_document",
       "weight": 1.0
     },
@@ -33511,7 +33511,7 @@
       "relation": "calls",
       "source": "tools_dataset_tests_test_feature_firewall_firewallconfigschematest_test_name_present_in_both_lists_is_rejected",
       "source_file": "tools/dataset/tests/test_feature_firewall.py",
-      "source_location": "L116",
+      "source_location": "L115",
       "target": "tools_dataset_tests_test_feature_firewall_py_path",
       "weight": 1.0
     },
@@ -33523,8 +33523,20 @@
       "relation": "calls",
       "source": "tools_dataset_tests_test_feature_firewall_firewallconfigschematest_test_name_present_in_both_lists_is_rejected",
       "source_file": "tools/dataset/tests/test_feature_firewall.py",
-      "source_location": "L113",
+      "source_location": "L112",
       "target": "tools_dataset_tests_test_feature_firewall_synthetic_active_document",
+      "weight": 1.0
+    },
+    {
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "relation": "calls",
+      "source": "tools_dataset_tests_test_feature_firewall_firewallconfigschematest_test_synthetic_active_document_validates",
+      "source_file": "tools/dataset/tests/test_feature_firewall.py",
+      "source_location": "L55",
+      "target": "tools_dataset_tests_test_feature_firewall_py_path",
       "weight": 1.0
     },
     {
@@ -33536,18 +33548,6 @@
       "source": "tools_dataset_tests_test_feature_firewall_firewallconfigschematest_test_synthetic_active_document_validates",
       "source_file": "tools/dataset/tests/test_feature_firewall.py",
       "source_location": "L56",
-      "target": "tools_dataset_tests_test_feature_firewall_py_path",
-      "weight": 1.0
-    },
-    {
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "call",
-      "relation": "calls",
-      "source": "tools_dataset_tests_test_feature_firewall_firewallconfigschematest_test_synthetic_active_document_validates",
-      "source_file": "tools/dataset/tests/test_feature_firewall.py",
-      "source_location": "L57",
       "target": "tools_dataset_tests_test_feature_firewall_synthetic_active_document",
       "weight": 1.0
     },
@@ -33559,7 +33559,7 @@
       "relation": "calls",
       "source": "tools_dataset_tests_test_feature_firewall_firewallconfigschematest_test_unknown_status_is_rejected",
       "source_file": "tools/dataset/tests/test_feature_firewall.py",
-      "source_location": "L104",
+      "source_location": "L103",
       "target": "tools_dataset_tests_test_feature_firewall_py_path",
       "weight": 1.0
     },
@@ -33571,7 +33571,7 @@
       "relation": "calls",
       "source": "tools_dataset_tests_test_feature_firewall_firewallconfigschematest_test_unknown_status_is_rejected",
       "source_file": "tools/dataset/tests/test_feature_firewall.py",
-      "source_location": "L101",
+      "source_location": "L100",
       "target": "tools_dataset_tests_test_feature_firewall_synthetic_active_document",
       "weight": 1.0
     },
@@ -33583,7 +33583,7 @@
       "relation": "references",
       "source": "tools_dataset_tests_test_feature_firewall_load_module",
       "source_file": "tools/dataset/tests/test_feature_firewall.py",
-      "source_location": "L17",
+      "source_location": "L16",
       "target": "tools_dataset_tests_test_feature_firewall_py_path",
       "weight": 1.0
     },
@@ -33602,21 +33602,10 @@
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
-      "relation": "rationale_for",
-      "source": "tools_dataset_tests_test_feature_firewall_rationale_123",
-      "source_file": "tools/dataset/tests/test_feature_firewall.py",
-      "source_location": "L123",
-      "target": "tools_dataset_tests_test_feature_firewall_shippedtemplatetest",
-      "weight": 1.0
-    },
-    {
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
       "relation": "method",
       "source": "tools_dataset_tests_test_feature_firewall_requireactivefirewalltest",
       "source_file": "tools/dataset/tests/test_feature_firewall.py",
-      "source_location": "L189",
+      "source_location": "L217",
       "target": "tools_dataset_tests_test_feature_firewall_requireactivefirewalltest_test_active_synthetic_document_returns_both_lists",
       "weight": 1.0
     },
@@ -33627,7 +33616,7 @@
       "relation": "method",
       "source": "tools_dataset_tests_test_feature_firewall_requireactivefirewalltest",
       "source_file": "tools/dataset/tests/test_feature_firewall.py",
-      "source_location": "L194",
+      "source_location": "L222",
       "target": "tools_dataset_tests_test_feature_firewall_requireactivefirewalltest_test_in_memory_malformed_active_document_is_rejected",
       "weight": 1.0
     },
@@ -33638,7 +33627,7 @@
       "relation": "method",
       "source": "tools_dataset_tests_test_feature_firewall_requireactivefirewalltest",
       "source_file": "tools/dataset/tests/test_feature_firewall.py",
-      "source_location": "L205",
+      "source_location": "L233",
       "target": "tools_dataset_tests_test_feature_firewall_requireactivefirewalltest_test_in_memory_overlapping_active_document_is_rejected",
       "weight": 1.0
     },
@@ -33650,7 +33639,7 @@
       "relation": "calls",
       "source": "tools_dataset_tests_test_feature_firewall_requireactivefirewalltest_test_active_synthetic_document_returns_both_lists",
       "source_file": "tools/dataset/tests/test_feature_firewall.py",
-      "source_location": "L190",
+      "source_location": "L218",
       "target": "tools_dataset_tests_test_feature_firewall_synthetic_active_document",
       "weight": 1.0
     },
@@ -33662,7 +33651,7 @@
       "relation": "calls",
       "source": "tools_dataset_tests_test_feature_firewall_requireactivefirewalltest_test_in_memory_overlapping_active_document_is_rejected",
       "source_file": "tools/dataset/tests/test_feature_firewall.py",
-      "source_location": "L210",
+      "source_location": "L238",
       "target": "tools_dataset_tests_test_feature_firewall_synthetic_active_document",
       "weight": 1.0
     },
@@ -33671,10 +33660,10 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "relation": "method",
-      "source": "tools_dataset_tests_test_feature_firewall_shippedtemplatetest",
+      "source": "tools_dataset_tests_test_feature_firewall_shippedfirewalltest",
       "source_file": "tools/dataset/tests/test_feature_firewall.py",
-      "source_location": "L132",
-      "target": "tools_dataset_tests_test_feature_firewall_shippedtemplatetest_test_shipped_template_is_recognized_as_a_template",
+      "source_location": "L158",
+      "target": "tools_dataset_tests_test_feature_firewall_shippedfirewalltest_test_every_v29_field_is_rejected_as_runtime_leakage",
       "weight": 1.0
     },
     {
@@ -33682,10 +33671,10 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "relation": "method",
-      "source": "tools_dataset_tests_test_feature_firewall_shippedtemplatetest",
+      "source": "tools_dataset_tests_test_feature_firewall_shippedfirewalltest",
       "source_file": "tools/dataset/tests/test_feature_firewall.py",
-      "source_location": "L136",
-      "target": "tools_dataset_tests_test_feature_firewall_shippedtemplatetest_test_shipped_template_is_refused_for_enforcement",
+      "source_location": "L154",
+      "target": "tools_dataset_tests_test_feature_firewall_shippedfirewalltest_test_shipped_firewall_accepts_only_the_runtime_inventory",
       "weight": 1.0
     },
     {
@@ -33693,10 +33682,21 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "relation": "method",
-      "source": "tools_dataset_tests_test_feature_firewall_shippedtemplatetest",
+      "source": "tools_dataset_tests_test_feature_firewall_shippedfirewalltest",
       "source_file": "tools/dataset/tests/test_feature_firewall.py",
-      "source_location": "L129",
-      "target": "tools_dataset_tests_test_feature_firewall_shippedtemplatetest_test_shipped_template_is_structurally_valid",
+      "source_location": "L147",
+      "target": "tools_dataset_tests_test_feature_firewall_shippedfirewalltest_test_shipped_firewall_has_exact_audited_values",
+      "weight": 1.0
+    },
+    {
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "relation": "method",
+      "source": "tools_dataset_tests_test_feature_firewall_shippedfirewalltest",
+      "source_file": "tools/dataset/tests/test_feature_firewall.py",
+      "source_location": "L144",
+      "target": "tools_dataset_tests_test_feature_firewall_shippedfirewalltest_test_shipped_firewall_is_structurally_valid",
       "weight": 1.0
     },
     {
@@ -33706,7 +33706,7 @@
       "relation": "method",
       "source": "tools_dataset_tests_test_feature_firewall_templatedetectiontest",
       "source_file": "tools/dataset/tests/test_feature_firewall.py",
-      "source_location": "L143",
+      "source_location": "L171",
       "target": "tools_dataset_tests_test_feature_firewall_templatedetectiontest_test_active_status_with_placeholder_features_is_still_a_template",
       "weight": 1.0
     },
@@ -33717,7 +33717,7 @@
       "relation": "method",
       "source": "tools_dataset_tests_test_feature_firewall_templatedetectiontest",
       "source_file": "tools/dataset/tests/test_feature_firewall.py",
-      "source_location": "L154",
+      "source_location": "L182",
       "target": "tools_dataset_tests_test_feature_firewall_templatedetectiontest_test_active_status_with_placeholder_labels_is_still_a_template",
       "weight": 1.0
     },
@@ -33728,7 +33728,7 @@
       "relation": "method",
       "source": "tools_dataset_tests_test_feature_firewall_templatedetectiontest",
       "source_file": "tools/dataset/tests/test_feature_firewall.py",
-      "source_location": "L168",
+      "source_location": "L196",
       "target": "tools_dataset_tests_test_feature_firewall_templatedetectiontest_test_active_with_one_remaining_placeholder_feature_among_real_entries_is_still_a_template",
       "weight": 1.0
     },
@@ -33739,7 +33739,7 @@
       "relation": "method",
       "source": "tools_dataset_tests_test_feature_firewall_templatedetectiontest",
       "source_file": "tools/dataset/tests/test_feature_firewall.py",
-      "source_location": "L180",
+      "source_location": "L208",
       "target": "tools_dataset_tests_test_feature_firewall_templatedetectiontest_test_active_with_one_remaining_placeholder_label_among_real_entries_is_still_a_template",
       "weight": 1.0
     },
@@ -33750,7 +33750,7 @@
       "relation": "method",
       "source": "tools_dataset_tests_test_feature_firewall_templatedetectiontest",
       "source_file": "tools/dataset/tests/test_feature_firewall.py",
-      "source_location": "L165",
+      "source_location": "L193",
       "target": "tools_dataset_tests_test_feature_firewall_templatedetectiontest_test_active_with_real_looking_entries_on_both_sides_is_not_a_template",
       "weight": 1.0
     },
@@ -33762,7 +33762,7 @@
       "relation": "calls",
       "source": "tools_dataset_tests_test_feature_firewall_templatedetectiontest_test_active_status_with_placeholder_features_is_still_a_template",
       "source_file": "tools/dataset/tests/test_feature_firewall.py",
-      "source_location": "L148",
+      "source_location": "L176",
       "target": "tools_dataset_tests_test_feature_firewall_synthetic_active_document",
       "weight": 1.0
     },
@@ -33774,7 +33774,7 @@
       "relation": "calls",
       "source": "tools_dataset_tests_test_feature_firewall_templatedetectiontest_test_active_status_with_placeholder_labels_is_still_a_template",
       "source_file": "tools/dataset/tests/test_feature_firewall.py",
-      "source_location": "L158",
+      "source_location": "L186",
       "target": "tools_dataset_tests_test_feature_firewall_synthetic_active_document",
       "weight": 1.0
     },
@@ -33786,7 +33786,7 @@
       "relation": "calls",
       "source": "tools_dataset_tests_test_feature_firewall_templatedetectiontest_test_active_with_one_remaining_placeholder_feature_among_real_entries_is_still_a_template",
       "source_file": "tools/dataset/tests/test_feature_firewall.py",
-      "source_location": "L174",
+      "source_location": "L202",
       "target": "tools_dataset_tests_test_feature_firewall_synthetic_active_document",
       "weight": 1.0
     },
@@ -33798,7 +33798,7 @@
       "relation": "calls",
       "source": "tools_dataset_tests_test_feature_firewall_templatedetectiontest_test_active_with_one_remaining_placeholder_label_among_real_entries_is_still_a_template",
       "source_file": "tools/dataset/tests/test_feature_firewall.py",
-      "source_location": "L181",
+      "source_location": "L209",
       "target": "tools_dataset_tests_test_feature_firewall_synthetic_active_document",
       "weight": 1.0
     },
@@ -33810,7 +33810,7 @@
       "relation": "calls",
       "source": "tools_dataset_tests_test_feature_firewall_templatedetectiontest_test_active_with_real_looking_entries_on_both_sides_is_not_a_template",
       "source_file": "tools/dataset/tests/test_feature_firewall.py",
-      "source_location": "L166",
+      "source_location": "L194",
       "target": "tools_dataset_tests_test_feature_firewall_synthetic_active_document",
       "weight": 1.0
     },
@@ -59518,7 +59518,7 @@
       "label": "audit_feature_set()",
       "norm_label": "audit_feature_set()",
       "source_file": "tools/dataset/feature_firewall.py",
-      "source_location": "L185"
+      "source_location": "L175"
     },
     {
       "_callable": true,
@@ -59530,7 +59530,7 @@
       "label": "classify_feature()",
       "norm_label": "classify_feature()",
       "source_file": "tools/dataset/feature_firewall.py",
-      "source_location": "L165"
+      "source_location": "L155"
     },
     {
       "_callable": true,
@@ -59542,7 +59542,7 @@
       "label": "enforce_feature_set()",
       "norm_label": "enforce_feature_set()",
       "source_file": "tools/dataset/feature_firewall.py",
-      "source_location": "L200"
+      "source_location": "L190"
     },
     {
       "_callable": true,
@@ -59554,7 +59554,7 @@
       "label": "enforce_feature_window()",
       "norm_label": "enforce_feature_window()",
       "source_file": "tools/dataset/feature_firewall.py",
-      "source_location": "L220"
+      "source_location": "L210"
     },
     {
       "_callable": true,
@@ -59567,7 +59567,7 @@
       "label": "FeatureFirewallError",
       "norm_label": "featurefirewallerror",
       "source_file": "tools/dataset/feature_firewall.py",
-      "source_location": "L55"
+      "source_location": "L45"
     },
     {
       "_callable": true,
@@ -59579,7 +59579,7 @@
       "label": "is_template_firewall()",
       "norm_label": "is_template_firewall()",
       "source_file": "tools/dataset/feature_firewall.py",
-      "source_location": "L100"
+      "source_location": "L90"
     },
     {
       "_callable": true,
@@ -59591,7 +59591,7 @@
       "label": "load_firewall_config_schema()",
       "norm_label": "load_firewall_config_schema()",
       "source_file": "tools/dataset/feature_firewall.py",
-      "source_location": "L63"
+      "source_location": "L53"
     },
     {
       "_callable": true,
@@ -59603,7 +59603,7 @@
       "label": "load_firewall_document()",
       "norm_label": "load_firewall_document()",
       "source_file": "tools/dataset/feature_firewall.py",
-      "source_location": "L67"
+      "source_location": "L57"
     },
     {
       "_origin": "ast",
@@ -59643,88 +59643,88 @@
       "community": 12,
       "community_name": "Community 12",
       "file_type": "rationale",
-      "id": "tools_dataset_feature_firewall_rationale_101",
-      "label": "True if `document` is (or looks like) the unfilled template. Checked two ways…",
-      "norm_label": "true if `document` is (or looks like) the unfilled template. checked two ways...",
-      "source_file": "tools/dataset/feature_firewall.py",
-      "source_location": "L101"
-    },
-    {
-      "_origin": "ast",
-      "community": 12,
-      "community_name": "Community 12",
-      "file_type": "rationale",
-      "id": "tools_dataset_feature_firewall_rationale_123",
+      "id": "tools_dataset_feature_firewall_rationale_113",
       "label": "Return (runtime_allowed_features, forbidden_labels), or raise. Raises…",
       "norm_label": "return (runtime_allowed_features, forbidden_labels), or raise. raises...",
       "source_file": "tools/dataset/feature_firewall.py",
-      "source_location": "L123"
+      "source_location": "L113"
     },
     {
       "_origin": "ast",
       "community": 12,
       "community_name": "Community 12",
       "file_type": "rationale",
-      "id": "tools_dataset_feature_firewall_rationale_166",
+      "id": "tools_dataset_feature_firewall_rationale_156",
       "label": "Classify a single feature name as ALLOWED, FORBIDDEN_LABEL, or…",
       "norm_label": "classify a single feature name as allowed, forbidden_label, or...",
       "source_file": "tools/dataset/feature_firewall.py",
-      "source_location": "L166"
+      "source_location": "L156"
     },
     {
       "_origin": "ast",
       "community": 12,
       "community_name": "Community 12",
       "file_type": "rationale",
-      "id": "tools_dataset_feature_firewall_rationale_186",
+      "id": "tools_dataset_feature_firewall_rationale_176",
       "label": "Return {feature_name: classification} for every name in `proposed_features`,…",
       "norm_label": "return {feature_name: classification} for every name in `proposed_features`,...",
       "source_file": "tools/dataset/feature_firewall.py",
-      "source_location": "L186"
+      "source_location": "L176"
     },
     {
       "_origin": "ast",
       "community": 12,
       "community_name": "Community 12",
       "file_type": "rationale",
-      "id": "tools_dataset_feature_firewall_rationale_201",
+      "id": "tools_dataset_feature_firewall_rationale_191",
       "label": "Raise FeatureFirewallError if `proposed_features` contains any name that is not…",
       "norm_label": "raise featurefirewallerror if `proposed_features` contains any name that is not...",
       "source_file": "tools/dataset/feature_firewall.py",
-      "source_location": "L201"
+      "source_location": "L191"
     },
     {
       "_origin": "ast",
       "community": 12,
       "community_name": "Community 12",
       "file_type": "rationale",
-      "id": "tools_dataset_feature_firewall_rationale_222",
-      "label": "Compose active configuration enforcement with the proposed metadata gate. A…",
-      "norm_label": "compose active configuration enforcement with the proposed metadata gate. a...",
+      "id": "tools_dataset_feature_firewall_rationale_212",
+      "label": "Compose active configuration enforcement with the frozen metadata gate. A…",
+      "norm_label": "compose active configuration enforcement with the frozen metadata gate. a...",
       "source_file": "tools/dataset/feature_firewall.py",
-      "source_location": "L222"
+      "source_location": "L212"
     },
     {
       "_origin": "ast",
       "community": 12,
       "community_name": "Community 12",
       "file_type": "rationale",
-      "id": "tools_dataset_feature_firewall_rationale_56",
+      "id": "tools_dataset_feature_firewall_rationale_46",
       "label": "Raised for any firewall configuration or enforcement failure. A hard stop,…",
       "norm_label": "raised for any firewall configuration or enforcement failure. a hard stop,...",
       "source_file": "tools/dataset/feature_firewall.py",
-      "source_location": "L56"
+      "source_location": "L46"
     },
     {
       "_origin": "ast",
       "community": 12,
       "community_name": "Community 12",
       "file_type": "rationale",
-      "id": "tools_dataset_feature_firewall_rationale_68",
+      "id": "tools_dataset_feature_firewall_rationale_58",
       "label": "Load, structurally validate, and cross-check a firewall config document.…",
       "norm_label": "load, structurally validate, and cross-check a firewall config document....",
       "source_file": "tools/dataset/feature_firewall.py",
-      "source_location": "L68"
+      "source_location": "L58"
+    },
+    {
+      "_origin": "ast",
+      "community": 12,
+      "community_name": "Community 12",
+      "file_type": "rationale",
+      "id": "tools_dataset_feature_firewall_rationale_91",
+      "label": "True if `document` is (or looks like) the unfilled template. Checked two ways…",
+      "norm_label": "true if `document` is (or looks like) the unfilled template. checked two ways...",
+      "source_file": "tools/dataset/feature_firewall.py",
+      "source_location": "L91"
     },
     {
       "_callable": true,
@@ -59736,7 +59736,7 @@
       "label": "require_active_firewall()",
       "norm_label": "require_active_firewall()",
       "source_file": "tools/dataset/feature_firewall.py",
-      "source_location": "L122"
+      "source_location": "L112"
     },
     {
       "_origin": "ast",
@@ -60737,7 +60737,7 @@
       "label": "AuditFeatureSetTest",
       "norm_label": "auditfeaturesettest",
       "source_file": "tools/dataset/tests/test_feature_firewall.py",
-      "source_location": "L237"
+      "source_location": "L265"
     },
     {
       "_callable": true,
@@ -60749,7 +60749,7 @@
       "label": ".test_audit_against_template_firewall_is_rejected()",
       "norm_label": ".test_audit_against_template_firewall_is_rejected()",
       "source_file": "tools/dataset/tests/test_feature_firewall.py",
-      "source_location": "L252"
+      "source_location": "L280"
     },
     {
       "_callable": true,
@@ -60761,7 +60761,7 @@
       "label": ".test_audit_classifies_every_proposed_feature()",
       "norm_label": ".test_audit_classifies_every_proposed_feature()",
       "source_file": "tools/dataset/tests/test_feature_firewall.py",
-      "source_location": "L238"
+      "source_location": "L266"
     },
     {
       "_callable": true,
@@ -60774,7 +60774,7 @@
       "label": "ClassifyFeatureTest",
       "norm_label": "classifyfeaturetest",
       "source_file": "tools/dataset/tests/test_feature_firewall.py",
-      "source_location": "L216"
+      "source_location": "L244"
     },
     {
       "_callable": true,
@@ -60786,7 +60786,7 @@
       "label": ".test_allowed_feature_is_allowed()",
       "norm_label": ".test_allowed_feature_is_allowed()",
       "source_file": "tools/dataset/tests/test_feature_firewall.py",
-      "source_location": "L217"
+      "source_location": "L245"
     },
     {
       "_callable": true,
@@ -60798,7 +60798,7 @@
       "label": ".test_forbidden_label_is_forbidden()",
       "norm_label": ".test_forbidden_label_is_forbidden()",
       "source_file": "tools/dataset/tests/test_feature_firewall.py",
-      "source_location": "L221"
+      "source_location": "L249"
     },
     {
       "_callable": true,
@@ -60810,7 +60810,7 @@
       "label": ".test_forbidden_wins_if_a_name_is_on_both_lists()",
       "norm_label": ".test_forbidden_wins_if_a_name_is_on_both_lists()",
       "source_file": "tools/dataset/tests/test_feature_firewall.py",
-      "source_location": "L229"
+      "source_location": "L257"
     },
     {
       "_callable": true,
@@ -60822,7 +60822,7 @@
       "label": ".test_unknown_name_is_not_runtime_available()",
       "norm_label": ".test_unknown_name_is_not_runtime_available()",
       "source_file": "tools/dataset/tests/test_feature_firewall.py",
-      "source_location": "L225"
+      "source_location": "L253"
     },
     {
       "_callable": true,
@@ -60835,7 +60835,7 @@
       "label": "EnforceFeatureSetTest",
       "norm_label": "enforcefeaturesettest",
       "source_file": "tools/dataset/tests/test_feature_firewall.py",
-      "source_location": "L258"
+      "source_location": "L291"
     },
     {
       "_callable": true,
@@ -60847,7 +60847,7 @@
       "label": ".test_feature_set_against_template_firewall_is_rejected()",
       "norm_label": ".test_feature_set_against_template_firewall_is_rejected()",
       "source_file": "tools/dataset/tests/test_feature_firewall.py",
-      "source_location": "L273"
+      "source_location": "L306"
     },
     {
       "_callable": true,
@@ -60859,7 +60859,7 @@
       "label": ".test_feature_set_containing_a_forbidden_label_is_rejected()",
       "norm_label": ".test_feature_set_containing_a_forbidden_label_is_rejected()",
       "source_file": "tools/dataset/tests/test_feature_firewall.py",
-      "source_location": "L263"
+      "source_location": "L296"
     },
     {
       "_callable": true,
@@ -60871,7 +60871,7 @@
       "label": ".test_feature_set_containing_an_unknown_name_is_rejected()",
       "norm_label": ".test_feature_set_containing_an_unknown_name_is_rejected()",
       "source_file": "tools/dataset/tests/test_feature_firewall.py",
-      "source_location": "L268"
+      "source_location": "L301"
     },
     {
       "_callable": true,
@@ -60883,7 +60883,7 @@
       "label": ".test_feature_set_of_only_allowed_names_passes()",
       "norm_label": ".test_feature_set_of_only_allowed_names_passes()",
       "source_file": "tools/dataset/tests/test_feature_firewall.py",
-      "source_location": "L259"
+      "source_location": "L292"
     },
     {
       "_callable": true,
@@ -60896,7 +60896,7 @@
       "label": "FirewallConfigSchemaTest",
       "norm_label": "firewallconfigschematest",
       "source_file": "tools/dataset/tests/test_feature_firewall.py",
-      "source_location": "L45"
+      "source_location": "L44"
     },
     {
       "_callable": true,
@@ -60908,7 +60908,7 @@
       "label": ".test_config_schema_is_valid_draft_2020_12()",
       "norm_label": ".test_config_schema_is_valid_draft_2020_12()",
       "source_file": "tools/dataset/tests/test_feature_firewall.py",
-      "source_location": "L46"
+      "source_location": "L45"
     },
     {
       "_callable": true,
@@ -60920,7 +60920,7 @@
       "label": ".test_duplicate_entries_within_a_list_are_rejected()",
       "norm_label": ".test_duplicate_entries_within_a_list_are_rejected()",
       "source_file": "tools/dataset/tests/test_feature_firewall.py",
-      "source_location": "L85"
+      "source_location": "L84"
     },
     {
       "_callable": true,
@@ -60932,7 +60932,7 @@
       "label": ".test_empty_forbidden_labels_is_rejected()",
       "norm_label": ".test_empty_forbidden_labels_is_rejected()",
       "source_file": "tools/dataset/tests/test_feature_firewall.py",
-      "source_location": "L73"
+      "source_location": "L72"
     },
     {
       "_callable": true,
@@ -60944,7 +60944,7 @@
       "label": ".test_empty_runtime_allowed_features_is_rejected()",
       "norm_label": ".test_empty_runtime_allowed_features_is_rejected()",
       "source_file": "tools/dataset/tests/test_feature_firewall.py",
-      "source_location": "L61"
+      "source_location": "L60"
     },
     {
       "_callable": true,
@@ -60956,7 +60956,7 @@
       "label": ".test_name_present_in_both_lists_is_rejected()",
       "norm_label": ".test_name_present_in_both_lists_is_rejected()",
       "source_file": "tools/dataset/tests/test_feature_firewall.py",
-      "source_location": "L109"
+      "source_location": "L108"
     },
     {
       "_callable": true,
@@ -60968,7 +60968,7 @@
       "label": ".test_synthetic_active_document_validates()",
       "norm_label": ".test_synthetic_active_document_validates()",
       "source_file": "tools/dataset/tests/test_feature_firewall.py",
-      "source_location": "L51"
+      "source_location": "L50"
     },
     {
       "_callable": true,
@@ -60980,7 +60980,7 @@
       "label": ".test_unknown_status_is_rejected()",
       "norm_label": ".test_unknown_status_is_rejected()",
       "source_file": "tools/dataset/tests/test_feature_firewall.py",
-      "source_location": "L97"
+      "source_location": "L96"
     },
     {
       "_callable": true,
@@ -60992,7 +60992,7 @@
       "label": "_load_module()",
       "norm_label": "_load_module()",
       "source_file": "tools/dataset/tests/test_feature_firewall.py",
-      "source_location": "L17"
+      "source_location": "L16"
     },
     {
       "_origin": "ast",
@@ -61011,21 +61011,10 @@
       "community_name": "Community 6",
       "file_type": "rationale",
       "id": "tools_dataset_tests_test_feature_firewall_rationale_1",
-      "label": "WP-10.5 (Issue #83): tests for tools/dataset/feature_firewall.py. Uses only…",
-      "norm_label": "wp-10.5 (issue #83): tests for tools/dataset/feature_firewall.py. uses only...",
+      "label": "WP-10.5 (Issue #83): tests for tools/dataset/feature_firewall.py. Uses…",
+      "norm_label": "wp-10.5 (issue #83): tests for tools/dataset/feature_firewall.py. uses...",
       "source_file": "tools/dataset/tests/test_feature_firewall.py",
       "source_location": "L1"
-    },
-    {
-      "_origin": "ast",
-      "community": 6,
-      "community_name": "Community 6",
-      "file_type": "rationale",
-      "id": "tools_dataset_tests_test_feature_firewall_rationale_123",
-      "label": "The actual config/feature_firewall.json shipped by this PR must always be…",
-      "norm_label": "the actual config/feature_firewall.json shipped by this pr must always be...",
-      "source_file": "tools/dataset/tests/test_feature_firewall.py",
-      "source_location": "L123"
     },
     {
       "_callable": true,
@@ -61038,7 +61027,7 @@
       "label": "RequireActiveFirewallTest",
       "norm_label": "requireactivefirewalltest",
       "source_file": "tools/dataset/tests/test_feature_firewall.py",
-      "source_location": "L188"
+      "source_location": "L216"
     },
     {
       "_callable": true,
@@ -61050,7 +61039,7 @@
       "label": ".test_active_synthetic_document_returns_both_lists()",
       "norm_label": ".test_active_synthetic_document_returns_both_lists()",
       "source_file": "tools/dataset/tests/test_feature_firewall.py",
-      "source_location": "L189"
+      "source_location": "L217"
     },
     {
       "_callable": true,
@@ -61062,7 +61051,7 @@
       "label": ".test_in_memory_malformed_active_document_is_rejected()",
       "norm_label": ".test_in_memory_malformed_active_document_is_rejected()",
       "source_file": "tools/dataset/tests/test_feature_firewall.py",
-      "source_location": "L194"
+      "source_location": "L222"
     },
     {
       "_callable": true,
@@ -61074,7 +61063,7 @@
       "label": ".test_in_memory_overlapping_active_document_is_rejected()",
       "norm_label": ".test_in_memory_overlapping_active_document_is_rejected()",
       "source_file": "tools/dataset/tests/test_feature_firewall.py",
-      "source_location": "L205"
+      "source_location": "L233"
     },
     {
       "_callable": true,
@@ -61083,11 +61072,11 @@
       "community": 6,
       "community_name": "Community 6",
       "file_type": "code",
-      "id": "tools_dataset_tests_test_feature_firewall_shippedtemplatetest",
-      "label": "ShippedTemplateTest",
-      "norm_label": "shippedtemplatetest",
+      "id": "tools_dataset_tests_test_feature_firewall_shippedfirewalltest",
+      "label": "ShippedFirewallTest",
+      "norm_label": "shippedfirewalltest",
       "source_file": "tools/dataset/tests/test_feature_firewall.py",
-      "source_location": "L122"
+      "source_location": "L121"
     },
     {
       "_callable": true,
@@ -61095,11 +61084,11 @@
       "community": 6,
       "community_name": "Community 6",
       "file_type": "code",
-      "id": "tools_dataset_tests_test_feature_firewall_shippedtemplatetest_test_shipped_template_is_recognized_as_a_template",
-      "label": ".test_shipped_template_is_recognized_as_a_template()",
-      "norm_label": ".test_shipped_template_is_recognized_as_a_template()",
+      "id": "tools_dataset_tests_test_feature_firewall_shippedfirewalltest_test_every_v29_field_is_rejected_as_runtime_leakage",
+      "label": ".test_every_v29_field_is_rejected_as_runtime_leakage()",
+      "norm_label": ".test_every_v29_field_is_rejected_as_runtime_leakage()",
       "source_file": "tools/dataset/tests/test_feature_firewall.py",
-      "source_location": "L132"
+      "source_location": "L158"
     },
     {
       "_callable": true,
@@ -61107,11 +61096,11 @@
       "community": 6,
       "community_name": "Community 6",
       "file_type": "code",
-      "id": "tools_dataset_tests_test_feature_firewall_shippedtemplatetest_test_shipped_template_is_refused_for_enforcement",
-      "label": ".test_shipped_template_is_refused_for_enforcement()",
-      "norm_label": ".test_shipped_template_is_refused_for_enforcement()",
+      "id": "tools_dataset_tests_test_feature_firewall_shippedfirewalltest_test_shipped_firewall_accepts_only_the_runtime_inventory",
+      "label": ".test_shipped_firewall_accepts_only_the_runtime_inventory()",
+      "norm_label": ".test_shipped_firewall_accepts_only_the_runtime_inventory()",
       "source_file": "tools/dataset/tests/test_feature_firewall.py",
-      "source_location": "L136"
+      "source_location": "L154"
     },
     {
       "_callable": true,
@@ -61119,11 +61108,23 @@
       "community": 6,
       "community_name": "Community 6",
       "file_type": "code",
-      "id": "tools_dataset_tests_test_feature_firewall_shippedtemplatetest_test_shipped_template_is_structurally_valid",
-      "label": ".test_shipped_template_is_structurally_valid()",
-      "norm_label": ".test_shipped_template_is_structurally_valid()",
+      "id": "tools_dataset_tests_test_feature_firewall_shippedfirewalltest_test_shipped_firewall_has_exact_audited_values",
+      "label": ".test_shipped_firewall_has_exact_audited_values()",
+      "norm_label": ".test_shipped_firewall_has_exact_audited_values()",
       "source_file": "tools/dataset/tests/test_feature_firewall.py",
-      "source_location": "L129"
+      "source_location": "L147"
+    },
+    {
+      "_callable": true,
+      "_origin": "ast",
+      "community": 6,
+      "community_name": "Community 6",
+      "file_type": "code",
+      "id": "tools_dataset_tests_test_feature_firewall_shippedfirewalltest_test_shipped_firewall_is_structurally_valid",
+      "label": ".test_shipped_firewall_is_structurally_valid()",
+      "norm_label": ".test_shipped_firewall_is_structurally_valid()",
+      "source_file": "tools/dataset/tests/test_feature_firewall.py",
+      "source_location": "L144"
     },
     {
       "_callable": true,
@@ -61135,7 +61136,7 @@
       "label": "_synthetic_active_document()",
       "norm_label": "_synthetic_active_document()",
       "source_file": "tools/dataset/tests/test_feature_firewall.py",
-      "source_location": "L29"
+      "source_location": "L28"
     },
     {
       "_callable": true,
@@ -61148,7 +61149,7 @@
       "label": "TemplateDetectionTest",
       "norm_label": "templatedetectiontest",
       "source_file": "tools/dataset/tests/test_feature_firewall.py",
-      "source_location": "L142"
+      "source_location": "L170"
     },
     {
       "_callable": true,
@@ -61160,7 +61161,7 @@
       "label": ".test_active_status_with_placeholder_features_is_still_a_template()",
       "norm_label": ".test_active_status_with_placeholder_features_is_still_a_template()",
       "source_file": "tools/dataset/tests/test_feature_firewall.py",
-      "source_location": "L143"
+      "source_location": "L171"
     },
     {
       "_callable": true,
@@ -61172,7 +61173,7 @@
       "label": ".test_active_status_with_placeholder_labels_is_still_a_template()",
       "norm_label": ".test_active_status_with_placeholder_labels_is_still_a_template()",
       "source_file": "tools/dataset/tests/test_feature_firewall.py",
-      "source_location": "L154"
+      "source_location": "L182"
     },
     {
       "_callable": true,
@@ -61184,7 +61185,7 @@
       "label": ".test_active_with_one_remaining_placeholder_feature_among_real_entries_is_still_a_template()",
       "norm_label": ".test_active_with_one_remaining_placeholder_feature_among_real_entries_is_still_a_template()",
       "source_file": "tools/dataset/tests/test_feature_firewall.py",
-      "source_location": "L168"
+      "source_location": "L196"
     },
     {
       "_callable": true,
@@ -61196,7 +61197,7 @@
       "label": ".test_active_with_one_remaining_placeholder_label_among_real_entries_is_still_a_template()",
       "norm_label": ".test_active_with_one_remaining_placeholder_label_among_real_entries_is_still_a_template()",
       "source_file": "tools/dataset/tests/test_feature_firewall.py",
-      "source_location": "L180"
+      "source_location": "L208"
     },
     {
       "_callable": true,
@@ -61208,7 +61209,7 @@
       "label": ".test_active_with_real_looking_entries_on_both_sides_is_not_a_template()",
       "norm_label": ".test_active_with_real_looking_entries_on_both_sides_is_not_a_template()",
       "source_file": "tools/dataset/tests/test_feature_firewall.py",
-      "source_location": "L165"
+      "source_location": "L193"
     },
     {
       "_origin": "ast",

@@ -1,14 +1,46 @@
 {
   "schema_version": 1,
-  "status": "TEMPLATE_PENDING_REVIEW",
+  "status": "ACTIVE",
   "runtime_allowed_features": [
-    "PENDING_FEATURE_1_REPLACE_FROM_RUNTIME_SPEC",
-    "PENDING_FEATURE_2_REPLACE_FROM_RUNTIME_SPEC",
-    "PENDING_FEATURE_3_REPLACE_FROM_RUNTIME_SPEC"
+    "imu.accel.x",
+    "imu.accel.y",
+    "imu.accel.z",
+    "imu.gyro.x",
+    "imu.gyro.y",
+    "imu.gyro.z",
+    "imu.dt",
+    "imu.gap_mask",
+    "imu.valid_mask"
   ],
   "forbidden_labels": [
-    "PENDING_LABEL_1_REPLACE_FROM_S0_AUDIT",
-    "PENDING_LABEL_2_REPLACE_FROM_S0_AUDIT",
-    "PENDING_LABEL_3_REPLACE_FROM_S0_AUDIT"
+    "V29_MAIN.no_of_gps_satellites_available",
+    "V29_MAIN.time_since_start_of_day",
+    "V29_MAIN.latitude",
+    "V29_MAIN.longitude",
+    "V29_MAIN.velocity",
+    "V29_MAIN.heading",
+    "V29_MAIN.height",
+    "V29_MAIN.vertical_velocity",
+    "V29_MAIN.sample_period",
+    "V29_MAIN.steering_angle",
+    "V29_MAIN.wheel_speed_front_left",
+    "V29_MAIN.wheel_speed_front_right",
+    "V29_MAIN.wheel_speed_rear_left",
+    "V29_MAIN.wheel_speed_rear_right",
+    "V29_MAIN.yaw_rate",
+    "V29_MAIN.indicated_vehicle_speed",
+    "V29_MAIN.indicated_longitudinal_acceleration",
+    "V29_MAIN.indicated_lateral_acceleration",
+    "V29_MAIN.handbrake",
+    "V29_MAIN.gear_requested",
+    "V29_MAIN.gear",
+    "V29_MAIN.engine_speed",
+    "V29_MAIN.coolant_temperature",
+    "V29_MAIN.clutch_position",
+    "V29_MAIN.brake_pressure",
+    "V29_MAIN.brake_position",
+    "V29_MAIN.battery_voltage",
+    "V29_MAIN.air_temperature",
+    "V29_MAIN.accelerator_pedal_position"
   ]
 }

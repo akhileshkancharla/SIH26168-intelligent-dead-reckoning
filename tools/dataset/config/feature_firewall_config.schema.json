@@ -22,7 +22,7 @@
         "TEMPLATE_PENDING_REVIEW",
         "ACTIVE"
       ],
-      "description": "TEMPLATE_PENDING_REVIEW until a human reviews and replaces both placeholder lists below and sets this to ACTIVE. tools/dataset/feature_firewall.py refuses to enforce a non-ACTIVE configuration."
+      "description": "ACTIVE for the reviewed runtime and forbidden inventories. TEMPLATE_PENDING_REVIEW remains available only for unresolved replacement documents; tools/dataset/feature_firewall.py refuses non-ACTIVE or placeholder-bearing configurations."
     },
     "runtime_allowed_features": {
       "type": "array",
@@ -36,7 +36,7 @@
     },
     "forbidden_labels": {
       "type": "array",
-      "description": "Feature names known to be ground-truth-only (vehicle CAN/telemetry labels, precise reference positions used only for evaluation, or any other IO-VNBD field that must never reach a model as an input feature). Checked even if a name is not present in runtime_allowed_features, as defense in depth against a future accidental addition.",
+      "description": "Collision-safe `<schema_id>.<interpreted_field>` IDs for vehicle/reference fields that must never reach runtime tensors, normalization, preprocessing, post-processing, or display smoothing. Checked even if absent from runtime_allowed_features, as defense in depth.",
       "items": {
         "type": "string",
         "minLength": 1

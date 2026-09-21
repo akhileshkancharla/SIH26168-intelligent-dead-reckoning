@@ -4,8 +4,8 @@
 
 - Snapshot classification: `generated-and-sanitized`
 - Source repository: `akhileshkancharla/SIH26168-intelligent-dead-reckoning`
-- Source branch: `issue/WP-10.5-wp-10-5-implement-runtime`
-- Source parent commit: `e7ec5c1708b70e47b38d922b50913530a43b9d53`
+- Source branch: `codex/review-pr148-current`
+- Source parent commit: `48ac74d3f998dba3fae7c95e430f34dfc078019f`
 - Graphify version: `0.9.53`
 - Graphify mode: code-only static extraction; semantic document extraction disabled
 - Counts: 2219 nodes, 3380 edges, 171 communities
