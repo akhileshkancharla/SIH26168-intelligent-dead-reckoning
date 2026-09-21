@@ -50,6 +50,7 @@ path under the repo root regardless of Git tracking status.
   manifest revision; never combine old and regenerated IDs or overwrite an
   immutable manifest. Downstream training runs must reference that new
   manifest and its regenerated splits.
+
 - `splits.py` — WP-10.4 (Issue #82). Leakage-safe grouped dataset
   splits: `assign_splits` deterministically buckets each `group_id`
   (from `grouping.py`) into train/validation/test by a stable hash of
@@ -65,17 +66,10 @@ path under the repo root regardless of Git tracking status.
   `ALLOWED`, `FORBIDDEN_LABEL` (a ground-truth-only field such as a
   vehicle CAN/telemetry label or precise reference position), or
   `NOT_RUNTIME_AVAILABLE`; `enforce_feature_set` raises on anything but
-  `ALLOWED`. Neither the real runtime-available feature names nor the
-  real IO-VNBD ground-truth label names are known to this repository --
-  this repo's own contracts and fixtures contain no frozen enum of
-  either, and inventing one would fabricate a fact this repository does
-  not have (the same reasoning as `schema_allowlist.py`'s six schema
-  names). The shipped `config/feature_firewall.json` is therefore a
-  **template** (`status: TEMPLATE_PENDING_REVIEW`) with placeholder
-  entries on both sides; `require_active_firewall` refuses to enforce it
-  (or any document that still looks like it, checked independently on
-  each side) until a human replaces both placeholder lists and sets
-  `status: ACTIVE`.
+  `ALLOWED`. The shipped configuration is `ACTIVE` with the frozen
+  nine-channel phone-IMU profile and all 29 audited `V29_MAIN` fields as
+  forbidden runtime inputs. `FEATURE_CONTRACT_PROPOSAL.md` records the exact
+  mapping, evidence hashes, and remaining rights/extractor gates.
 
 - `private_data_scan.py` — WP-10.6 (Issue #84). A WP-10-scoped
   complement to `ci/verify_repository.py`'s repository-wide `forbidden`

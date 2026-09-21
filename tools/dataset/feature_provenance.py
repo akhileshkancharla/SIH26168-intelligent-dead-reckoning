@@ -24,7 +24,7 @@ def validate_minimal_window(records: list[dict], *, start_ns: int, end_ns: int,
     Each record includes value, source/field/unit/frame, epoch_ns, clock_id,
     dependency_start_ns, dependency_end_ns and available_at_ns. Dependency
     bounds include all preprocessing inputs; availability accounts for delayed
-    delivery. The proposed profile excludes GNSS in every navigation mode.
+    delivery. The frozen minimal profile excludes GNSS in every navigation mode.
     """
     def integer(value):
         return type(value) is int and value >= 0
@@ -64,6 +64,6 @@ def validate_minimal_window(records: list[dict], *, start_ns: int, end_ns: int,
         if name == "imu.dt" and not 1e-6 <= value <= 0.20:
             raise ValueError("dt outside I-03 bounds")
         if name.endswith("_mask") and (type(value) is not int or value not in (0, 1)):
-            raise ValueError("proposed masks are binary")
+            raise ValueError("feature masks are binary")
     if any(names != set(MINIMAL_BINDINGS) for names in by_epoch.values()):
         raise ValueError("incomplete synchronized nine-channel sample")

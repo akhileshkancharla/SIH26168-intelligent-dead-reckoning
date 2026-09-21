@@ -11,23 +11,13 @@ and just as serious as -- the file/session leakage that
 tools/dataset/grouping.py and tools/dataset/splits.py guard against; this
 module is the deny-by-default gate for that failure mode.
 
-This module is the enforcement *engine* only. This repository does not
-have a frozen, reviewed list of either (a) exact runtime feature names or
-(b) exact IO-VNBD ground-truth field names. Development Design Baseline
-section 5 does specify candidate input categories and prohibited sources.
-FEATURE_CONTRACT_PROPOSAL.md derives a minimal named profile from those
-requirements; feature_provenance.py validates its metadata. Source mappings
-and exact inventories still need evidence and owner review. Fabricating
-an approved inventory here would
-violate this repository's "no fabricated architecture/evidence" rule just
-as surely as guessing the six IO-VNBD schema names would (see
-schema_allowlist.py). The shipped config/feature_firewall.json is
-therefore a TEMPLATE with its `status` field set to TEMPLATE_PENDING_REVIEW
-and placeholder entries on both sides: this module refuses to enforce a
-non-ACTIVE firewall, so a template can never be mistaken for a real,
-reviewed firewall. A human with the runtime feature spec and the S0
-feasibility audit must replace both placeholder lists and set status to
-ACTIVE before this module is used against any real feature set.
+The active inventory in config/feature_firewall.json freezes the minimal
+nine-channel causal phone-IMU profile from the Development Design Baseline and
+the complete 29-field V29_MAIN vehicle/reference schema from the accepted S0
+audit register. Forbidden IDs use `<schema_id>.<interpreted_field>` so generic
+names such as `latitude` cannot be confused with phone fields. Private data and
+source paths remain outside Git; FEATURE_CONTRACT_PROPOSAL.md records the
+sanitized source revision and evidence hashes.
 """
 from __future__ import annotations
 
@@ -151,12 +141,12 @@ def require_active_firewall(document: Dict[str, Any]) -> Tuple[List[str], List[s
     if document.get("status") != ACTIVE_STATUS or is_template_firewall(document):
         raise FeatureFirewallError(
             "runtime-feature/forbidden-label firewall is not active: it is still "
-            f"the {TEMPLATE_STATUS} template shipped by WP-10.5. A human with the "
+            f"an unresolved {TEMPLATE_STATUS} template. A human with the "
             "runtime feature spec and SIH26168_IO_VNBD_Dataset_Feasibility_Audit_v1.1 "
             "must replace both placeholder lists with the real runtime-available "
             "feature names and the real ground-truth-only label names, and set "
             "status to ACTIVE, before this firewall can be enforced against any "
-            "proposed feature set -- an unresolved firewall is itself a stop "
+            "feature set -- an unresolved firewall is itself a stop "
             "condition, per C-15's 'quarantine; stop the experiment' failure mode."
         )
     return list(document["runtime_allowed_features"]), list(document["forbidden_labels"])
@@ -219,10 +209,10 @@ def enforce_feature_set(proposed_features: List[str], firewall_document: Dict[st
 
 def enforce_feature_window(records: list[dict], firewall_document: Dict[str, Any],
                            *, start_ns: int, end_ns: int, clock_id: str) -> None:
-    """Compose active configuration enforcement with the proposed metadata gate.
+    """Compose active configuration enforcement with the frozen metadata gate.
 
     A trusted extractor must construct provenance from the reviewed source map.
-    The shipped TEMPLATE still stops real-data use at the first gate.
+    Any unresolved template still stops real-data use at the first gate.
     """
     from tools.dataset.feature_provenance import validate_minimal_window
 
