@@ -42,6 +42,7 @@ class NativeNavigationBridgeTest {
         assertEquals(WIRE_MAGIC, buffer.int)
         assertEquals(WIRE_VERSION, buffer.short)
         assertEquals(2, buffer.short.toInt())
+        assertEquals(buffer.limit(), buffer.int)
         assertEquals("batch-1", buffer.string())
         assertEquals(10, buffer.long)
         assertEquals(10, buffer.long)
@@ -120,6 +121,20 @@ class NativeNavigationBridgeTest {
             BoundaryStatus.STALE_HANDLE,
             NativeNavigationBridge(calls).destroy(99),
         )
+    }
+
+    @Test
+    fun partialNativeResponseIsRejectedInsteadOfZeroFilled() {
+        val output = ByteBuffer.allocateDirect(MAX_MESSAGE_BYTES).order(ByteOrder.LITTLE_ENDIAN)
+        output.putInt(WIRE_MAGIC)
+        output.putShort(WIRE_VERSION)
+        output.putShort(4)
+        output.putInt(WIRE_HEADER_BYTES)
+        output.position(0)
+
+        val decoded = NavigationWireCodec.decodePropagation(output)
+        assertEquals(BoundaryStatus.MALFORMED_LENGTH, decoded.first)
+        assertEquals(null, decoded.second)
     }
 
     private fun noOpCalls() = object : NativeCalls {

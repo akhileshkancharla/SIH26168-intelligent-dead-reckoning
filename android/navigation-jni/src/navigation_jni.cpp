@@ -27,6 +27,7 @@ DirectBuffer directBuffer(JNIEnv* environment, jobject buffer) {
     if (environment->ExceptionCheck()) return {api::BoundaryStatus::PendingJniException, {}};
     if (buffer == nullptr) return {api::BoundaryStatus::NullBuffer, {}};
     void* address = environment->GetDirectBufferAddress(buffer);
+    if (environment->ExceptionCheck()) return {api::BoundaryStatus::PendingJniException, {}};
     const jlong capacity = environment->GetDirectBufferCapacity(buffer);
     if (environment->ExceptionCheck()) return {api::BoundaryStatus::PendingJniException, {}};
     if (address == nullptr || capacity < 0) return {api::BoundaryStatus::NonDirectBuffer, {}};

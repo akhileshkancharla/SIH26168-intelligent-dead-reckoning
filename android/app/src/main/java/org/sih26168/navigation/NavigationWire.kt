@@ -5,7 +5,8 @@ import java.nio.ByteOrder
 import java.nio.charset.StandardCharsets
 
 internal const val WIRE_MAGIC: Int = 0x494E4A53
-internal const val WIRE_VERSION: Short = 1
+internal const val WIRE_VERSION: Short = 2
+internal const val WIRE_HEADER_BYTES: Int = 12
 internal const val MAX_MESSAGE_BYTES: Int = 1024 * 1024
 
 enum class BoundaryStatus(val code: Int) {
@@ -203,8 +204,12 @@ internal object NavigationWireCodec {
             require(values.size == expected) { "expected $expected values" }
             values.forEach(::double)
         }
-        fun bytes(): ByteArray = ByteArray(buffer.position()).also {
-            buffer.flip(); buffer.get(it)
+        fun bytes(): ByteArray {
+            val size = buffer.position()
+            buffer.putInt(8, size)
+            return ByteArray(size).also {
+                buffer.flip(); buffer.get(it)
+            }
         }
         private fun ensure(count: Int) {
             require(buffer.position() + count <= MAX_MESSAGE_BYTES) { "wire message too large" }
@@ -222,7 +227,16 @@ internal object NavigationWireCodec {
         private var valid = true
 
         init {
-            valid = remaining(8) && int() == WIRE_MAGIC && short() == WIRE_VERSION && short() == expected.code
+            valid = remaining(WIRE_HEADER_BYTES) &&
+                int() == WIRE_MAGIC &&
+                short() == WIRE_VERSION &&
+                short() == expected.code
+            val declaredSize = int()
+            if (valid && declaredSize in WIRE_HEADER_BYTES..buffer.capacity()) {
+                buffer.limit(declaredSize)
+            } else {
+                valid = false
+            }
         }
 
         fun byte(): Byte = if (remaining(1)) buffer.get() else 0
@@ -251,7 +265,11 @@ internal object NavigationWireCodec {
             return SnapshotWire(state, covariance)
         }
         fun <T> result(boundary: BoundaryStatus, value: T): Pair<BoundaryStatus, T?> =
-            if (valid) boundary to value else BoundaryStatus.MALFORMED_LENGTH to null
+            if (valid && buffer.position() == buffer.limit()) {
+                boundary to value
+            } else {
+                BoundaryStatus.MALFORMED_LENGTH to null
+            }
         private fun remaining(count: Int): Boolean {
             if (!valid || count < 0 || buffer.remaining() < count) { valid = false; return false }
             return true

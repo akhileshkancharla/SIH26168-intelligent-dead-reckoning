@@ -15,7 +15,7 @@ calls, and a concurrent call is rejected rather than blocked or reordered.
 
 The wire format is explicit rather than compiler-structure-dependent:
 
-- magic `SJNI`, version 1, message kind;
+- magic `SJNI`, version 2, message kind, and exact total byte length;
 - bounded UTF-8 strings and bounded lists;
 - IEEE-754 binary64 values without clipping or substitution;
 - complete I-03, I-12, I-07, and I-08 fields;

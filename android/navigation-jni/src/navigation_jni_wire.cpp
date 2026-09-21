@@ -17,6 +17,7 @@ public:
         integer(kWireMagic);
         integer(kWireVersion);
         integer(static_cast<std::uint16_t>(kind));
+        integer(std::uint32_t{0});
     }
 
     template <typename T>
@@ -40,7 +41,14 @@ public:
         for (double value : values) real(value);
     }
 
-    std::vector<std::byte> finish() { return std::move(bytes_); }
+    std::vector<std::byte> finish() {
+        const auto size = static_cast<std::uint32_t>(bytes_.size());
+        for (std::size_t index = 0; index < sizeof(size); ++index) {
+            bytes_[8U + index] =
+                static_cast<std::byte>((size >> (index * 8U)) & 0xffU);
+        }
+        return std::move(bytes_);
+    }
 
 private:
     std::vector<std::byte> bytes_;
@@ -60,6 +68,10 @@ public:
         const auto kind = integer<std::uint16_t>();
         if (ok() && kind != static_cast<std::uint16_t>(expected)) {
             status_ = BoundaryStatus::UnexpectedMessageKind;
+        }
+        const auto declared_size = integer<std::uint32_t>();
+        if (ok() && declared_size != bytes_.size()) {
+            status_ = BoundaryStatus::MalformedLength;
         }
     }
 

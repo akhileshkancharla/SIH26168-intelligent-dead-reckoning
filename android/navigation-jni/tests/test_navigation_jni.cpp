@@ -248,6 +248,20 @@ int main() {
         encoded.resize(encoded.size() - 1);
         require(registry.propagate(handle, encoded).first == jni::BoundaryStatus::MalformedLength,
                 "truncated sample array accepted");
+
+        auto trailing = jni::encodeImuBatch(batch());
+        trailing.push_back(std::byte{0});
+        require(registry.propagate(handle, trailing).first == jni::BoundaryStatus::MalformedLength,
+                "trailing wire payload accepted");
+
+        auto wrong_declared_length = jni::encodeImuBatch(batch());
+        wrong_declared_length[8] = std::byte{12};
+        wrong_declared_length[9] = std::byte{0};
+        wrong_declared_length[10] = std::byte{0};
+        wrong_declared_length[11] = std::byte{0};
+        require(registry.propagate(handle, wrong_declared_length).first
+                    == jni::BoundaryStatus::MalformedLength,
+                "incorrect declared wire length accepted");
     });
 
     run("core_rejections_are_not_repaired", [] {

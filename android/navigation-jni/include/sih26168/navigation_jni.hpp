@@ -16,7 +16,7 @@
 namespace sih26168::navigation::jni {
 
 constexpr std::uint32_t kWireMagic = 0x494E4A53U;  // "SJNI" little-endian.
-constexpr std::uint16_t kWireVersion = 1;
+constexpr std::uint16_t kWireVersion = 2;
 constexpr std::size_t kMaximumMessageBytes = 1024U * 1024U;
 constexpr std::size_t kMaximumStringBytes = 4096U;
 constexpr std::size_t kMaximumSamples = 1024U;
