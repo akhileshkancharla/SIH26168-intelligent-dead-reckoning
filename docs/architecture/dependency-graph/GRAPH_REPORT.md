@@ -4,12 +4,12 @@
 
 - Snapshot classification: `generated-and-sanitized`
 - Source repository: `akhileshkancharla/SIH26168-intelligent-dead-reckoning`
-- Source branch: `codex/review-pr148-current`
-- Source parent commit: `48ac74d3f998dba3fae7c95e430f34dfc078019f`
+- Source branch: `issue/WP-10.5-wp-10-5-implement-runtime`
+- Source parent commit: `82e82aeabc53e88d49d903f0c2abbee7321074c2`
 - Graphify version: `0.9.53`
 - Graphify mode: code-only static extraction; semantic document extraction disabled
-- Counts: 2219 nodes, 3380 edges, 171 communities
-- Edge evidence: 3342 extracted, 38 inferred
+- Counts: 2264 nodes, 3462 edges, 171 communities
+- Edge evidence: 3413 extracted, 49 inferred
 - CI mode: `snapshot-validation-only`
 
 ## VERIFIED FROM CODE
@@ -22,7 +22,7 @@ The C++ core is host-buildable, while Android acquisition, JNI, training, map, a
 
 | Module | Extracted source files | Current interpretation |
 | --- | ---: | --- |
-| Android app | 8 | Launcher/UI scaffold; no sensor-to-position path |
+| Android app | 13 | Launcher/UI scaffold; no sensor-to-position path |
 | Portable core | 22 | Host-buildable S2 core plus contract smoke |
 | Contracts | 23 | Bootstrap replay schema and enum artifacts |
 | Repository automation | 12 | Repository and GitHub governance tooling |
@@ -69,7 +69,7 @@ Current high-degree nodes are primarily repository administration tooling, not n
 
 ### Weakly connected or orphan candidates
 
-The raw Graphify report identified 796 isolated symbol nodes. This sanitizer independently found 1022 repository-backed nodes with degree at most one; the bounded sample below is diagnostic, not deletion evidence.
+The raw Graphify report identified 803 isolated symbol nodes. This sanitizer independently found 1032 repository-backed nodes with degree at most one; the bounded sample below is diagnostic, not deletion evidence.
 
 | Node | Degree | Source |
 | --- | ---: | --- |
@@ -82,12 +82,12 @@ The raw Graphify report identified 796 isolated symbol nodes. This sanitizer ind
 | `sih26168-bootstrap` | 0 | [pyproject.toml](../../../pyproject.toml) |
 | `sih26168_bootstrap/__init__.py` | 0 | [tools/bootstrap/src/sih26168_bootstrap/__init__.py](../../../tools/bootstrap/src/sih26168_bootstrap/__init__.py) |
 | `tests/__init__.py` | 0 | [tools/dataset/tests/__init__.py](../../../tools/dataset/tests/__init__.py) |
-| `ReplayDisclosure` | 1 | [android/app/src/main/java/org/sih26168/app/MainActivity.kt](../../../android/app/src/main/java/org/sih26168/app/MainActivity.kt) |
-| `SLIP_SUSPECTED` | 1 | [android/app/src/main/java/org/sih26168/contracts/enums/Enums.kt](../../../android/app/src/main/java/org/sih26168/contracts/enums/Enums.kt) |
-| `UNCERTAIN` | 1 | [android/app/src/main/java/org/sih26168/contracts/enums/Enums.kt](../../../android/app/src/main/java/org/sih26168/contracts/enums/Enums.kt) |
-| `UNINITIALIZED` | 1 | [android/app/src/main/java/org/sih26168/contracts/enums/Enums.kt](../../../android/app/src/main/java/org/sih26168/contracts/enums/Enums.kt) |
-| `VALID` | 1 | [android/app/src/main/java/org/sih26168/contracts/enums/Enums.kt](../../../android/app/src/main/java/org/sih26168/contracts/enums/Enums.kt) |
-| `DETERMINISTIC_REPLAY` | 1 | [android/app/src/main/java/org/sih26168/contracts/enums/Enums.kt](../../../android/app/src/main/java/org/sih26168/contracts/enums/Enums.kt) |
+| `ReplayIntent.kt` | 1 | [android/app/src/main/java/org/sih26168/app/replay/ReplayIntent.kt](../../../android/app/src/main/java/org/sih26168/app/replay/ReplayIntent.kt) |
+| `Pause` | 1 | [android/app/src/main/java/org/sih26168/app/replay/ReplayIntent.kt](../../../android/app/src/main/java/org/sih26168/app/replay/ReplayIntent.kt) |
+| `Play` | 1 | [android/app/src/main/java/org/sih26168/app/replay/ReplayIntent.kt](../../../android/app/src/main/java/org/sih26168/app/replay/ReplayIntent.kt) |
+| `PresentTelemetry` | 1 | [android/app/src/main/java/org/sih26168/app/replay/ReplayIntent.kt](../../../android/app/src/main/java/org/sih26168/app/replay/ReplayIntent.kt) |
+| `Reset` | 1 | [android/app/src/main/java/org/sih26168/app/replay/ReplayIntent.kt](../../../android/app/src/main/java/org/sih26168/app/replay/ReplayIntent.kt) |
+| `SetSpeedMultiplier` | 1 | [android/app/src/main/java/org/sih26168/app/replay/ReplayIntent.kt](../../../android/app/src/main/java/org/sih26168/app/replay/ReplayIntent.kt) |
 
 ### Cycles
 
