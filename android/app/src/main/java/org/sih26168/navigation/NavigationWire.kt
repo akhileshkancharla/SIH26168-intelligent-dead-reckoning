@@ -188,7 +188,12 @@ internal object NavigationWireCodec {
     private class Writer(kind: Kind) {
         private var buffer = ByteBuffer.allocate(1024).order(ByteOrder.LITTLE_ENDIAN)
 
-        init { int(WIRE_MAGIC); short(WIRE_VERSION); short(kind.code) }
+        init {
+            int(WIRE_MAGIC)
+            short(WIRE_VERSION)
+            short(kind.code)
+            int(0) // Backfilled with the exact encoded byte length by bytes().
+        }
 
         fun byte(value: Byte) { ensure(1); buffer.put(value) }
         fun short(value: Short) { ensure(2); buffer.putShort(value) }
