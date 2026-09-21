@@ -30,6 +30,8 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.savedstate.SavedStateRegistryOwner
 import kotlin.math.cos
+import kotlin.math.asin
+import kotlin.math.atan2
 import kotlin.math.sin
 import org.maplibre.android.MapLibre
 import org.maplibre.android.camera.CameraPosition
@@ -419,14 +421,22 @@ private fun headingCone(origin: LatLng, headingDegrees: Double): Polygon {
     )
 }
 
-private fun destination(origin: LatLng, bearingDegrees: Double, distanceMeters: Double): LatLng {
+internal fun destination(origin: LatLng, bearingDegrees: Double, distanceMeters: Double): LatLng {
     val bearingRadians = Math.toRadians(bearingDegrees)
-    val latitudeDelta = distanceMeters * cos(bearingRadians) / METERS_PER_DEGREE_LATITUDE
-    val longitudeScale = METERS_PER_DEGREE_LATITUDE * cos(Math.toRadians(origin.latitude))
-    val longitudeDelta = if (longitudeScale == 0.0) 0.0 else {
-        distanceMeters * sin(bearingRadians) / longitudeScale
-    }
-    return LatLng(origin.latitude + latitudeDelta, origin.longitude + longitudeDelta)
+    val angularDistance = distanceMeters / EARTH_RADIUS_METERS
+    val latitudeRadians = Math.toRadians(origin.latitude)
+    val longitudeRadians = Math.toRadians(origin.longitude)
+    val destinationLatitude = asin(
+        sin(latitudeRadians) * cos(angularDistance) +
+            cos(latitudeRadians) * sin(angularDistance) * cos(bearingRadians),
+    )
+    val destinationLongitude = longitudeRadians + atan2(
+        sin(bearingRadians) * sin(angularDistance) * cos(latitudeRadians),
+        cos(angularDistance) - sin(latitudeRadians) * sin(destinationLatitude),
+    )
+    val normalizedLongitude =
+        ((Math.toDegrees(destinationLongitude) + 540.0) % 360.0) - 180.0
+    return LatLng(Math.toDegrees(destinationLatitude), normalizedLongitude)
 }
 
 private fun createVehicleChevron(): Bitmap {
@@ -454,5 +464,5 @@ private fun createVehicleChevron(): Bitmap {
     return bitmap
 }
 
-private const val METERS_PER_DEGREE_LATITUDE = 111_320.0
+private const val EARTH_RADIUS_METERS = 6_371_008.8
 private const val MAP_SAVED_STATE_KEY = "maplibre-map-viewport"
