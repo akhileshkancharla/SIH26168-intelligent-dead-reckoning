@@ -1,11 +1,30 @@
-# Candidate schema inventory (WP-10.2)
+# Audited schema inventory (WP-10.2)
 
-The accepted `SIH26168_IO_VNBD_Dataset_Feasibility_Audit_v1.1` is named in
-`docs/architecture/SIH26168_ARCHITECTURE_MANIFEST_v1.json`, but is not shipped.
-The six identifiers must be transcribed from that audit or ratified by the owner
-against a replacement inventory. Public source descriptions are supporting
-evidence only: https://github.com/onyekpeu/IO-VNBD and
-https://pmc.ncbi.nlm.nih.gov/articles/PMC7907232/ .
+The active allowlist was transcribed from the accepted
+`SIH26168_IO_VNBD_Dataset_Feasibility_Audit_v1.1` and its 144-row schema
+register. The audited upstream revision is
+`118939602e3422d47b8ab0807b623751c3ac135b`.
+
+| Schema identifier | Ordered column count |
+| --- | ---: |
+| `S18_NO_MAG_ORIENTATION` | 18 |
+| `S24_XYZ` | 24 |
+| `S24_XYZ_MALFORMED_DATE` | 24 |
+| `S24_YPR` | 24 |
+| `S24_YPR_TRAILING_EMPTY` | 25 |
+| `V29_MAIN` | 29 |
+
+Sanitized evidence hashes:
+
+- audit Markdown: `8F16194BA3E0BC0B521B6E240C98B93D4AC9CD0DEDA9A24455172F915C55A742`
+- schema register CSV: `774964395A57CBDA87EBF0A60E32F63CF1DA6DBCF3C6E5D9C6B99D5EA0B2DF87`
+- audit manifest JSON: `838B4CB4766DE1B0CE2E135432B5D765A2FB90B63448F7DEA629C2D4A31DCD1A`
+
+The audit decision remains `S0-BLOCKED` for dataset rights. Architecture
+Revision 3 permits organizer-directed conditional private competition use, but
+activating this structural allowlist does not claim unrestricted licensing or
+an S0 pass. Raw archives, data rows, source paths, and private inventory output
+remain outside Git.
 
 Run the following only in an approved private workspace, using reviewed units
 in exact header order and a pinned source revision. The illustrative units below
@@ -30,7 +49,5 @@ in the existing private I-20 manifest pipeline. Confirm units and timestamp
 semantics independently, then have the owner approve the six exact identifiers
 and their mapping to fingerprints. Commit only reviewed structural evidence.
 
-After approval, populate `config/io_vnbd_schema_allowlist.json`, set ACTIVE,
-and add exact shipped-value tests including unknown-schema refusal. Until then,
-the existing template remains inactive. Synthetic inventory tests run in the
-normal dataset test suite; no real dataset belongs in CI.
+The checked-in allowlist is now `ACTIVE`, with exact-value and unknown-schema
+refusal tests in the normal dataset test suite. No real dataset belongs in CI.
