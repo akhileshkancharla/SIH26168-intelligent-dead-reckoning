@@ -1,0 +1,62 @@
+{
+  "version": 8,
+  "name": "SIH26168 Offline Automotive Night",
+  "sources": {
+    "local-roads": {
+      "type": "geojson",
+      "data": "asset://map/local_roads.geojson"
+    }
+  },
+  "layers": [
+    {
+      "id": "canvas",
+      "type": "background",
+      "paint": {
+        "background-color": "#141820"
+      }
+    },
+    {
+      "id": "major-road-casing",
+      "type": "line",
+      "source": "local-roads",
+      "filter": ["==", ["get", "road_class"], "major"],
+      "layout": {
+        "line-cap": "round",
+        "line-join": "round"
+      },
+      "paint": {
+        "line-color": "#E8EDF4",
+        "line-opacity": 0.35,
+        "line-width": 7
+      }
+    },
+    {
+      "id": "major-roads",
+      "type": "line",
+      "source": "local-roads",
+      "filter": ["==", ["get", "road_class"], "major"],
+      "layout": {
+        "line-cap": "round",
+        "line-join": "round"
+      },
+      "paint": {
+        "line-color": "#5A6473",
+        "line-width": 5
+      }
+    },
+    {
+      "id": "minor-roads",
+      "type": "line",
+      "source": "local-roads",
+      "filter": ["==", ["get", "road_class"], "minor"],
+      "layout": {
+        "line-cap": "round",
+        "line-join": "round"
+      },
+      "paint": {
+        "line-color": "#343B47",
+        "line-width": 3
+      }
+    }
+  ]
+}

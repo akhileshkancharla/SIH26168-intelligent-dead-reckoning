@@ -6,19 +6,11 @@ and R-007 in docs/architecture/SIH26168_Risk_Register_v1.csv, real IO-VNBD
 data uses exactly six schemas; anything else must be quarantined, never
 silently accepted ("Quarantine unknown schema/hash/unit; stop experiment").
 
-This module is the enforcement *engine* only. The actual six real IO-VNBD
-schema identifiers are not known to this repository: they come from
-SIH26168_IO_VNBD_Dataset_Feasibility_Audit_v1.1, which is listed as an
-architecture evidence input in
-docs/architecture/SIH26168_ARCHITECTURE_MANIFEST_v1.json but is not itself
-committed here (organizer-supplied, and this WP must not fabricate
-architecture or dataset facts it does not have). The shipped
-config/io_vnbd_schema_allowlist.json is therefore a TEMPLATE with its
-`status` field set to TEMPLATE_PENDING_S0_AUDIT_ASSIGNMENT: this module
-refuses to enforce a non-ACTIVE allowlist, so a template can never be
-mistaken for a real, reviewed allowlist. A human with the feasibility
-audit must replace the six placeholder entries and set status to ACTIVE
-before this module is used against any real dataset.
+The six identifiers in config/io_vnbd_schema_allowlist.json were transcribed
+from the accepted SIH26168_IO_VNBD_Dataset_Feasibility_Audit_v1.1 and its
+144-row schema register. Only the reviewed structural identifiers and evidence
+hashes are recorded in this repository; private source paths and dataset bytes
+remain outside Git. See SCHEMA_INVENTORY.md for the sanitized provenance.
 """
 from __future__ import annotations
 
@@ -108,8 +100,8 @@ def require_active_allowlist(document: Dict[str, Any]) -> List[str]:
 
     if document.get("status") != ACTIVE_STATUS or is_template_allowlist(document):
         raise SchemaAllowlistError(
-            "IO-VNBD schema allowlist is not active: it is still the "
-            f"{TEMPLATE_STATUS} template shipped by WP-10.2. A human with "
+            "IO-VNBD schema allowlist is not active: it is still an unresolved "
+            f"{TEMPLATE_STATUS} template. A human with "
             "SIH26168_IO_VNBD_Dataset_Feasibility_Audit_v1.1 must replace the six "
             "placeholder entries with the real allowlisted schema identifiers and "
             "set status to ACTIVE before this allowlist can be enforced against "
