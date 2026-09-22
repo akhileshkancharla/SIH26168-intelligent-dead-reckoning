@@ -5,11 +5,11 @@
 - Snapshot classification: `generated-and-sanitized`
 - Source repository: `akhileshkancharla/SIH26168-intelligent-dead-reckoning`
 - Source branch: `issue/WP-10.2-wp-10-2-implement-six`
-- Source parent commit: `cd2e977eb1bb304d0eb3b2010a06c03e5993941a`
+- Source parent commit: `ed5a9d55130ad554795d503ed51f479136311d77`
 - Graphify version: `0.9.53`
 - Graphify mode: code-only static extraction; semantic document extraction disabled
-- Counts: 2123 nodes, 3326 edges, 168 communities
-- Edge evidence: 3260 extracted, 66 inferred
+- Counts: 2438 nodes, 4008 edges, 175 communities
+- Edge evidence: 3925 extracted, 83 inferred
 - CI mode: `snapshot-validation-only`
 
 ## VERIFIED FROM CODE
@@ -22,7 +22,7 @@ The C++ core is host-buildable, while Android acquisition, JNI, training, map, a
 
 | Module | Extracted source files | Current interpretation |
 | --- | ---: | --- |
-| Android app | 15 | Launcher/UI scaffold; no sensor-to-position path |
+| Android app | 23 | Launcher/UI scaffold; no sensor-to-position path |
 | Portable core | 22 | Host-buildable S2 core plus contract smoke |
 | Contracts | 23 | Bootstrap replay schema and enum artifacts |
 | Repository automation | 12 | Repository and GitHub governance tooling |
@@ -61,15 +61,15 @@ Current high-degree nodes are primarily repository administration tooling, not n
 | `MapLibreMapViewport.kt` | 33 | [android/app/src/main/java/org/sih26168/app/ui/map/MapLibreMapViewport.kt:L1](../../../android/app/src/main/java/org/sih26168/app/ui/map/MapLibreMapViewport.kt) |
 | `reference_oracle.py` | 31 | [core/navigation/verification/python/reference_oracle.py:L1](../../../core/navigation/verification/python/reference_oracle.py) |
 | `ReplayNavigationViewModel` | 30 | [android/app/src/main/java/org/sih26168/app/replay/ReplayNavigationViewModel.kt:L9](../../../android/app/src/main/java/org/sih26168/app/replay/ReplayNavigationViewModel.kt) |
+| `navigation_jni_wire.cpp` | 27 | [android/navigation-jni/src/navigation_jni_wire.cpp:L1](../../../android/navigation-jni/src/navigation_jni_wire.cpp) |
+| `MeasurementInput` | 27 | [core/navigation/include/sih26168/navigation_core.hpp:L141](../../../core/navigation/include/sih26168/navigation_core.hpp) |
 | `sanitize_graph.py` | 27 | [tools/graphify/sanitize_graph.py:L1](../../../tools/graphify/sanitize_graph.py) |
 | `InitialState` | 26 | [core/navigation/include/sih26168/navigation_core.hpp:L104](../../../core/navigation/include/sih26168/navigation_core.hpp) |
 | `navigation_api.cpp` | 26 | [core/navigation/src/navigation_api.cpp:L1](../../../core/navigation/src/navigation_api.cpp) |
-| `MeasurementInput` | 24 | [core/navigation/include/sih26168/navigation_core.hpp:L141](../../../core/navigation/include/sih26168/navigation_core.hpp) |
-| `run_python_tests.py` | 24 | [core/navigation/verification/python/run_python_tests.py:L1](../../../core/navigation/verification/python/run_python_tests.py) |
 
 ### Weakly connected or orphan candidates
 
-The raw Graphify report identified 782 isolated symbol nodes. This sanitizer independently found 943 repository-backed nodes with degree at most one; the bounded sample below is diagnostic, not deletion evidence.
+The raw Graphify report identified 849 isolated symbol nodes. This sanitizer independently found 1018 repository-backed nodes with degree at most one; the bounded sample below is diagnostic, not deletion evidence.
 
 | Node | Degree | Source |
 | --- | ---: | --- |

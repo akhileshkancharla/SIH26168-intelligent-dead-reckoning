@@ -3,6 +3,7 @@ plugins {
     id("org.jetbrains.kotlin.android")
     id("org.jetbrains.kotlin.plugin.compose")
 }
+
 android {
     namespace = "org.sih26168.app"
     compileSdk = 35
@@ -14,6 +15,12 @@ android {
         versionCode = 1
         versionName = "0.1.0-bootstrap"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        externalNativeBuild {
+            cmake {
+                targets += "sih26168_navigation_jni"
+            }
+        }
     }
 
     compileOptions {
@@ -32,6 +39,13 @@ android {
 
     testOptions {
         unitTests.isReturnDefaultValues = true
+    }
+
+    externalNativeBuild {
+        cmake {
+            path = file("../navigation-jni/CMakeLists.txt")
+            version = "3.22.1"
+        }
     }
 }
 
