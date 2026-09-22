@@ -44,6 +44,8 @@ import org.maplibre.android.maps.MapLibreMapOptions
 import org.maplibre.android.maps.MapView
 import org.maplibre.android.maps.Style
 import org.maplibre.android.style.expressions.Expression.get
+import org.maplibre.android.style.expressions.Expression.eq
+import org.maplibre.android.style.expressions.Expression.literal
 import org.maplibre.android.style.layers.CircleLayer
 import org.maplibre.android.style.layers.FillLayer
 import org.maplibre.android.style.layers.LineLayer
@@ -62,6 +64,7 @@ import org.maplibre.android.style.layers.PropertyFactory.iconRotationAlignment
 import org.maplibre.android.style.layers.PropertyFactory.iconSize
 import org.maplibre.android.style.layers.PropertyFactory.lineColor
 import org.maplibre.android.style.layers.PropertyFactory.lineDasharray
+import org.maplibre.android.style.layers.PropertyFactory.lineOpacity
 import org.maplibre.android.style.layers.PropertyFactory.lineWidth
 import org.maplibre.android.style.layers.SymbolLayer
 import org.maplibre.android.style.sources.GeoJsonSource
@@ -71,6 +74,8 @@ import org.maplibre.geojson.LineString
 import org.maplibre.geojson.Point
 import org.maplibre.geojson.Polygon
 import org.sih26168.app.replay.MapDraggedIntent
+import org.sih26168.app.replay.MapCandidatePath
+import org.sih26168.app.replay.MapMatcherStatus
 import org.sih26168.app.replay.MapReadyIntent
 import org.sih26168.app.replay.RecenterMapIntent
 import org.sih26168.app.replay.GeoCoordinate
@@ -172,6 +177,9 @@ private class MapLibreViewportController(private val mapView: MapView) {
     private var initialized = false
     private var destroyed = false
     private val renderedTrajectoryPaths = mutableMapOf<String, RenderedTrajectoryPath>()
+    private var renderedEllipse: RenderedEllipse? = null
+    private var renderedCandidates: RenderedCandidates? = null
+    private var renderedCameraState: CameraRenderState? = null
 
     fun initialize() {
         if (initialized) return
@@ -201,6 +209,9 @@ private class MapLibreViewportController(private val mapView: MapView) {
         map = null
         style = null
         renderedTrajectoryPaths.clear()
+        renderedEllipse = null
+        renderedCandidates = null
+        renderedCameraState = null
     }
 
     private fun configureGestures(readyMap: MapLibreMap) {
@@ -245,6 +256,8 @@ private class MapLibreViewportController(private val mapView: MapView) {
         readyStyle.addSource(emptySource(MAP_MATCHED_SOURCE_ID))
         readyStyle.addSource(emptySource(SCIENTIFIC_FUSED_SOURCE_ID))
         readyStyle.addSource(emptySource(DISPLAY_SMOOTHED_SOURCE_ID))
+        readyStyle.addSource(emptySource(UNCERTAINTY_ELLIPSE_SOURCE_ID))
+        readyStyle.addSource(emptySource(TOP_K_CANDIDATES_SOURCE_ID))
         readyStyle.addSource(emptySource(HEADING_CONE_SOURCE_ID))
         readyStyle.addSource(emptySource(TETHER_SOURCE_ID))
         readyStyle.addSource(emptySource(ANCHOR_SOURCE_ID))
@@ -289,6 +302,40 @@ private class MapLibreViewportController(private val mapView: MapView) {
             ),
         )
         readyStyle.addLayer(
+            FillLayer(UNCERTAINTY_ELLIPSE_FILL_LAYER_ID, UNCERTAINTY_ELLIPSE_SOURCE_ID)
+                .withProperties(
+                    fillColor(CYAN),
+                    fillOpacity(0.15f),
+                ),
+        )
+        readyStyle.addLayer(
+            LineLayer(UNCERTAINTY_ELLIPSE_STROKE_LAYER_ID, UNCERTAINTY_ELLIPSE_SOURCE_ID)
+                .withProperties(
+                    lineColor(CYAN),
+                    lineWidth(1.5f),
+                    lineOpacity(0.6f),
+                ),
+        )
+        readyStyle.addLayer(
+            LineLayer(TOP_K_PRIMARY_LAYER_ID, TOP_K_CANDIDATES_SOURCE_ID)
+                .withFilter(eq(get(CANDIDATE_PRIMARY_PROPERTY), literal(true)))
+                .withProperties(
+                    lineColor(MAP_MATCHED_EMERALD),
+                    lineWidth(3.5f),
+                    lineOpacity(get(CANDIDATE_OPACITY_PROPERTY)),
+                ),
+        )
+        readyStyle.addLayer(
+            LineLayer(TOP_K_ALTERNATIVE_LAYER_ID, TOP_K_CANDIDATES_SOURCE_ID)
+                .withFilter(eq(get(CANDIDATE_PRIMARY_PROPERTY), literal(false)))
+                .withProperties(
+                    lineColor(CANDIDATE_AMBER),
+                    lineWidth(2.5f),
+                    lineDasharray(arrayOf(2f, 2f)),
+                    lineOpacity(get(CANDIDATE_OPACITY_PROPERTY)),
+                ),
+        )
+        readyStyle.addLayer(
             FillLayer(HEADING_CONE_LAYER_ID, HEADING_CONE_SOURCE_ID).withProperties(
                 fillColor(CYAN),
                 fillOpacity(0.20f),
@@ -324,6 +371,7 @@ private class MapLibreViewportController(private val mapView: MapView) {
     private fun updateNavigationSources(state: ReplayUiState) {
         val readyStyle = style ?: return
         updateTrajectorySources(readyStyle, state)
+        updateDiagnosticSources(readyStyle, state)
         val location = state.displayVehicleLocation ?: state.vehicleLocation
         val heading = state.headingDegrees ?: 0.0
 
@@ -362,6 +410,61 @@ private class MapLibreViewportController(private val mapView: MapView) {
                 emptyFeatureCollection()
             },
         )
+    }
+
+    private fun updateDiagnosticSources(readyStyle: Style, state: ReplayUiState) {
+        updateUncertaintyEllipseSource(readyStyle, state)
+        updateCandidateSource(readyStyle, state)
+    }
+
+    private fun updateUncertaintyEllipseSource(readyStyle: Style, state: ReplayUiState) {
+        val ellipse = state.uncertaintyEllipse
+        val visible = state.showUncertaintyEllipse && ellipse != null
+        if (renderedEllipse?.ellipse == ellipse && renderedEllipse?.visible == visible) return
+
+        val polygon = ellipse?.polygonCoordinates
+            ?.takeIf { visible }
+            ?.let(::locallyRenderablePolygon)
+        readyStyle.source(UNCERTAINTY_ELLIPSE_SOURCE_ID)?.setGeoJson(
+            polygon?.let { FeatureCollection.fromFeature(Feature.fromGeometry(it)) }
+                ?: emptyFeatureCollection(),
+        )
+        renderedEllipse = RenderedEllipse(ellipse, visible)
+    }
+
+    private fun updateCandidateSource(readyStyle: Style, state: ReplayUiState) {
+        val visible = state.showCandidateBranches &&
+            state.mapMatcherStatus != MapMatcherStatus.NO_CANDIDATE
+        val candidates = if (visible) state.candidateTrajectories else emptyList()
+        if (renderedCandidates?.candidates === candidates &&
+            renderedCandidates?.visible == visible
+        ) {
+            return
+        }
+
+        val features = candidates.mapNotNull { it.toCandidateFeature() }
+        readyStyle.source(TOP_K_CANDIDATES_SOURCE_ID)?.setGeoJson(
+            if (features.isEmpty()) {
+                emptyFeatureCollection()
+            } else {
+                FeatureCollection.fromFeatures(features.toTypedArray())
+            },
+        )
+        renderedCandidates = RenderedCandidates(candidates, visible)
+    }
+
+    private fun MapCandidatePath.toCandidateFeature(): Feature? {
+        if (coordinates.size < 2) return null
+        return Feature.fromGeometry(
+            LineString.fromLngLats(coordinates.map(GeoCoordinate::toPoint)),
+        ).apply {
+            addStringProperty(CANDIDATE_ID_PROPERTY, candidateId)
+            addBooleanProperty(CANDIDATE_PRIMARY_PROPERTY, isPrimary)
+            addNumberProperty(
+                CANDIDATE_OPACITY_PROPERTY,
+                likelihoodScore.coerceIn(0f, 1f),
+            )
+        }
     }
 
     private fun updateTrajectorySources(readyStyle: Style, state: ReplayUiState) {
@@ -426,10 +529,19 @@ private class MapLibreViewportController(private val mapView: MapView) {
 
     private fun updateCamera(state: ReplayUiState) {
         val readyMap = map ?: return
-        if (!state.isFollowingVehicle) return
-
         val target = (state.displayVehicleLocation ?: state.vehicleLocation)?.toLatLng()
             ?: DEFAULT_CAMERA_TARGET
+        val cameraState = CameraRenderState(
+            isFollowingVehicle = state.isFollowingVehicle,
+            target = target,
+            isCourseUp = state.isCourseUp,
+            headingDegrees = state.headingDegrees,
+            viewportHeight = mapView.height,
+        )
+        if (cameraState == renderedCameraState) return
+        renderedCameraState = cameraState
+        if (!state.isFollowingVehicle) return
+
         val courseUp = state.isCourseUp && state.headingDegrees != null
         val topPadding = if (courseUp) mapView.height * VEHICLE_VERTICAL_OFFSET_FRACTION else 0.0
         val camera = CameraPosition.Builder()
@@ -455,6 +567,7 @@ private class MapLibreViewportController(private val mapView: MapView) {
         private const val MAP_MATCHED_EMERALD = "#24D18B"
         private const val REFERENCE_SILVER = "#E6EDF7"
         private const val DISPLAY_SMOOTHED_PURPLE = "#A78BFA"
+        private const val CANDIDATE_AMBER = "#FFB800"
         private const val VEHICLE_SOURCE_ID = "active-vehicle-source"
         private const val VEHICLE_LAYER_ID = "active-vehicle-layer"
         private const val VEHICLE_IMAGE_ID = "active-vehicle-chevron"
@@ -471,6 +584,15 @@ private class MapLibreViewportController(private val mapView: MapView) {
         private const val REFERENCE_LAYER_ID = "reference-ground-truth-layer"
         private const val DISPLAY_SMOOTHED_SOURCE_ID = "display-smoothed-source"
         private const val DISPLAY_SMOOTHED_LAYER_ID = "display-smoothed-layer"
+        private const val UNCERTAINTY_ELLIPSE_SOURCE_ID = "uncertainty-ellipse-source"
+        private const val UNCERTAINTY_ELLIPSE_FILL_LAYER_ID = "uncertainty-ellipse-fill"
+        private const val UNCERTAINTY_ELLIPSE_STROKE_LAYER_ID = "uncertainty-ellipse-stroke"
+        private const val TOP_K_CANDIDATES_SOURCE_ID = "top-k-candidates-source"
+        private const val TOP_K_PRIMARY_LAYER_ID = "top-k-candidates-primary"
+        private const val TOP_K_ALTERNATIVE_LAYER_ID = "top-k-candidates-alternatives"
+        private const val CANDIDATE_ID_PROPERTY = "candidate_id"
+        private const val CANDIDATE_PRIMARY_PROPERTY = "is_primary"
+        private const val CANDIDATE_OPACITY_PROPERTY = "score_alpha"
         private const val HEADING_CONE_SOURCE_ID = "heading-cone-source"
         private const val HEADING_CONE_LAYER_ID = "heading-cone-layer"
         private const val ANCHOR_SOURCE_ID = "last-trusted-gnss-source"
@@ -487,6 +609,24 @@ private class MapLibreViewportController(private val mapView: MapView) {
     private data class RenderedTrajectoryPath(
         val path: List<GeoCoordinate>,
         val visible: Boolean,
+    )
+
+    private data class RenderedEllipse(
+        val ellipse: org.sih26168.app.replay.CovarianceEllipse?,
+        val visible: Boolean,
+    )
+
+    private data class RenderedCandidates(
+        val candidates: List<MapCandidatePath>,
+        val visible: Boolean,
+    )
+
+    private data class CameraRenderState(
+        val isFollowingVehicle: Boolean,
+        val target: LatLng,
+        val isCourseUp: Boolean,
+        val headingDegrees: Double?,
+        val viewportHeight: Int,
     )
 }
 
@@ -542,6 +682,17 @@ private fun GeoCoordinate.toLatLng(): LatLng = LatLng(latitude, longitude)
 
 private fun emptyFeatureCollection(): FeatureCollection =
     FeatureCollection.fromFeatures(emptyArray())
+
+private fun locallyRenderablePolygon(coordinates: List<GeoCoordinate>): Polygon? {
+    if (coordinates.size < 4 || coordinates.first() != coordinates.last()) return null
+    val crossesAntimeridian = coordinates.zipWithNext().any { (start, end) ->
+        kotlin.math.abs(start.longitude - end.longitude) > 180.0
+    }
+    if (crossesAntimeridian) return null
+    val longitudes = coordinates.map(GeoCoordinate::longitude)
+    if (longitudes.maxOrNull()!! - longitudes.minOrNull()!! >= 1.0) return null
+    return Polygon.fromLngLats(listOf(coordinates.map(GeoCoordinate::toPoint)))
+}
 
 /**
  * Builds presentation-only heading geometry. A cone that crosses the antimeridian is suppressed

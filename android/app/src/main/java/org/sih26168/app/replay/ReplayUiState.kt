@@ -20,6 +20,21 @@ enum class MapMatcherStatus {
     NO_CANDIDATE,
 }
 
+data class CovarianceEllipse(
+    val center: GeoCoordinate,
+    val semiMajorMeters: Double,
+    val semiMinorMeters: Double,
+    val orientationDegrees: Double,
+    val polygonCoordinates: List<GeoCoordinate>,
+)
+
+data class MapCandidatePath(
+    val candidateId: String,
+    val coordinates: List<GeoCoordinate>,
+    val likelihoodScore: Float,
+    val isPrimary: Boolean,
+)
+
 data class DisplayRecoveryState(
     val start: GeoCoordinate,
     val target: GeoCoordinate,
@@ -63,6 +78,10 @@ data class ReplayUiState(
     val navigationMode: NavigationModeV1 = NavigationModeV1.INITIALIZING,
     val displayVehicleLocation: GeoCoordinate? = null,
     val displayRecovery: DisplayRecoveryState? = null,
+    val uncertaintyEllipse: CovarianceEllipse? = null,
+    val candidateTrajectories: List<MapCandidatePath> = emptyList(),
+    val showUncertaintyEllipse: Boolean = true,
+    val showCandidateBranches: Boolean = false,
 )
 
 fun ReplayUiState.isTrajectoryLayerVisible(layer: TrajectoryLayerType): Boolean =

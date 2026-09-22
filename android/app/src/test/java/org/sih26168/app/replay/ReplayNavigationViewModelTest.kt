@@ -417,6 +417,140 @@ class ReplayNavigationViewModelTest {
         assertEquals(1, viewModel.uiState.value.rawGnssPath.size)
     }
 
+    @Test
+    fun covarianceEllipse_calculatesTwoSigmaEigenAxesAndClosedBoundary() {
+        val ellipse = calculateTwoSigmaCovarianceEllipse(
+            center = GeoCoordinate(12.0, 77.0),
+            pxx = 5.0,
+            pyy = 5.0,
+            pxy = 3.0,
+        )!!
+
+        assertEquals(2.0 * kotlin.math.sqrt(8.0), ellipse.semiMajorMeters, 1e-9)
+        assertEquals(2.0 * kotlin.math.sqrt(2.0), ellipse.semiMinorMeters, 1e-9)
+        assertEquals(45.0, ellipse.orientationDegrees, 1e-9)
+        assertEquals(37, ellipse.polygonCoordinates.size)
+        assertEquals(ellipse.polygonCoordinates.first(), ellipse.polygonCoordinates.last())
+    }
+
+    @Test
+    fun covarianceEllipse_rejectsFiniteInputsWhoseDerivedValuesOverflow() {
+        assertNull(calculateTwoSigmaCovarianceEllipse(
+            GeoCoordinate(0.0, 0.0), Double.MAX_VALUE, Double.MAX_VALUE, 0.0,
+        ))
+        assertNull(calculateTwoSigmaCovarianceEllipse(
+            GeoCoordinate(0.0, 0.0), Double.MAX_VALUE, 0.0, Double.MAX_VALUE,
+        ))
+        assertNull(calculateTwoSigmaCovarianceEllipse(
+            GeoCoordinate(0.0, 0.0), 1e308, 0.0, 0.0,
+        ))
+    }
+
+    @Test
+    fun clearMatcherStatus_suppressesEveryAlternativeCandidate() {
+        val viewModel = ReplayNavigationViewModel()
+        viewModel.onIntent(SetMapMatcherStatusIntent(MapMatcherStatus.CLEAR))
+        viewModel.onIntent(PresentMapCandidatesIntent(candidateFixture()))
+
+        val candidates = viewModel.uiState.value.candidateTrajectories
+        assertEquals(1, candidates.size)
+        assertTrue(candidates.single().isPrimary)
+        assertEquals("primary", candidates.single().candidateId)
+        assertEquals(1f, candidates.single().likelihoodScore)
+    }
+
+    @Test
+    fun ambiguousMatcherStatus_retainsTopThreeNormalizedCandidateBranches() {
+        val viewModel = ReplayNavigationViewModel()
+        viewModel.onIntent(SetMapMatcherStatusIntent(MapMatcherStatus.AMBIGUOUS))
+        viewModel.onIntent(PresentMapCandidatesIntent(candidateFixture()))
+
+        val candidates = viewModel.uiState.value.candidateTrajectories
+        assertEquals(3, candidates.size)
+        assertTrue(candidates.any { !it.isPrimary })
+        assertEquals(1.0, candidates.sumOf { it.likelihoodScore.toDouble() }, 1e-6)
+        assertEquals(listOf("primary", "alternative-a", "alternative-b"), candidates.map { it.candidateId })
+    }
+
+    @Test
+    fun ambiguousMatcherStatus_normalizesZeroAndMultiplePrimaries() {
+        val noneMarked = gateMapCandidates(
+            MapMatcherStatus.AMBIGUOUS,
+            candidateFixture().map { it.copy(isPrimary = false) },
+        )
+        val allMarked = gateMapCandidates(
+            MapMatcherStatus.AMBIGUOUS,
+            candidateFixture().map { it.copy(isPrimary = true) },
+        )
+        for (candidates in listOf(noneMarked, allMarked)) {
+            assertEquals(3, candidates.size)
+            assertEquals(listOf("primary"), candidates.filter { it.isPrimary }.map { it.candidateId })
+            assertEquals(2, candidates.count { !it.isPrimary })
+            assertEquals(1.0, candidates.sumOf { it.likelihoodScore.toDouble() }, 1e-6)
+        }
+    }
+
+    @Test
+    fun candidateOutputCannotBeMutatedThroughPublishedState() {
+        val viewModel = ReplayNavigationViewModel()
+        val source = mutableListOf(GeoCoordinate(0.0, 0.0), GeoCoordinate(0.0, 0.001))
+        viewModel.onIntent(SetMapMatcherStatusIntent(MapMatcherStatus.AMBIGUOUS))
+        viewModel.onIntent(PresentMapCandidatesIntent(listOf(
+            MapCandidatePath("primary", source, 1f, true),
+        )))
+        source[0] = GeoCoordinate(1.0, 1.0)
+        val output = viewModel.uiState.value.candidateTrajectories
+        assertEquals(GeoCoordinate(0.0, 0.0), output.single().coordinates.first())
+        assertThrows(UnsupportedOperationException::class.java) {
+            (output as MutableList<MapCandidatePath>).clear()
+        }
+        assertThrows(UnsupportedOperationException::class.java) {
+            (output.single().coordinates as MutableList<GeoCoordinate>)[0] =
+                GeoCoordinate(2.0, 2.0)
+        }
+    }
+
+    @Test
+    fun diagnosticOverlayToggles_updateVisibilityWithoutChangingScientificState() {
+        val viewModel = ReplayNavigationViewModel()
+        val scientificHistory = viewModel.uiState.value.scientificFusedPath
+
+        viewModel.onIntent(ToggleUncertaintyEllipse(false))
+        viewModel.onIntent(ToggleCandidateBranches(true))
+
+        val state = viewModel.uiState.value
+        assertFalse(state.showUncertaintyEllipse)
+        assertTrue(state.showCandidateBranches)
+        assertSame(scientificHistory, state.scientificFusedPath)
+    }
+
+    private fun candidateFixture(): List<MapCandidatePath> = listOf(
+        MapCandidatePath(
+            candidateId = "primary",
+            coordinates = listOf(GeoCoordinate(0.0, 0.0), GeoCoordinate(0.0, 0.001)),
+            likelihoodScore = 0.5f,
+            isPrimary = true,
+        ),
+        MapCandidatePath(
+            candidateId = "alternative-a",
+            coordinates = listOf(GeoCoordinate(0.0, 0.0), GeoCoordinate(0.001, 0.001)),
+            likelihoodScore = 0.3f,
+            isPrimary = false,
+        ),
+        MapCandidatePath(
+            candidateId = "alternative-b",
+            coordinates = listOf(GeoCoordinate(0.0, 0.0), GeoCoordinate(-0.001, 0.001)),
+            likelihoodScore = 0.15f,
+            isPrimary = false,
+        ),
+        MapCandidatePath(
+            candidateId = "alternative-c",
+            coordinates = listOf(GeoCoordinate(0.0, 0.0), GeoCoordinate(0.002, 0.001)),
+            likelihoodScore = 0.05f,
+            isPrimary = false,
+        ),
+    )
+
     private fun validMapTelemetry(
         timestampNs: Long,
         headingDegrees: Double,

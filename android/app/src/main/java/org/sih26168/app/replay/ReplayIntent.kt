@@ -26,6 +26,23 @@ data class ReplaceTrajectoryPathIntent(
 
 data class SetMapMatcherStatusIntent(val status: MapMatcherStatus) : ReplayIntent
 
+data class ToggleUncertaintyEllipse(val visible: Boolean) : ReplayIntent
+
+data class ToggleCandidateBranches(val visible: Boolean) : ReplayIntent
+
+/** Presentation-only I-08 covariance input expressed in local east/north square metres. */
+data class PresentPositionCovarianceIntent(
+    val center: GeoCoordinate,
+    val pxxMetersSquared: Double,
+    val pyyMetersSquared: Double,
+    val pxyMetersSquared: Double,
+) : ReplayIntent
+
+/** Presentation-only I-11 map-candidate proposals; this does not run or influence matching. */
+data class PresentMapCandidatesIntent(
+    val candidates: List<MapCandidatePath>,
+) : ReplayIntent
+
 data class NavigationModeChangedIntent(
     val mode: NavigationModeV1,
     val acceptedFix: GeoCoordinate? = null,

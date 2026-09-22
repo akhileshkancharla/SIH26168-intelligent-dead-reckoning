@@ -6,11 +6,17 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import java.util.Collections
+import kotlin.math.atan2
+import kotlin.math.cos
+import kotlin.math.hypot
+import kotlin.math.sin
+import kotlin.math.sqrt
 import org.sih26168.contracts.enums.NavigationModeV1
 
 class ReplayNavigationViewModel : ViewModel() {
     private val _uiState = MutableStateFlow(ReplayUiState())
     val uiState: StateFlow<ReplayUiState> = _uiState.asStateFlow()
+    private var latestCandidateInputs: List<MapCandidatePath> = emptyList()
 
     fun onIntent(intent: ReplayIntent) {
         when (intent) {
@@ -22,17 +28,58 @@ class ReplayNavigationViewModel : ViewModel() {
             is ToggleTrajectoryLayerIntent -> toggleTrajectoryLayer(intent.layer)
             is AppendTrajectoryPointIntent -> appendTrajectoryPoint(intent)
             is ReplaceTrajectoryPathIntent -> replaceTrajectoryPath(intent)
-            is SetMapMatcherStatusIntent ->
-                _uiState.update { it.copy(mapMatcherStatus = intent.status) }
+            is SetMapMatcherStatusIntent -> setMapMatcherStatus(intent.status)
+            is ToggleUncertaintyEllipse ->
+                _uiState.update { it.copy(showUncertaintyEllipse = intent.visible) }
+            is ToggleCandidateBranches ->
+                _uiState.update { it.copy(showCandidateBranches = intent.visible) }
+            is PresentPositionCovarianceIntent -> presentPositionCovariance(intent)
+            is PresentMapCandidatesIntent -> presentMapCandidates(intent.candidates)
             is NavigationModeChangedIntent -> updateNavigationMode(intent)
             ReplayIntent.Play -> _uiState.update { it.copy(isReplaying = true) }
             ReplayIntent.Pause -> _uiState.update { it.copy(isReplaying = false) }
             ReplayIntent.Step -> stepOnce()
-            ReplayIntent.Reset ->
-                _uiState.update { ReplayUiState(isMapReady = it.isMapReady) }
+            ReplayIntent.Reset -> reset()
             ReplayIntent.ToggleSimulatedOutage -> toggleSimulatedOutage()
             is ReplayIntent.SetSpeedMultiplier -> setSpeedMultiplier(intent.multiplier)
             is ReplayIntent.PresentTelemetry -> presentTelemetry(intent)
+        }
+    }
+
+    private fun reset() {
+        latestCandidateInputs = emptyList()
+        _uiState.update { ReplayUiState(isMapReady = it.isMapReady) }
+    }
+
+    private fun presentPositionCovariance(intent: PresentPositionCovarianceIntent) {
+        val ellipse = calculateTwoSigmaCovarianceEllipse(
+            center = intent.center,
+            pxx = intent.pxxMetersSquared,
+            pyy = intent.pyyMetersSquared,
+            pxy = intent.pxyMetersSquared,
+        )
+        _uiState.update { it.copy(uncertaintyEllipse = ellipse) }
+    }
+
+    private fun presentMapCandidates(candidates: List<MapCandidatePath>) {
+        latestCandidateInputs = candidates.mapNotNull { it.validatedCopy() }
+            .distinctBy(MapCandidatePath::candidateId)
+        _uiState.update { state ->
+            state.copy(
+                candidateTrajectories = gateMapCandidates(
+                    state.mapMatcherStatus,
+                    latestCandidateInputs,
+                ),
+            )
+        }
+    }
+
+    private fun setMapMatcherStatus(status: MapMatcherStatus) {
+        _uiState.update { state ->
+            state.copy(
+                mapMatcherStatus = status,
+                candidateTrajectories = gateMapCandidates(status, latestCandidateInputs),
+            )
         }
     }
 
@@ -244,6 +291,15 @@ class ReplayNavigationViewModel : ViewModel() {
     private fun immutablePath(path: List<GeoCoordinate>): List<GeoCoordinate> =
         Collections.unmodifiableList(ArrayList(path))
 
+    private fun MapCandidatePath.validatedCopy(): MapCandidatePath? {
+        if (candidateId.isBlank() || !likelihoodScore.isFinite() || likelihoodScore < 0f) {
+            return null
+        }
+        val path = coordinates.map { it.validatedCopy() ?: return null }
+        if (path.size < 2) return null
+        return copy(coordinates = Collections.unmodifiableList(ArrayList(path)))
+    }
+
     private fun List<GeoCoordinate>.preservesScientificHistory(
         history: List<GeoCoordinate>,
     ): Boolean = size >= history.size && history.indices.all { index ->
@@ -300,3 +356,153 @@ class ReplayNavigationViewModel : ViewModel() {
         val recovery: DisplayRecoveryState?,
     )
 }
+
+/**
+ * Converts an I-08 local east/north 2D covariance into a presentation-only 2σ ellipse.
+ * Invalid, non-finite, overflowing, non-positive-semidefinite, or polar inputs fail closed with null.
+ */
+internal fun calculateTwoSigmaCovarianceEllipse(
+    center: GeoCoordinate,
+    pxx: Double,
+    pyy: Double,
+    pxy: Double,
+): CovarianceEllipse? {
+    if (!center.latitude.isFinite() || !center.longitude.isFinite() ||
+        center.latitude !in -90.0..90.0 || center.longitude !in -180.0..180.0 ||
+        !pxx.isFinite() || !pyy.isFinite() || !pxy.isFinite() ||
+        pxx < 0.0 || pyy < 0.0
+    ) {
+        return null
+    }
+
+    val eigenSeparation = hypot(pxx - pyy, 2.0 * pxy)
+    if (!eigenSeparation.isFinite()) return null
+
+    val trace = pxx + pyy
+    if (!trace.isFinite()) return null
+
+    val lambdaMajor = (trace + eigenSeparation) / 2.0
+    val lambdaMinorRaw = (trace - eigenSeparation) / 2.0
+    if (!lambdaMajor.isFinite() || !lambdaMinorRaw.isFinite()) return null
+
+    if (lambdaMajor < 0.0 || lambdaMinorRaw < 0.0) return null
+
+    val semiMajor = TWO_SIGMA_SCALE * sqrt(lambdaMajor)
+    val semiMinor = TWO_SIGMA_SCALE * sqrt(lambdaMinorRaw)
+    if (!semiMajor.isFinite() || !semiMinor.isFinite()) return null
+
+    val orientationRadians = 0.5 * atan2(2.0 * pxy, pxx - pyy)
+    if (!orientationRadians.isFinite()) return null
+
+    val latitudeRadians = Math.toRadians(center.latitude)
+    val longitudeScale = EARTH_RADIUS_METERS * cos(latitudeRadians)
+    if (!longitudeScale.isFinite() || kotlin.math.abs(longitudeScale) < MIN_LONGITUDE_SCALE_METERS) {
+        return null
+    }
+
+    val boundary = ArrayList<GeoCoordinate>(ELLIPSE_SEGMENTS + 1)
+    for (index in 0..ELLIPSE_SEGMENTS) {
+        if (index == ELLIPSE_SEGMENTS) {
+            boundary.add(boundary.first())
+            break
+        }
+        val phase = 2.0 * Math.PI * index / ELLIPSE_SEGMENTS
+        val eastMeters = semiMajor * cos(phase) * cos(orientationRadians) -
+            semiMinor * sin(phase) * sin(orientationRadians)
+        val northMeters = semiMajor * cos(phase) * sin(orientationRadians) +
+            semiMinor * sin(phase) * cos(orientationRadians)
+        if (!eastMeters.isFinite() || !northMeters.isFinite()) return null
+
+        val deltaLat = Math.toDegrees(northMeters / EARTH_RADIUS_METERS)
+        val deltaLon = Math.toDegrees(eastMeters / longitudeScale)
+        if (!deltaLat.isFinite() || !deltaLon.isFinite() ||
+            kotlin.math.abs(deltaLon) >= 180.0
+        ) return null
+
+        val latitude = center.latitude + deltaLat
+        val unwrappedLongitude = center.longitude + deltaLon
+        if (!latitude.isFinite() || latitude !in -90.0..90.0 ||
+            !unwrappedLongitude.isFinite()
+        ) return null
+        val longitude = normalizeLongitudeDegrees(unwrappedLongitude)
+        if (!longitude.isFinite()) return null
+
+        boundary.add(GeoCoordinate(latitude, longitude))
+    }
+
+    return CovarianceEllipse(
+        center = GeoCoordinate(center.latitude, center.longitude),
+        semiMajorMeters = semiMajor,
+        semiMinorMeters = semiMinor,
+        orientationDegrees = Math.toDegrees(orientationRadians),
+        polygonCoordinates = Collections.unmodifiableList(boundary),
+    )
+}
+
+/**
+ * Gates map-matcher candidate paths according to matcher status.
+ * In AMBIGUOUS status, enforces singular primary cardinality: exactly the highest-likelihood
+ * candidate is designated primary (`isPrimary = true`), and up to 2 alternative candidates are
+ * designated non-primary (`isPrimary = false`).
+ */
+internal fun gateMapCandidates(
+    status: MapMatcherStatus,
+    candidates: List<MapCandidatePath>,
+): List<MapCandidatePath> = when (status) {
+    MapMatcherStatus.NO_CANDIDATE -> emptyList()
+    MapMatcherStatus.CLEAR -> candidates
+        .asSequence()
+        .filter { it.isPrimary && it.isRenderableCandidate() }
+        .sortedWith(compareByDescending<MapCandidatePath> { it.likelihoodScore }.thenBy { it.candidateId })
+        .firstOrNull()
+        ?.safePresentationCopy(isPrimary = true, score = 1f)
+        ?.let(::listOf)
+        .orEmpty()
+    MapMatcherStatus.AMBIGUOUS -> {
+        val validCandidates = candidates.filter(MapCandidatePath::isRenderableCandidate)
+            .distinctBy(MapCandidatePath::candidateId)
+        if (validCandidates.isEmpty()) {
+            emptyList()
+        } else {
+            val topCandidates = validCandidates
+                .sortedWith(compareByDescending<MapCandidatePath> { it.likelihoodScore }.thenBy { it.candidateId })
+                .take(MAX_AMBIGUOUS_CANDIDATES)
+            val scoreTotal = topCandidates.sumOf { it.likelihoodScore.toDouble() }
+            Collections.unmodifiableList(topCandidates.mapIndexed { index, candidate ->
+                candidate.safePresentationCopy(
+                    isPrimary = (index == 0),
+                    score = if (scoreTotal > 0.0) {
+                        (candidate.likelihoodScore / scoreTotal).toFloat()
+                    } else {
+                        1f / topCandidates.size
+                    },
+                )
+            })
+        }
+    }
+}
+
+private fun MapCandidatePath.isRenderableCandidate(): Boolean =
+    candidateId.isNotBlank() && likelihoodScore.isFinite() && likelihoodScore >= 0f &&
+        coordinates.size >= 2 && coordinates.all {
+            it.latitude.isFinite() && it.longitude.isFinite() &&
+                it.latitude in -90.0..90.0 && it.longitude in -180.0..180.0
+        }
+
+private fun MapCandidatePath.safePresentationCopy(
+    isPrimary: Boolean,
+    score: Float,
+): MapCandidatePath = copy(
+    coordinates = Collections.unmodifiableList(ArrayList(coordinates)),
+    likelihoodScore = score,
+    isPrimary = isPrimary,
+)
+
+private fun normalizeLongitudeDegrees(longitude: Double): Double =
+    ((longitude + 540.0) % 360.0) - 180.0
+
+private const val EARTH_RADIUS_METERS = 6_371_008.8
+private const val MIN_LONGITUDE_SCALE_METERS = 1.0
+private const val TWO_SIGMA_SCALE = 2.0
+private const val ELLIPSE_SEGMENTS = 36
+private const val MAX_AMBIGUOUS_CANDIDATES = 3
