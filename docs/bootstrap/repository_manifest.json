@@ -79,18 +79,18 @@
     },
     {
       "path": "docs/architecture/dependency-graph/graph.json",
-      "size_bytes": 2414940,
-      "sha256": "cbedb0875296335eac0db89792be2ceb50627a1ef3a02c441d59d772a45957e4"
+      "size_bytes": 2549690,
+      "sha256": "606d9f404200ab54ae35ba187b15bc7afaf5831d2409339d2f6967f21a98648f"
     },
     {
       "path": "docs/architecture/dependency-graph/GRAPH_REPORT.md",
-      "size_bytes": 8791,
-      "sha256": "5e73a50adfbdb0d9356fdff898570495f11f0f208051eda3e960a1d8fbe2a9b3"
+      "size_bytes": 8879,
+      "sha256": "b7b7aceb85b006eda1f23cc58d5cb9326e75c5fcc9387e83573d6527be9f7aab"
     },
     {
       "path": "docs/architecture/dependency-graph/metadata.json",
       "size_bytes": 2230,
-      "sha256": "e18ce3b66f91a0bbe4af8c23efc3d56136b311de4ca9720b3ace845028ec1769"
+      "sha256": "39c1c4e6ac664e7b1965d5e4934e4686a9ae1b2fdd2bcd4e47941c08dca93581"
     },
     {
       "path": "docs/architecture/dependency-graph/README.md",
@@ -100,7 +100,7 @@
     {
       "path": "docs/architecture/dependency-graph/SHA256SUMS.txt",
       "size_bytes": 315,
-      "sha256": "cc456de7aa441b6b62c1b4cb333ca5271535ff8c67943c48df09aa3668dfb141"
+      "sha256": "2b4cb25306615ab4aba2b81ffbe62ab7f6b6f500bd3acad59148ed8efea0968e"
     },
     {
       "path": "docs/architecture/imports/WP-03.1_S2_NAVIGATION_CORE_IMPORT.md",
