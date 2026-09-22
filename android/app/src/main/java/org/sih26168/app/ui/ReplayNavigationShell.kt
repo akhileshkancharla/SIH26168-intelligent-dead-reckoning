@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.Button
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
@@ -38,6 +39,10 @@ import org.sih26168.app.ReplayDisclosure
 import org.sih26168.app.replay.ReplayIntent
 import org.sih26168.app.replay.ReplayNavigationViewModel
 import org.sih26168.app.replay.ReplayUiState
+import org.sih26168.app.replay.ToggleTrajectoryLayerIntent
+import org.sih26168.app.replay.TrajectoryLayerType
+import org.sih26168.app.replay.TrajectoryPresentationLabels
+import org.sih26168.app.replay.isSeparationTetherVisible
 
 object ReplayGovernanceLabels {
     const val SOURCE = "SOURCE: DETERMINISTIC_REPLAY"
@@ -212,6 +217,15 @@ private fun TelemetryAndControlSheet(
                 TelemetryValue("East", formatDistance(state.position.eastMeters))
                 TelemetryValue("Speed", formatSpeed(state.speedMetersPerSecond))
             }
+            if (state.isSeparationTetherVisible) {
+                Text(
+                    text = TrajectoryPresentationLabels
+                        .SEPARATION_FROM_LAST_TRUSTED_GNSS_FIX,
+                    style = MaterialTheme.typography.labelLarge,
+                    color = MaterialTheme.colorScheme.tertiary,
+                )
+            }
+            TrajectoryLayerFilters(state = state, onIntent = onIntent)
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -249,6 +263,43 @@ private fun TelemetryAndControlSheet(
             }
         }
     }
+}
+
+@Composable
+private fun TrajectoryLayerFilters(
+    state: ReplayUiState,
+    onIntent: (ReplayIntent) -> Unit,
+) {
+    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+        Text(
+            text = "Map layers",
+            style = MaterialTheme.typography.labelLarge,
+            fontWeight = FontWeight.SemiBold,
+        )
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .horizontalScroll(rememberScrollState()),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            TrajectoryLayerType.entries.forEach { layer ->
+                FilterChip(
+                    selected = layer in state.enabledLayers,
+                    onClick = { onIntent(ToggleTrajectoryLayerIntent(layer)) },
+                    label = { Text(layer.filterLabel(state)) },
+                )
+            }
+        }
+    }
+}
+
+private fun TrajectoryLayerType.filterLabel(state: ReplayUiState): String = when (this) {
+    TrajectoryLayerType.RAW_GNSS -> "Raw GNSS"
+    TrajectoryLayerType.SCIENTIFIC_FUSED -> "Scientific [S]"
+    TrajectoryLayerType.MAP_MATCHED -> "Map-matched (${state.mapMatcherStatus.name})"
+    TrajectoryLayerType.REFERENCE_GROUND_TRUTH -> "Reference [R] · evaluation only"
+    TrajectoryLayerType.DISPLAY_SMOOTHED -> "Display-smoothed [D] · diagnostics only"
+    TrajectoryLayerType.PLANNED_ROUTE -> "Planned route"
 }
 
 @Composable

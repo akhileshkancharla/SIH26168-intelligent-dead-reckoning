@@ -73,9 +73,12 @@ import org.maplibre.geojson.Polygon
 import org.sih26168.app.replay.MapDraggedIntent
 import org.sih26168.app.replay.MapReadyIntent
 import org.sih26168.app.replay.RecenterMapIntent
+import org.sih26168.app.replay.GeoCoordinate
 import org.sih26168.app.replay.ReplayIntent
 import org.sih26168.app.replay.ReplayUiState
 import org.sih26168.app.replay.ToggleCameraModeIntent
+import org.sih26168.app.replay.TrajectoryLayerType
+import org.sih26168.app.replay.isTrajectoryLayerVisible
 
 @Composable
 fun BoxScope.MapLibreMapViewport(
@@ -168,6 +171,7 @@ private class MapLibreViewportController(private val mapView: MapView) {
     private var latestState = ReplayUiState()
     private var initialized = false
     private var destroyed = false
+    private val renderedTrajectoryPaths = mutableMapOf<String, RenderedTrajectoryPath>()
 
     fun initialize() {
         if (initialized) return
@@ -196,6 +200,7 @@ private class MapLibreViewportController(private val mapView: MapView) {
         destroyed = true
         map = null
         style = null
+        renderedTrajectoryPaths.clear()
     }
 
     private fun configureGestures(readyMap: MapLibreMap) {
@@ -234,16 +239,53 @@ private class MapLibreViewportController(private val mapView: MapView) {
 
     private fun installNavigationLayers(readyStyle: Style) {
         readyStyle.addImage(VEHICLE_IMAGE_ID, createVehicleChevron())
-        readyStyle.addSource(emptySource(ACTIVE_TRAJECTORY_SOURCE_ID))
+        readyStyle.addSource(emptySource(PLANNED_ROUTE_SOURCE_ID))
+        readyStyle.addSource(emptySource(REFERENCE_SOURCE_ID))
+        readyStyle.addSource(emptySource(RAW_GNSS_SOURCE_ID))
+        readyStyle.addSource(emptySource(MAP_MATCHED_SOURCE_ID))
+        readyStyle.addSource(emptySource(SCIENTIFIC_FUSED_SOURCE_ID))
+        readyStyle.addSource(emptySource(DISPLAY_SMOOTHED_SOURCE_ID))
         readyStyle.addSource(emptySource(HEADING_CONE_SOURCE_ID))
         readyStyle.addSource(emptySource(TETHER_SOURCE_ID))
         readyStyle.addSource(emptySource(ANCHOR_SOURCE_ID))
         readyStyle.addSource(emptySource(VEHICLE_SOURCE_ID))
 
         readyStyle.addLayer(
-            LineLayer(ACTIVE_TRAJECTORY_LAYER_ID, ACTIVE_TRAJECTORY_SOURCE_ID).withProperties(
+            LineLayer(PLANNED_ROUTE_LAYER_ID, PLANNED_ROUTE_SOURCE_ID).withProperties(
+                lineColor(PLANNED_ROUTE_BLUE),
+                lineWidth(3f),
+            ),
+        )
+        readyStyle.addLayer(
+            LineLayer(REFERENCE_LAYER_ID, REFERENCE_SOURCE_ID).withProperties(
+                lineColor(REFERENCE_SILVER),
+                lineWidth(2f),
+                lineDasharray(arrayOf(3f, 2f)),
+            ),
+        )
+        readyStyle.addLayer(
+            LineLayer(RAW_GNSS_LAYER_ID, RAW_GNSS_SOURCE_ID).withProperties(
+                lineColor(RAW_GNSS_ORANGE),
+                lineWidth(3f),
+                lineDasharray(arrayOf(0.5f, 1.5f)),
+            ),
+        )
+        readyStyle.addLayer(
+            LineLayer(MAP_MATCHED_LAYER_ID, MAP_MATCHED_SOURCE_ID).withProperties(
+                lineColor(MAP_MATCHED_EMERALD),
+                lineWidth(3.5f),
+            ),
+        )
+        readyStyle.addLayer(
+            LineLayer(SCIENTIFIC_FUSED_LAYER_ID, SCIENTIFIC_FUSED_SOURCE_ID).withProperties(
                 lineColor(CYAN),
                 lineWidth(4f),
+            ),
+        )
+        readyStyle.addLayer(
+            LineLayer(DISPLAY_SMOOTHED_LAYER_ID, DISPLAY_SMOOTHED_SOURCE_ID).withProperties(
+                lineColor(DISPLAY_SMOOTHED_PURPLE),
+                lineWidth(2.5f),
             ),
         )
         readyStyle.addLayer(
@@ -281,7 +323,8 @@ private class MapLibreViewportController(private val mapView: MapView) {
 
     private fun updateNavigationSources(state: ReplayUiState) {
         val readyStyle = style ?: return
-        val location = state.vehicleLocation
+        updateTrajectorySources(readyStyle, state)
+        val location = state.displayVehicleLocation ?: state.vehicleLocation
         val heading = state.headingDegrees ?: 0.0
 
         readyStyle.source(VEHICLE_SOURCE_ID)?.setGeoJson(
@@ -299,7 +342,7 @@ private class MapLibreViewportController(private val mapView: MapView) {
             if (location == null || !state.isHeadingStable) {
                 emptyFeatureCollection()
             } else {
-                headingCone(location, heading)?.let { polygon ->
+                headingCone(location.toLatLng(), heading)?.let { polygon ->
                     FeatureCollection.fromFeature(Feature.fromGeometry(polygon))
                 } ?: emptyFeatureCollection()
             },
@@ -321,11 +364,72 @@ private class MapLibreViewportController(private val mapView: MapView) {
         )
     }
 
+    private fun updateTrajectorySources(readyStyle: Style, state: ReplayUiState) {
+        updateTrajectorySource(
+            readyStyle,
+            PLANNED_ROUTE_SOURCE_ID,
+            state.plannedRoutePath,
+            state.isTrajectoryLayerVisible(TrajectoryLayerType.PLANNED_ROUTE),
+        )
+        updateTrajectorySource(
+            readyStyle,
+            SCIENTIFIC_FUSED_SOURCE_ID,
+            state.scientificFusedPath,
+            state.isTrajectoryLayerVisible(TrajectoryLayerType.SCIENTIFIC_FUSED),
+        )
+        updateTrajectorySource(
+            readyStyle,
+            RAW_GNSS_SOURCE_ID,
+            state.rawGnssPath,
+            state.isTrajectoryLayerVisible(TrajectoryLayerType.RAW_GNSS),
+        )
+        updateTrajectorySource(
+            readyStyle,
+            MAP_MATCHED_SOURCE_ID,
+            state.mapMatchedPath,
+            state.isTrajectoryLayerVisible(TrajectoryLayerType.MAP_MATCHED),
+        )
+        updateTrajectorySource(
+            readyStyle,
+            REFERENCE_SOURCE_ID,
+            state.referencePath,
+            state.isTrajectoryLayerVisible(TrajectoryLayerType.REFERENCE_GROUND_TRUTH),
+        )
+        updateTrajectorySource(
+            readyStyle,
+            DISPLAY_SMOOTHED_SOURCE_ID,
+            state.displaySmoothedPath,
+            state.isTrajectoryLayerVisible(TrajectoryLayerType.DISPLAY_SMOOTHED),
+        )
+    }
+
+    private fun updateTrajectorySource(
+        readyStyle: Style,
+        sourceId: String,
+        path: List<GeoCoordinate>,
+        visible: Boolean,
+    ) {
+        val previous = renderedTrajectoryPaths[sourceId]
+        if (previous?.visible == visible && previous.path === path) return
+
+        readyStyle.source(sourceId)?.setGeoJson(
+            if (visible && path.size >= 2) {
+                FeatureCollection.fromFeature(
+                    Feature.fromGeometry(LineString.fromLngLats(path.map(GeoCoordinate::toPoint))),
+                )
+            } else {
+                emptyFeatureCollection()
+            },
+        )
+        renderedTrajectoryPaths[sourceId] = RenderedTrajectoryPath(path, visible)
+    }
+
     private fun updateCamera(state: ReplayUiState) {
         val readyMap = map ?: return
         if (!state.isFollowingVehicle) return
 
-        val target = state.vehicleLocation ?: DEFAULT_CAMERA_TARGET
+        val target = (state.displayVehicleLocation ?: state.vehicleLocation)?.toLatLng()
+            ?: DEFAULT_CAMERA_TARGET
         val courseUp = state.isCourseUp && state.headingDegrees != null
         val topPadding = if (courseUp) mapView.height * VEHICLE_VERTICAL_OFFSET_FRACTION else 0.0
         val camera = CameraPosition.Builder()
@@ -346,12 +450,27 @@ private class MapLibreViewportController(private val mapView: MapView) {
         private const val LOCAL_STYLE_URI = "asset://map/style.json"
         private const val CYAN = "#00D9FF"
         private const val AMBER = "#F6B73C"
+        private const val PLANNED_ROUTE_BLUE = "#5B8CFF"
+        private const val RAW_GNSS_ORANGE = "#FF7A45"
+        private const val MAP_MATCHED_EMERALD = "#24D18B"
+        private const val REFERENCE_SILVER = "#E6EDF7"
+        private const val DISPLAY_SMOOTHED_PURPLE = "#A78BFA"
         private const val VEHICLE_SOURCE_ID = "active-vehicle-source"
         private const val VEHICLE_LAYER_ID = "active-vehicle-layer"
         private const val VEHICLE_IMAGE_ID = "active-vehicle-chevron"
         private const val HEADING_PROPERTY = "heading"
-        private const val ACTIVE_TRAJECTORY_SOURCE_ID = "active-trajectory-source"
-        private const val ACTIVE_TRAJECTORY_LAYER_ID = "active-trajectory-layer"
+        private const val PLANNED_ROUTE_SOURCE_ID = "planned-route-source"
+        private const val PLANNED_ROUTE_LAYER_ID = "planned-route-layer"
+        private const val SCIENTIFIC_FUSED_SOURCE_ID = "scientific-fused-source"
+        private const val SCIENTIFIC_FUSED_LAYER_ID = "scientific-fused-layer"
+        private const val RAW_GNSS_SOURCE_ID = "raw-gnss-source"
+        private const val RAW_GNSS_LAYER_ID = "raw-gnss-layer"
+        private const val MAP_MATCHED_SOURCE_ID = "map-matched-source"
+        private const val MAP_MATCHED_LAYER_ID = "map-matched-layer"
+        private const val REFERENCE_SOURCE_ID = "reference-ground-truth-source"
+        private const val REFERENCE_LAYER_ID = "reference-ground-truth-layer"
+        private const val DISPLAY_SMOOTHED_SOURCE_ID = "display-smoothed-source"
+        private const val DISPLAY_SMOOTHED_LAYER_ID = "display-smoothed-layer"
         private const val HEADING_CONE_SOURCE_ID = "heading-cone-source"
         private const val HEADING_CONE_LAYER_ID = "heading-cone-layer"
         private const val ANCHOR_SOURCE_ID = "last-trusted-gnss-source"
@@ -364,6 +483,11 @@ private class MapLibreViewportController(private val mapView: MapView) {
         private const val VEHICLE_VERTICAL_OFFSET_FRACTION = 0.28
         private val DEFAULT_CAMERA_TARGET = LatLng(0.0, 0.0)
     }
+
+    private data class RenderedTrajectoryPath(
+        val path: List<GeoCoordinate>,
+        val visible: Boolean,
+    )
 }
 
 private class MapViewLifecycleBridge(private val mapView: MapView) : DefaultLifecycleObserver {
@@ -411,6 +535,10 @@ private fun Context.findSavedStateRegistryOwner(): SavedStateRegistryOwner {
 }
 
 private fun LatLng.toPoint(): Point = Point.fromLngLat(longitude, latitude)
+
+private fun GeoCoordinate.toPoint(): Point = Point.fromLngLat(longitude, latitude)
+
+private fun GeoCoordinate.toLatLng(): LatLng = LatLng(latitude, longitude)
 
 private fun emptyFeatureCollection(): FeatureCollection =
     FeatureCollection.fromFeatures(emptyArray())

@@ -3,9 +3,11 @@ package org.sih26168.app.replay
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
+import org.junit.Assert.assertSame
+import org.junit.Assert.assertThrows
 import org.junit.Assert.assertTrue
 import org.junit.Test
-import org.maplibre.android.geometry.LatLng
+import org.sih26168.contracts.enums.NavigationModeV1
 
 class ReplayNavigationViewModelTest {
     @Test
@@ -218,7 +220,7 @@ class ReplayNavigationViewModelTest {
     @Test
     fun mapReadyAndTrustedAnchorIntents_updatePresentationState() {
         val viewModel = ReplayNavigationViewModel()
-        val anchor = LatLng(0.0, 0.0)
+        val anchor = GeoCoordinate(0.0, 0.0)
 
         viewModel.onIntent(MapReadyIntent)
         viewModel.onIntent(LastTrustedGnssFixIntent(anchor))
@@ -236,11 +238,183 @@ class ReplayNavigationViewModelTest {
                 latitudeDegrees = 91.0,
             ),
         )
-        viewModel.onIntent(LastTrustedGnssFixIntent(LatLng(0.0, 181.0)))
+        viewModel.onIntent(LastTrustedGnssFixIntent(GeoCoordinate(0.0, 181.0)))
 
         assertEquals(0L, viewModel.uiState.value.currentTimestampNs)
         assertNull(viewModel.uiState.value.vehicleLocation)
         assertNull(viewModel.uiState.value.lastTrustedGnssFix)
+    }
+
+    @Test
+    fun trajectoryLayers_defaultToCleanViewAndToggleIndependently() {
+        val viewModel = ReplayNavigationViewModel()
+
+        assertEquals(DEFAULT_TRAJECTORY_LAYERS, viewModel.uiState.value.enabledLayers)
+        assertEquals(
+            setOf(TrajectoryLayerType.SCIENTIFIC_FUSED, TrajectoryLayerType.PLANNED_ROUTE),
+            viewModel.uiState.value.enabledLayers,
+        )
+
+        viewModel.onIntent(ToggleTrajectoryLayerIntent(TrajectoryLayerType.RAW_GNSS))
+        assertTrue(TrajectoryLayerType.RAW_GNSS in viewModel.uiState.value.enabledLayers)
+
+        viewModel.onIntent(ToggleTrajectoryLayerIntent(TrajectoryLayerType.SCIENTIFIC_FUSED))
+        assertFalse(TrajectoryLayerType.SCIENTIFIC_FUSED in viewModel.uiState.value.enabledLayers)
+        assertTrue(TrajectoryLayerType.PLANNED_ROUTE in viewModel.uiState.value.enabledLayers)
+    }
+
+    @Test
+    fun mapMatchedLayer_isVisibleOnlyWhenEnabledAndMatcherIsClear() {
+        val viewModel = ReplayNavigationViewModel()
+        viewModel.onIntent(ToggleTrajectoryLayerIntent(TrajectoryLayerType.MAP_MATCHED))
+
+        assertFalse(
+            viewModel.uiState.value.isTrajectoryLayerVisible(TrajectoryLayerType.MAP_MATCHED),
+        )
+        viewModel.onIntent(SetMapMatcherStatusIntent(MapMatcherStatus.AMBIGUOUS))
+        assertFalse(
+            viewModel.uiState.value.isTrajectoryLayerVisible(TrajectoryLayerType.MAP_MATCHED),
+        )
+        viewModel.onIntent(SetMapMatcherStatusIntent(MapMatcherStatus.CLEAR))
+        assertTrue(
+            viewModel.uiState.value.isTrajectoryLayerVisible(TrajectoryLayerType.MAP_MATCHED),
+        )
+        viewModel.onIntent(SetMapMatcherStatusIntent(MapMatcherStatus.NO_CANDIDATE))
+        assertFalse(
+            viewModel.uiState.value.isTrajectoryLayerVisible(TrajectoryLayerType.MAP_MATCHED),
+        )
+    }
+
+    @Test
+    fun trajectoryIngestion_copiesBuffersAndPreservesScientificHistoryDuringRecovery() {
+        val viewModel = ReplayNavigationViewModel()
+        val input = mutableListOf(GeoCoordinate(0.0, 0.0), GeoCoordinate(0.0, 0.001))
+        viewModel.onIntent(
+            ReplaceTrajectoryPathIntent(TrajectoryLayerType.SCIENTIFIC_FUSED, input),
+        )
+        input += GeoCoordinate(0.0, 0.002)
+        val scientificHistory = viewModel.uiState.value.scientificFusedPath
+        assertEquals(2, scientificHistory.size)
+
+        viewModel.onIntent(
+            ReplaceTrajectoryPathIntent(
+                TrajectoryLayerType.SCIENTIFIC_FUSED,
+                listOf(GeoCoordinate(1.0, 1.0)),
+            ),
+        )
+        assertSame(scientificHistory, viewModel.uiState.value.scientificFusedPath)
+
+        viewModel.onIntent(validMapTelemetry(timestampNs = 0L, headingDegrees = 90.0))
+        viewModel.onIntent(NavigationModeChangedIntent(NavigationModeV1.REACQUIRING))
+        viewModel.onIntent(
+            NavigationModeChangedIntent(
+                mode = NavigationModeV1.GNSS_AIDED,
+                acceptedFix = GeoCoordinate(0.0, 0.002),
+            ),
+        )
+        viewModel.onIntent(
+            validMapTelemetry(timestampNs = 1_000_000_000L, headingDegrees = 90.0).copy(
+                longitudeDegrees = 0.002,
+            ),
+        )
+
+        val halfway = viewModel.uiState.value
+        assertSame(scientificHistory, halfway.scientificFusedPath)
+        assertEquals(0.001, halfway.displayVehicleLocation!!.longitude, 0.000_000_1)
+        assertEquals(2, halfway.displaySmoothedPath.size)
+        assertTrue(halfway.displayRecovery != null)
+
+        viewModel.onIntent(
+            validMapTelemetry(timestampNs = 2_000_000_000L, headingDegrees = 90.0).copy(
+                longitudeDegrees = 0.002,
+            ),
+        )
+        val complete = viewModel.uiState.value
+        assertSame(scientificHistory, complete.scientificFusedPath)
+        assertEquals(0.002, complete.displayVehicleLocation!!.longitude, 0.000_000_1)
+        assertNull(complete.displayRecovery)
+    }
+
+    @Test
+    fun scientificHistoryCannotBeMutatedThroughPublishedState() {
+        val viewModel = ReplayNavigationViewModel()
+        val source = mutableListOf(GeoCoordinate(0.0, 0.0))
+        viewModel.onIntent(
+            ReplaceTrajectoryPathIntent(TrajectoryLayerType.SCIENTIFIC_FUSED, source),
+        )
+        val history = viewModel.uiState.value.scientificFusedPath
+        source[0] = GeoCoordinate(1.0, 1.0)
+
+        assertEquals(GeoCoordinate(0.0, 0.0), history.single())
+        assertThrows(UnsupportedOperationException::class.java) {
+            (history as MutableList<GeoCoordinate>)[0] = GeoCoordinate(2.0, 2.0)
+        }
+        assertEquals(GeoCoordinate(0.0, 0.0), viewModel.uiState.value.scientificFusedPath.single())
+    }
+
+    @Test
+    fun displayRecoveryDecaysOffsetAgainstMovingScientificLocation() {
+        val viewModel = ReplayNavigationViewModel()
+        viewModel.onIntent(validMapTelemetry(timestampNs = 0L, headingDegrees = 90.0))
+        viewModel.onIntent(NavigationModeChangedIntent(NavigationModeV1.REACQUIRING))
+        viewModel.onIntent(
+            NavigationModeChangedIntent(
+                NavigationModeV1.GNSS_AIDED,
+                acceptedFix = GeoCoordinate(0.0, 0.002),
+            ),
+        )
+
+        viewModel.onIntent(
+            validMapTelemetry(timestampNs = 1_000_000_000L, headingDegrees = 90.0).copy(
+                longitudeDegrees = 0.003,
+            ),
+        )
+        val halfway = viewModel.uiState.value
+        assertEquals(0.003, halfway.vehicleLocation!!.longitude, 1e-9)
+        assertEquals(0.002, halfway.displayVehicleLocation!!.longitude, 1e-9)
+        assertTrue(halfway.displayRecovery != null)
+
+        viewModel.onIntent(
+            validMapTelemetry(timestampNs = 2_000_000_000L, headingDegrees = 90.0).copy(
+                longitudeDegrees = 0.004,
+            ),
+        )
+        val complete = viewModel.uiState.value
+        assertEquals(0.004, complete.displayVehicleLocation!!.longitude, 1e-9)
+        assertNull(complete.displayRecovery)
+    }
+
+    @Test
+    fun outageFreezesRawGnssAndUsesSeparationSemanticsForTether() {
+        val viewModel = ReplayNavigationViewModel()
+        viewModel.onIntent(validMapTelemetry(timestampNs = 1L, headingDegrees = 90.0))
+        viewModel.onIntent(
+            AppendTrajectoryPointIntent(
+                TrajectoryLayerType.RAW_GNSS,
+                GeoCoordinate(0.0, 0.0),
+            ),
+        )
+
+        viewModel.onIntent(ReplayIntent.ToggleSimulatedOutage)
+        val outageState = viewModel.uiState.value
+        assertEquals(GeoCoordinate(0.0, 0.0), outageState.lastTrustedGnssFix)
+        assertTrue(outageState.isSeparationTetherVisible)
+        assertEquals(
+            "Separation from last trusted GNSS fix",
+            TrajectoryPresentationLabels.SEPARATION_FROM_LAST_TRUSTED_GNSS_FIX,
+        )
+        assertFalse(
+            TrajectoryPresentationLabels.SEPARATION_FROM_LAST_TRUSTED_GNSS_FIX
+                .contains("drift", ignoreCase = true),
+        )
+
+        viewModel.onIntent(
+            AppendTrajectoryPointIntent(
+                TrajectoryLayerType.RAW_GNSS,
+                GeoCoordinate(0.0, 0.001),
+            ),
+        )
+        assertEquals(1, viewModel.uiState.value.rawGnssPath.size)
     }
 
     private fun validMapTelemetry(

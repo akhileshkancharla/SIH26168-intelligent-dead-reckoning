@@ -1,6 +1,6 @@
 package org.sih26168.app.replay
 
-import org.maplibre.android.geometry.LatLng
+import org.sih26168.contracts.enums.NavigationModeV1
 
 data object RecenterMapIntent : ReplayIntent
 
@@ -10,7 +10,26 @@ data object MapDraggedIntent : ReplayIntent
 
 data object MapReadyIntent : ReplayIntent
 
-data class LastTrustedGnssFixIntent(val fix: LatLng?) : ReplayIntent
+data class LastTrustedGnssFixIntent(val fix: GeoCoordinate?) : ReplayIntent
+
+data class ToggleTrajectoryLayerIntent(val layer: TrajectoryLayerType) : ReplayIntent
+
+data class AppendTrajectoryPointIntent(
+    val layer: TrajectoryLayerType,
+    val coordinate: GeoCoordinate,
+) : ReplayIntent
+
+data class ReplaceTrajectoryPathIntent(
+    val layer: TrajectoryLayerType,
+    val coordinates: List<GeoCoordinate>,
+) : ReplayIntent
+
+data class SetMapMatcherStatusIntent(val status: MapMatcherStatus) : ReplayIntent
+
+data class NavigationModeChangedIntent(
+    val mode: NavigationModeV1,
+    val acceptedFix: GeoCoordinate? = null,
+) : ReplayIntent
 
 sealed interface ReplayIntent {
     data object Play : ReplayIntent
