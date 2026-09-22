@@ -47,6 +47,8 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-runtime-compose:2.8.7")
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.7")
     implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.7")
+    // MapLibre 13.x publishes Kotlin 2.2 metadata; keep this aligned with Kotlin 2.0.21.
+    implementation("org.maplibre.gl:android-sdk:11.8.7")
     debugImplementation("androidx.compose.ui:ui-tooling")
     testImplementation("junit:junit:4.13.2")
 }

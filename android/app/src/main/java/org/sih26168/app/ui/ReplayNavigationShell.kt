@@ -1,6 +1,7 @@
 package org.sih26168.app.ui
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -14,11 +15,17 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.Button
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.contentDescription
@@ -44,7 +51,9 @@ fun ReplayNavigationShell(
     state: ReplayUiState,
     onIntent: (ReplayIntent) -> Unit,
     modifier: Modifier = Modifier,
-    viewportContent: @Composable BoxScope.() -> Unit = { MapViewportPlaceholder() },
+    viewportContent: @Composable BoxScope.() -> Unit = {
+        MapLibreMapViewport(state = state, onIntent = onIntent)
+    },
 ) {
     Column(modifier = modifier.fillMaxSize()) {
         GovernanceFrame(state = state)
@@ -56,6 +65,7 @@ fun ReplayNavigationShell(
             contentAlignment = Alignment.Center,
             content = viewportContent,
         )
+        AttributionBanner()
         TelemetryAndControlSheet(state = state, onIntent = onIntent)
     }
 }
@@ -84,10 +94,6 @@ private fun GovernanceFrame(state: ReplayUiState) {
                     )
                 }
             }
-            Text(
-                text = ReplayGovernanceLabels.OSM_ATTRIBUTION,
-                style = MaterialTheme.typography.labelMedium,
-            )
         }
     }
 }
@@ -118,7 +124,7 @@ private fun GovernanceBadge(label: String, prominent: Boolean = false) {
 }
 
 @Composable
-private fun BoxScope.MapViewportPlaceholder() {
+fun BoxScope.MapViewportPlaceholder() {
     Surface(
         modifier = Modifier
             .align(Alignment.Center)
@@ -143,6 +149,43 @@ private fun BoxScope.MapViewportPlaceholder() {
                 style = MaterialTheme.typography.bodyMedium,
             )
         }
+    }
+}
+
+@Composable
+private fun AttributionBanner() {
+    var showAttribution by remember { mutableStateOf(false) }
+
+    Surface(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { showAttribution = true }
+            .semantics { contentDescription = "OpenStreetMap attribution details" },
+        color = MaterialTheme.colorScheme.surfaceVariant,
+    ) {
+        Text(
+            text = ReplayGovernanceLabels.OSM_ATTRIBUTION,
+            modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
+            style = MaterialTheme.typography.labelMedium,
+        )
+    }
+
+    if (showAttribution) {
+        AlertDialog(
+            onDismissRequest = { showAttribution = false },
+            title = { Text("Map attribution") },
+            text = {
+                Text(
+                    "Map data © OpenStreetMap contributors. " +
+                        "This offline replay uses only locally packaged map assets.",
+                )
+            },
+            confirmButton = {
+                TextButton(onClick = { showAttribution = false }) {
+                    Text("Close")
+                }
+            },
+        )
     }
 }
 
