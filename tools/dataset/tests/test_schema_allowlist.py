@@ -1,8 +1,7 @@
 """WP-10.2 (Issue #80): tests for tools/dataset/schema_allowlist.py.
 
-Uses only synthetic allowlist documents constructed in-test -- never the
-shipped template config's real intended purpose, and never a real IO-VNBD
-schema name.
+Uses synthetic documents for malformed-input coverage and exact structural
+identifiers from the accepted sanitized audit for the shipped configuration.
 """
 from __future__ import annotations
 
@@ -96,24 +95,35 @@ class AllowlistConfigSchemaTest(unittest.TestCase):
                 allowlist_mod.load_allowlist_document(path)
 
 
-class ShippedTemplateTest(unittest.TestCase):
-    """The actual config/io_vnbd_schema_allowlist.json shipped by this PR
-    must always be recognized as a template -- these tests fail loudly if
-    someone edits it to claim ACTIVE without replacing the placeholders,
-    which is exactly the mistake require_active_allowlist must catch.
-    """
+class ShippedAllowlistTest(unittest.TestCase):
+    EXPECTED = [
+        "S18_NO_MAG_ORIENTATION",
+        "S24_XYZ",
+        "S24_XYZ_MALFORMED_DATE",
+        "S24_YPR",
+        "S24_YPR_TRAILING_EMPTY",
+        "V29_MAIN",
+    ]
 
-    def test_shipped_template_is_structurally_valid(self):
+    def test_shipped_allowlist_is_structurally_valid(self):
         allowlist_mod.load_allowlist_document(allowlist_mod.DEFAULT_ALLOWLIST_CONFIG_PATH)
 
-    def test_shipped_template_is_recognized_as_a_template(self):
+    def test_shipped_allowlist_has_exact_audited_values(self):
         document = allowlist_mod.load_allowlist_document(allowlist_mod.DEFAULT_ALLOWLIST_CONFIG_PATH)
-        self.assertTrue(allowlist_mod.is_template_allowlist(document))
+        self.assertEqual(document["status"], "ACTIVE")
+        self.assertEqual(document["allowlist"], self.EXPECTED)
+        self.assertEqual(allowlist_mod.require_active_allowlist(document), self.EXPECTED)
 
-    def test_shipped_template_is_refused_for_enforcement(self):
+    def test_shipped_allowlist_accepts_each_audited_schema(self):
+        document = allowlist_mod.load_allowlist_document(allowlist_mod.DEFAULT_ALLOWLIST_CONFIG_PATH)
+        allowlist_mod.enforce_manifest_against_allowlist({"schemas": self.EXPECTED}, document)
+
+    def test_shipped_allowlist_rejects_unknown_schema(self):
         document = allowlist_mod.load_allowlist_document(allowlist_mod.DEFAULT_ALLOWLIST_CONFIG_PATH)
         with self.assertRaises(allowlist_mod.SchemaAllowlistError):
-            allowlist_mod.require_active_allowlist(document)
+            allowlist_mod.enforce_manifest_against_allowlist(
+                {"schemas": [self.EXPECTED[0], "UNREVIEWED_SCHEMA"]}, document
+            )
 
 
 class TemplateDetectionTest(unittest.TestCase):
@@ -196,7 +206,11 @@ class EnforceManifestAgainstAllowlistTest(unittest.TestCase):
         # Even if the manifest's schemas happen to overlap the template's
         # placeholder text, a template allowlist can never be used to pass
         # enforcement -- require_active_allowlist must fire first.
-        template = allowlist_mod.load_allowlist_document(allowlist_mod.DEFAULT_ALLOWLIST_CONFIG_PATH)
+        template = {
+            "schema_version": 1,
+            "status": "TEMPLATE_PENDING_S0_AUDIT_ASSIGNMENT",
+            "allowlist": [f"PENDING_SCHEMA_{i}_REPLACE_FROM_S0_AUDIT" for i in range(1, 7)],
+        }
         manifest_doc = {"schemas": [template["allowlist"][0]]}
         with self.assertRaises(allowlist_mod.SchemaAllowlistError):
             allowlist_mod.enforce_manifest_against_allowlist(manifest_doc, template)
