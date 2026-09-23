@@ -1,5 +1,9 @@
 package org.sih26168.app.replay
 
+import java.util.Collections
+import org.sih26168.contracts.enums.AlignmentStatusV1
+import org.sih26168.contracts.enums.HealthIntegrityStateV1
+import org.sih26168.contracts.enums.ModelStatusV1
 import org.sih26168.contracts.enums.NavigationModeV1
 
 /** Immutable replay-domain coordinate; MapLibre coordinates are created only by the viewport. */
@@ -19,6 +23,32 @@ enum class MapMatcherStatus {
     AMBIGUOUS,
     NO_CANDIDATE,
 }
+
+/** Fix dimensionality is telemetry, not an integrity or outage classification. */
+enum class GnssFixDimension { FIX_3D, FIX_2D, NO_FIX }
+
+data class GnssHealthState(
+    val integrity: HealthIntegrityStateV1 = HealthIntegrityStateV1.UNAVAILABLE,
+    val fixDimension: GnssFixDimension? = null,
+    val satelliteCount: Int? = null,
+    val hdop: Double? = null,
+    val pdop: Double? = null,
+    val trustedFixTimestampNs: Long? = null,
+)
+
+data class AlignmentHealthState(
+    val status: AlignmentStatusV1 = AlignmentStatusV1.UNINITIALIZED,
+    val uncertaintyDegrees: Double? = null,
+    val convergenceProgress: Double? = null,
+)
+
+data class ModelHealthState(
+    val status: ModelStatusV1 = ModelStatusV1.DISABLED,
+    val residual: Double? = null,
+    val innovationCovarianceTrace: Double? = null,
+)
+
+enum class ReplayEngineStatus { PLAYING, PAUSED, BUFFERING, SEEKING }
 
 data class CovarianceEllipse(
     val center: GeoCoordinate,
@@ -82,18 +112,50 @@ data class ReplayUiState(
     val candidateTrajectories: List<MapCandidatePath> = emptyList(),
     val showUncertaintyEllipse: Boolean = true,
     val showCandidateBranches: Boolean = false,
-)
+    val gnssHealth: GnssHealthState = GnssHealthState(),
+    val alignmentHealth: AlignmentHealthState = AlignmentHealthState(),
+    val modelHealth: ModelHealthState = ModelHealthState(),
+    val replayEngineStatus: ReplayEngineStatus = ReplayEngineStatus.PAUSED,
+) {
+    /** I-14 disclosure state; independent of the underlying GNSS integrity record. */
+    val isOutageSimulated: Boolean
+        get() = isOutageActive
+}
+
+/**
+ * Hide fix-specific metrics while the software mask is active. The source integrity
+ * classification and underlying gnssHealth value are deliberately not rewritten.
+ */
+val ReplayUiState.displayGnssHealth: GnssHealthState
+    get() = if (isOutageSimulated) {
+        gnssHealth.copy(
+            fixDimension = null,
+            satelliteCount = null,
+            hdop = null,
+            pdop = null,
+        )
+    } else {
+        gnssHealth
+    }
+
+val ReplayUiState.trustedFixAgeNs: Long?
+    get() = gnssHealth.trustedFixTimestampNs?.let { trustedAt ->
+        (currentTimestampNs - trustedAt).takeIf { it >= 0L }
+    }
 
 fun ReplayUiState.isTrajectoryLayerVisible(layer: TrajectoryLayerType): Boolean =
     layer in enabledLayers &&
         (layer != TrajectoryLayerType.MAP_MATCHED || mapMatcherStatus == MapMatcherStatus.CLEAR)
 
 val ReplayUiState.isSeparationTetherVisible: Boolean
-    get() = isOutageActive &&
+    get() = isOutageSimulated &&
         lastTrustedGnssFix != null &&
         (displayVehicleLocation ?: vehicleLocation) != null
 
-val DEFAULT_TRAJECTORY_LAYERS: Set<TrajectoryLayerType> = setOf(
-    TrajectoryLayerType.SCIENTIFIC_FUSED,
-    TrajectoryLayerType.PLANNED_ROUTE,
-)
+val DEFAULT_TRAJECTORY_LAYERS: Set<TrajectoryLayerType> =
+    Collections.unmodifiableSet(
+        setOf(
+            TrajectoryLayerType.SCIENTIFIC_FUSED,
+            TrajectoryLayerType.PLANNED_ROUTE,
+        ),
+    )
