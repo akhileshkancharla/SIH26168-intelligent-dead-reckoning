@@ -6,6 +6,12 @@ ROOT = Path(__file__).resolve().parents[1]
 EXCLUDED = {".git", "graphify-out", "build", ".gradle", ".cxx", "__pycache__"}
 REQUIRED = ["README.md", "CONTRIBUTING.md", "SECURITY.md", "CODE_OF_CONDUCT.md", "AGENTS.md", ".gitignore", ".graphifyignore", ".pre-commit-config.yaml", ".github/CODEOWNERS", ".github/pull_request_template.md", ".github/workflows/ci.yml", "docs/DEVELOPMENT_STATUS.md", "docs/PRIVATE_ARTIFACT_POLICY.md", "docs/GENERATED_FILE_POLICY.md", "docs/CLAIMS_AND_EVIDENCE_POLICY.md", "docs/BRANCH_AND_RELEASE_POLICY.md", "docs/TEAM_RESPONSIBILITY_MATRIX.md", "docs/SUBMISSION_FREEZE_POLICY.md", "docs/architecture/ADR_INDEX.md", "docs/architecture/START_HERE.md", "docs/architecture/dependency-graph/README.md", "docs/architecture/dependency-graph/GRAPH_REPORT.md", "docs/architecture/dependency-graph/graph.json", "docs/architecture/dependency-graph/metadata.json", "docs/architecture/dependency-graph/SHA256SUMS.txt", "tools/graphify/README.md", "tools/graphify/graphify_config.json", "tools/graphify/update_graph.ps1", "tools/graphify/update_graph.sh", "tools/graphify/sanitize_graph.py", "tools/graphify/verify_graph.py", "tools/graphify/tests/test_graphify_workflow.py"]
 FORBIDDEN_SUFFIXES = {".pbf", ".sqlite", ".sqlite3", ".db", ".apk", ".aab", ".onnx", ".pt", ".pth", ".tflite", ".keystore", ".jks", ".pem", ".key", ".jsonl"}
+APPROVED_FORBIDDEN_FILES = {
+    "android/acquisition/imported/S1_Android_Acquisition_Spike/fixtures/deterministic_session/chunk_00001.jsonl": {
+        "size_bytes": 4895,
+        "sha256": "8cd785a19e3c472f8b13d3b28b148dd09cf74f067455b4b23aa131cd909672c2",
+    },
+}
 RUNNER_LOCAL_NAMES = {"_work", "_diag", ".runner", ".credentials", ".credentials_rsaparams", ".service"}
 ACTION = re.compile(r"^\s*-?\s*uses:\s*[^@\s]+@([0-9a-f]{40})(?:\s+#.*)?$", re.M)
 ABSOLUTE = re.compile(r"(?i)((?<![A-Za-z0-9_])[A-Z]:[\\/]|C:/Users/|/Users/[^/]+/|/home/[^/]+/|/workspace/|/tmp/)")
@@ -21,6 +27,11 @@ def files():
 def text(p):
     try: return p.read_text(encoding="utf-8")
     except UnicodeDecodeError: return ""
+def approved_forbidden_file(p, rel):
+    approval=APPROVED_FORBIDDEN_FILES.get(rel)
+    if approval is None or p.stat().st_size != approval["size_bytes"]: return False
+    with p.open("rb") as stream:
+        return hashlib.file_digest(stream, "sha256").hexdigest() == approval["sha256"]
 def policy(errors):
     for r in REQUIRED:
         if not (ROOT/r).is_file(): errors.append(f"missing required file: {r}")
@@ -46,7 +57,8 @@ def forbidden(errors):
     for rel in tracked: errors.append(f"raw Graphify output is tracked: {rel}")
     for p in files():
         rel=p.relative_to(ROOT).as_posix(); lower=rel.lower()
-        if p.suffix.lower() in FORBIDDEN_SUFFIXES or p.name==".env" or lower.startswith(("data/","private/")): errors.append(f"forbidden file: {rel}")
+        prohibited=p.suffix.lower() in FORBIDDEN_SUFFIXES or p.name==".env" or lower.startswith(("data/","private/"))
+        if prohibited and not approved_forbidden_file(p,rel): errors.append(f"forbidden file: {rel}")
         if any(part in RUNNER_LOCAL_NAMES for part in p.relative_to(ROOT).parts): errors.append(f"runner-local artifact: {rel}")
         if p.stat().st_size > 5*1024*1024: errors.append(f"file exceeds 5 MiB: {rel}")
         value=text(p)
@@ -120,11 +132,14 @@ def graph_snapshot(errors):
     result=subprocess.run([sys.executable,str(ROOT/"tools/graphify/verify_graph.py")],cwd=ROOT,text=True,capture_output=True)
     if result.returncode != 0: errors.extend(f"Graphify snapshot: {line}" for line in (result.stdout+result.stderr).splitlines() if line)
 checks={"policy":policy,"forbidden":forbidden,"secrets":secrets,"markdown":markdown,"links":links,"json":json_check,"csv":csv_check,"contracts":contracts,"manifest":manifest,"actions":actions,"graph":graph_snapshot}
-selected=sys.argv[1] if len(sys.argv)>1 else "all"; errors=[]
-if selected=="all":
-    for fn in checks.values(): fn(errors)
-elif selected in checks: checks[selected](errors)
-else: raise SystemExit(f"unknown check: {selected}")
-if errors:
-    print("\n".join(f"ERROR: {e}" for e in errors)); raise SystemExit(1)
-print(f"PASS: {selected}")
+def main():
+    selected=sys.argv[1] if len(sys.argv)>1 else "all"; errors=[]
+    if selected=="all":
+        for fn in checks.values(): fn(errors)
+    elif selected in checks: checks[selected](errors)
+    else: raise SystemExit(f"unknown check: {selected}")
+    if errors:
+        print("\n".join(f"ERROR: {e}" for e in errors)); return 1
+    print(f"PASS: {selected}")
+    return 0
+if __name__ == "__main__": raise SystemExit(main())
