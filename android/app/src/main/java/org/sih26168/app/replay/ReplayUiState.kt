@@ -1,5 +1,6 @@
 package org.sih26168.app.replay
 
+import org.sih26168.contracts.enums.AlignmentStatusV1
 import org.sih26168.contracts.enums.NavigationModeV1
 
 /** Immutable replay-domain coordinate; MapLibre coordinates are created only by the viewport. */
@@ -19,6 +20,35 @@ enum class MapMatcherStatus {
     AMBIGUOUS,
     NO_CANDIDATE,
 }
+
+enum class GnssFixStatus { UNKNOWN, FIX_3D, FIX_2D, NO_FIX, OUTAGE_SIMULATED }
+
+data class GnssHealthState(
+    val status: GnssFixStatus = GnssFixStatus.UNKNOWN,
+    val satelliteCount: Int? = null,
+    val hdop: Double? = null,
+    val pdop: Double? = null,
+    val trustedFixTimestampNs: Long? = null,
+)
+
+data class AlignmentHealthState(
+    val status: AlignmentStatusV1 = AlignmentStatusV1.UNINITIALIZED,
+    val uncertaintyDegrees: Double? = null,
+    val convergenceProgress: Double? = null,
+)
+
+enum class ModelStatus { UNKNOWN, NOMINAL, DIVERGING, RECOVERY_ACTIVE }
+
+enum class InnovationCovarianceStatus { UNKNOWN, VALID, DEGRADED, INVALID }
+
+data class ModelHealthState(
+    val status: ModelStatus = ModelStatus.UNKNOWN,
+    val residualMagnitude: Double? = null,
+    val innovationCovarianceStatus: InnovationCovarianceStatus =
+        InnovationCovarianceStatus.UNKNOWN,
+)
+
+enum class ReplayEngineStatus { PLAYING, PAUSED, BUFFERING, SEEKING }
 
 data class CovarianceEllipse(
     val center: GeoCoordinate,
@@ -82,7 +112,26 @@ data class ReplayUiState(
     val candidateTrajectories: List<MapCandidatePath> = emptyList(),
     val showUncertaintyEllipse: Boolean = true,
     val showCandidateBranches: Boolean = false,
+    val gnssHealth: GnssHealthState = GnssHealthState(),
+    val alignmentHealth: AlignmentHealthState = AlignmentHealthState(),
+    val modelHealth: ModelHealthState = ModelHealthState(),
+    val replayEngineStatus: ReplayEngineStatus = ReplayEngineStatus.PAUSED,
 )
+
+val ReplayUiState.displayGnssHealth: GnssHealthState
+    get() = if (isOutageActive) {
+        GnssHealthState(
+            status = GnssFixStatus.OUTAGE_SIMULATED,
+            trustedFixTimestampNs = gnssHealth.trustedFixTimestampNs,
+        )
+    } else {
+        gnssHealth
+    }
+
+val ReplayUiState.trustedFixAgeNs: Long?
+    get() = displayGnssHealth.trustedFixTimestampNs?.let { trustedAt ->
+        (currentTimestampNs - trustedAt).takeIf { it >= 0L }
+    }
 
 fun ReplayUiState.isTrajectoryLayerVisible(layer: TrajectoryLayerType): Boolean =
     layer in enabledLayers &&

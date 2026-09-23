@@ -8,6 +8,9 @@ import org.junit.Assert.assertThrows
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.sih26168.contracts.enums.NavigationModeV1
+import org.sih26168.contracts.enums.AlignmentStatusV1
+import androidx.compose.ui.graphics.Color
+import org.sih26168.app.ui.alignmentHealthColor
 
 class ReplayNavigationViewModelTest {
     @Test
@@ -26,6 +29,116 @@ class ReplayNavigationViewModelTest {
         assertFalse(state.isCourseUp)
         assertFalse(state.isMapReady)
         assertNull(state.lastTrustedGnssFix)
+        assertEquals(GnssFixStatus.UNKNOWN, state.gnssHealth.status)
+        assertEquals(AlignmentStatusV1.UNINITIALIZED, state.alignmentHealth.status)
+        assertEquals(ModelStatus.UNKNOWN, state.modelHealth.status)
+        assertEquals(ReplayEngineStatus.PAUSED, state.replayEngineStatus)
+    }
+
+    @Test
+    fun healthTelemetry_ingestsNominalIndependentSubsystemStates() {
+        val viewModel = ReplayNavigationViewModel()
+        viewModel.onIntent(validMapTelemetry(timestampNs = 5_000_000_000L, headingDegrees = 0.0))
+        viewModel.onIntent(UpdateHealthStates(
+            gnss = GnssHealthState(GnssFixStatus.FIX_3D, 12, 0.8, 1.2, 4_000_000_000L),
+            alignment = AlignmentHealthState(AlignmentStatusV1.VALID, 0.5, 1.0),
+            model = ModelHealthState(ModelStatus.NOMINAL, 0.25,
+                InnovationCovarianceStatus.VALID),
+            replayEngine = ReplayEngineStatus.PLAYING,
+        ))
+
+        val state = viewModel.uiState.value
+        assertEquals(GnssFixStatus.FIX_3D, state.displayGnssHealth.status)
+        assertEquals(12, state.gnssHealth.satelliteCount)
+        assertEquals(1_000_000_000L, state.trustedFixAgeNs)
+        assertEquals(AlignmentStatusV1.VALID, state.alignmentHealth.status)
+        assertEquals(1.0, state.alignmentHealth.convergenceProgress!!, 0.0)
+        assertEquals(ModelStatus.NOMINAL, state.modelHealth.status)
+        assertEquals(InnovationCovarianceStatus.VALID,
+            state.modelHealth.innovationCovarianceStatus)
+        assertEquals(ReplayEngineStatus.PLAYING, state.replayEngineStatus)
+        assertTrue(state.isReplaying)
+    }
+
+    @Test
+    fun malformedHealthTelemetry_failsClosedWithoutNonFiniteUiMetrics() {
+        val viewModel = ReplayNavigationViewModel()
+        viewModel.onIntent(UpdateHealthStates(
+            gnss = GnssHealthState(GnssFixStatus.FIX_3D, -1, Double.NaN,
+                Double.POSITIVE_INFINITY, 1L),
+            alignment = AlignmentHealthState(AlignmentStatusV1.VALID,
+                Double.NEGATIVE_INFINITY, 1.5),
+            model = ModelHealthState(ModelStatus.NOMINAL, -0.1,
+                InnovationCovarianceStatus.VALID),
+        ))
+
+        val state = viewModel.uiState.value
+        assertEquals(GnssHealthState(), state.gnssHealth)
+        assertEquals(AlignmentHealthState(), state.alignmentHealth)
+        assertEquals(AlignmentStatusV1.UNINITIALIZED, state.alignmentHealth.status)
+        assertEquals(ModelHealthState(), state.modelHealth)
+        assertNull(state.trustedFixAgeNs)
+    }
+
+    @Test
+    fun alignmentHealth_usesEveryContractStatusWithoutConflatingSlipAndUncertainty() {
+        val viewModel = ReplayNavigationViewModel()
+        for (status in listOf(
+            AlignmentStatusV1.VALID,
+            AlignmentStatusV1.UNCERTAIN,
+            AlignmentStatusV1.SLIP_SUSPECTED,
+        )) {
+            viewModel.onIntent(UpdateHealthStates(
+                alignment = AlignmentHealthState(status, 2.0, 0.5),
+            ))
+            assertEquals(status, viewModel.uiState.value.alignmentHealth.status)
+        }
+
+        viewModel.onIntent(UpdateHealthStates(
+            alignment = AlignmentHealthState(
+                AlignmentStatusV1.VALID,
+                Double.MAX_VALUE,
+                0.5,
+            ),
+        ))
+        assertEquals(AlignmentStatusV1.UNINITIALIZED,
+            viewModel.uiState.value.alignmentHealth.status)
+        assertNull(viewModel.uiState.value.alignmentHealth.uncertaintyDegrees)
+        assertNull(viewModel.uiState.value.alignmentHealth.convergenceProgress)
+    }
+
+    @Test
+    fun alignmentHealth_badgeColorsDistinguishAllContractStatuses() {
+        assertEquals(Color(0xFF24D18B), alignmentHealthColor(AlignmentStatusV1.VALID))
+        assertEquals(Color(0xFFF6B73C), alignmentHealthColor(AlignmentStatusV1.UNCERTAIN))
+        assertEquals(Color(0xFFC7353F), alignmentHealthColor(AlignmentStatusV1.SLIP_SUSPECTED))
+        assertEquals(Color(0xFFADB5C0), alignmentHealthColor(AlignmentStatusV1.UNINITIALIZED))
+    }
+
+    @Test
+    fun healthUpdates_preservePriorImmutableValuesAndOutageHonesty() {
+        val viewModel = ReplayNavigationViewModel()
+        viewModel.onIntent(UpdateHealthStates(
+            gnss = GnssHealthState(GnssFixStatus.FIX_2D, 7, 2.0),
+            alignment = AlignmentHealthState(AlignmentStatusV1.UNCERTAIN, 12.0, 0.4),
+        ))
+        val priorState = viewModel.uiState.value
+        viewModel.onIntent(UpdateHealthStates(
+            model = ModelHealthState(ModelStatus.RECOVERY_ACTIVE, 3.0,
+                InnovationCovarianceStatus.DEGRADED),
+            replayEngine = ReplayEngineStatus.BUFFERING,
+        ))
+
+        assertSame(priorState.gnssHealth, viewModel.uiState.value.gnssHealth)
+        assertSame(priorState.alignmentHealth, viewModel.uiState.value.alignmentHealth)
+        assertEquals(ModelStatus.UNKNOWN, priorState.modelHealth.status)
+        assertEquals(ModelStatus.RECOVERY_ACTIVE, viewModel.uiState.value.modelHealth.status)
+        assertFalse(viewModel.uiState.value.isReplaying)
+        viewModel.onIntent(ReplayIntent.ToggleSimulatedOutage)
+        assertEquals(GnssFixStatus.OUTAGE_SIMULATED,
+            viewModel.uiState.value.displayGnssHealth.status)
+        assertNull(viewModel.uiState.value.displayGnssHealth.hdop)
+        assertEquals(GnssFixStatus.FIX_2D, priorState.gnssHealth.status)
     }
 
     @Test
