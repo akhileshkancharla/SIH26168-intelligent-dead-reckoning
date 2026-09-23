@@ -53,6 +53,25 @@ class SharedNavigationIngressTest {
     }
 
     @Test
+    fun replay_forwardsRecordedLiveOriginWithoutRewritingProvenance() {
+        val forwarded = mutableListOf<NavigationIngressEvent<*>>()
+        val ingress = SourceBoundNavigationIngress(DisplayModeV1.DETERMINISTIC_REPLAY) {
+            forwarded += it
+        }
+        val recordedLiveEvent = event(
+            evidenceId = "recorded-live-1",
+            provenance = ProvenanceTypeV1.LIVE_DEVICE,
+        )
+
+        assertAccepted(ingress.submit(recordedLiveEvent), "recorded-live-1")
+        assertSame(recordedLiveEvent, forwarded.single())
+        assertEquals(
+            ProvenanceTypeV1.LIVE_DEVICE,
+            forwarded.single().envelope.provenance.provenanceType,
+        )
+    }
+
+    @Test
     fun onlyLiveCompatibleI01AndI02Payloads_areAccepted() {
         val forwarded = mutableListOf<NavigationIngressEvent<*>>()
         val ingress = SourceBoundNavigationIngress(DisplayModeV1.LIVE_DEVICE) { forwarded += it }
@@ -112,6 +131,29 @@ class SharedNavigationIngressTest {
 
         fail = false
         assertAccepted(ingress.submit(event), "imu-1")
+    }
+
+    @Test
+    fun reentrantSink_cannotForwardTheSameEvidenceTwice() {
+        val event = event(evidenceId = "imu-1")
+        var nestedResult: NavigationIngressResult? = null
+        var deliveryCount = 0
+        lateinit var ingress: SourceBoundNavigationIngress
+        ingress = SourceBoundNavigationIngress(DisplayModeV1.LIVE_DEVICE) {
+            deliveryCount += 1
+            nestedResult = ingress.submit(event)
+        }
+
+        assertAccepted(ingress.submit(event), "imu-1")
+        assertRejected(
+            nestedResult ?: throw AssertionError("expected nested submission"),
+            NavigationIngressRejectionReason.REENTRANT_SUBMISSION,
+        )
+        assertEquals(1, deliveryCount)
+        assertRejected(
+            ingress.submit(event),
+            NavigationIngressRejectionReason.DUPLICATE_EVIDENCE_ID,
+        )
     }
 
     private fun event(

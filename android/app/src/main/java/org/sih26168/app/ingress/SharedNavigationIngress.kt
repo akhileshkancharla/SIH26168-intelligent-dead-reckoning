@@ -26,6 +26,7 @@ enum class NavigationIngressRejectionReason {
     NEGATIVE_SEQUENCE,
     DUPLICATE_EVIDENCE_ID,
     NON_INCREASING_STREAM_SEQUENCE,
+    REENTRANT_SUBMISSION,
 }
 
 sealed interface NavigationIngressResult {
@@ -58,11 +59,14 @@ class SourceBoundNavigationIngress(
 ) : NavigationIngress {
     private val consumedEvidenceIds = mutableSetOf<String>()
     private val lastSequenceByStream = mutableMapOf<String, Long>()
+    private var deliveringToSink = false
 
     @Synchronized
     override fun <T> submit(event: NavigationIngressEvent<T>): NavigationIngressResult {
         val envelope = event.envelope
         val rejection = when {
+            deliveringToSink ->
+                NavigationIngressRejectionReason.REENTRANT_SUBMISSION
             envelope.payloadType !in SUPPORTED_PAYLOAD_TYPES ->
                 NavigationIngressRejectionReason.UNSUPPORTED_PAYLOAD_TYPE
             !sourceMode.accepts(envelope.provenance.provenanceType) ->
@@ -81,17 +85,33 @@ class SourceBoundNavigationIngress(
             return NavigationIngressResult.Rejected(rejection)
         }
 
-        sink.accept(event)
+        val streamId = envelope.provenance.streamId
+        val previousSequence = lastSequenceByStream[streamId]
         consumedEvidenceIds += envelope.provenance.evidenceId
-        lastSequenceByStream[envelope.provenance.streamId] = event.sequence
+        lastSequenceByStream[streamId] = event.sequence
+        deliveringToSink = true
+        try {
+            sink.accept(event)
+        } catch (failure: Throwable) {
+            consumedEvidenceIds -= envelope.provenance.evidenceId
+            if (previousSequence == null) {
+                lastSequenceByStream -= streamId
+            } else {
+                lastSequenceByStream[streamId] = previousSequence
+            }
+            throw failure
+        } finally {
+            deliveringToSink = false
+        }
         return NavigationIngressResult.Accepted(envelope.provenance.evidenceId)
     }
 
     private fun DisplayModeV1.accepts(provenance: ProvenanceTypeV1): Boolean = when (this) {
         DisplayModeV1.LIVE_DEVICE ->
             provenance == ProvenanceTypeV1.LIVE_DEVICE || provenance == ProvenanceTypeV1.LIVE
-        DisplayModeV1.DETERMINISTIC_REPLAY ->
-            provenance == ProvenanceTypeV1.DETERMINISTIC_REPLAY || provenance == ProvenanceTypeV1.REPLAY
+        // Replay describes the active adapter, not the immutable origin of recorded evidence.
+        // Recorded live observations therefore retain LIVE_DEVICE/LIVE provenance at this boundary.
+        DisplayModeV1.DETERMINISTIC_REPLAY -> true
     }
 
     private companion object {
