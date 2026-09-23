@@ -1,0 +1,302 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://sih26168.invalid/contracts/schemas/session_manifest_v1.schema.json",
+  "title": "SessionManifestV1",
+  "description": "Normative Tier-A I-18 manifest for immutable session evidence. COMPLETE sessions may enter normal replay only after every declared chunk hash, size, path and ordering invariant is verified. INCOMPLETE and EVIDENCE_DEGRADED sessions remain diagnostic-only.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "session_id",
+    "status",
+    "clock_id",
+    "boot_id",
+    "app_build",
+    "device_profile",
+    "streams",
+    "chunks",
+    "loss_counts",
+    "config_hash",
+    "privacy_class"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "session_id": {
+      "$ref": "#/$defs/identifier"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "COMPLETE",
+        "INCOMPLETE",
+        "EVIDENCE_DEGRADED"
+      ]
+    },
+    "clock_id": {
+      "$ref": "#/$defs/identifier"
+    },
+    "boot_id": {
+      "$ref": "#/$defs/identifier"
+    },
+    "app_build": {
+      "$ref": "#/$defs/app_build"
+    },
+    "device_profile": {
+      "$ref": "#/$defs/device_profile"
+    },
+    "streams": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/stream"
+      },
+      "minItems": 1
+    },
+    "chunks": {
+      "type": "array",
+      "description": "Authoritative chunk order. Array position is the chunk order; readers must not sort or repair it.",
+      "items": {
+        "$ref": "#/$defs/chunk"
+      }
+    },
+    "loss_counts": {
+      "type": "object",
+      "description": "Non-negative lost-record count keyed by declared stream_id.",
+      "propertyNames": {
+        "$ref": "#/$defs/identifier"
+      },
+      "additionalProperties": {
+        "type": "integer",
+        "minimum": 0
+      }
+    },
+    "config_hash": {
+      "$ref": "#/$defs/sha256"
+    },
+    "privacy_class": {
+      "type": "string",
+      "enum": [
+        "PRIVATE_OFFLINE_ONLY",
+        "SYNTHETIC_NON_PRIVATE"
+      ]
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "status": {
+            "const": "COMPLETE"
+          }
+        },
+        "required": [
+          "status"
+        ]
+      },
+      "then": {
+        "properties": {
+          "chunks": {
+            "minItems": 1
+          }
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "identifier": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$"
+    },
+    "sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "relative_path": {
+      "type": "string",
+      "pattern": "^(?!\\.\\.?(?:/|$))[^/\\\\:]+(?:/(?!\\.\\.?(?:/|$))[^/\\\\:]+)*$"
+    },
+    "app_build": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "version_name",
+        "version_code",
+        "git_commit",
+        "build_type"
+      ],
+      "properties": {
+        "version_name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "version_code": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "git_commit": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{40}$"
+        },
+        "build_type": {
+          "type": "string",
+          "enum": [
+            "DEBUG",
+            "RELEASE"
+          ]
+        }
+      }
+    },
+    "device_profile": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "profile_id",
+        "manufacturer",
+        "model",
+        "sdk_int",
+        "hardware"
+      ],
+      "properties": {
+        "profile_id": {
+          "$ref": "#/$defs/identifier"
+        },
+        "manufacturer": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "minLength": 1
+        },
+        "model": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "minLength": 1
+        },
+        "sdk_int": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 1
+        },
+        "hardware": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "minLength": 1
+        }
+      }
+    },
+    "stream": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "stream_id",
+        "interface_id",
+        "clock_id",
+        "coordinate_frame",
+        "units",
+        "sample_count",
+        "first_sequence",
+        "last_sequence"
+      ],
+      "properties": {
+        "stream_id": {
+          "$ref": "#/$defs/identifier"
+        },
+        "interface_id": {
+          "type": "string",
+          "enum": [
+            "I-01",
+            "I-02",
+            "I-04",
+            "I-07",
+            "I-13",
+            "I-14",
+            "I-15",
+            "I-16"
+          ]
+        },
+        "clock_id": {
+          "$ref": "#/$defs/identifier"
+        },
+        "coordinate_frame": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "units": {
+          "type": "object",
+          "propertyNames": {
+            "$ref": "#/$defs/identifier"
+          },
+          "additionalProperties": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "sample_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "first_sequence": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0
+        },
+        "last_sequence": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0
+        }
+      }
+    },
+    "chunk": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "path",
+        "size_bytes",
+        "sha256"
+      ],
+      "properties": {
+        "path": {
+          "$ref": "#/$defs/relative_path"
+        },
+        "size_bytes": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "sha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "first_epoch_ns": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "last_epoch_ns": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "stream_ids": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/identifier"
+          },
+          "uniqueItems": true,
+          "minItems": 1
+        }
+      }
+    }
+  }
+}

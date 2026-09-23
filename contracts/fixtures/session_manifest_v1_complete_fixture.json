@@ -1,0 +1,52 @@
+{
+  "schema_version": 1,
+  "session_id": "synthetic-session-001",
+  "status": "COMPLETE",
+  "clock_id": "CLOCK_BOOTTIME",
+  "boot_id": "synthetic-boot-001",
+  "app_build": {
+    "version_name": "1.0.0-test",
+    "version_code": 1,
+    "git_commit": "0123456789abcdef0123456789abcdef01234567",
+    "build_type": "DEBUG"
+  },
+  "device_profile": {
+    "profile_id": "synthetic-device-profile",
+    "manufacturer": "Synthetic",
+    "model": "Fixture",
+    "sdk_int": 36,
+    "hardware": null
+  },
+  "streams": [
+    {
+      "stream_id": "imu",
+      "interface_id": "I-01",
+      "clock_id": "CLOCK_BOOTTIME",
+      "coordinate_frame": "ANDROID_SENSOR_BODY",
+      "units": {
+        "accelerometer": "m/s^2",
+        "gyroscope": "rad/s"
+      },
+      "sample_count": 2,
+      "first_sequence": 0,
+      "last_sequence": 1
+    }
+  ],
+  "chunks": [
+    {
+      "path": "chunks/chunk_00001.jsonl",
+      "size_bytes": 512,
+      "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "first_epoch_ns": 1000000000,
+      "last_epoch_ns": 1010000000,
+      "stream_ids": [
+        "imu"
+      ]
+    }
+  ],
+  "loss_counts": {
+    "imu": 0
+  },
+  "config_hash": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+  "privacy_class": "SYNTHETIC_NON_PRIVATE"
+}
