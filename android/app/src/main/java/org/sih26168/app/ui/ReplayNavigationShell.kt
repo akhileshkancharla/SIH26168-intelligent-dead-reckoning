@@ -36,7 +36,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import java.util.Locale
-import org.sih26168.app.ReplayDisclosure
 import org.sih26168.app.replay.ReplayIntent
 import org.sih26168.app.replay.MapMatcherStatus
 import org.sih26168.app.replay.ReplayNavigationViewModel
@@ -49,7 +48,6 @@ import org.sih26168.app.replay.TrajectoryPresentationLabels
 import org.sih26168.app.replay.isSeparationTetherVisible
 
 object ReplayGovernanceLabels {
-    const val SOURCE = "SOURCE: DETERMINISTIC_REPLAY"
     const val DEMO = "DEMO"
     const val SIMULATED_OUTAGE = "SIMULATED OUTAGE"
     const val OSM_ATTRIBUTION = "© OpenStreetMap contributors"
@@ -93,9 +91,10 @@ private fun GovernanceFrame(state: ReplayUiState) {
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                GovernanceBadge(ReplayGovernanceLabels.SOURCE)
+                GovernanceBadge(state.provenanceDisplay.sourceLabel)
                 GovernanceBadge(ReplayGovernanceLabels.DEMO)
-                GovernanceBadge(ReplayDisclosure.LABEL, prominent = true)
+                GovernanceBadge(state.provenanceDisplay.replayLabel, prominent = true)
+                GovernanceBadge(state.provenanceDisplay.evidenceOriginLabel)
                 if (state.isOutageActive) {
                     GovernanceBadge(
                         ReplayGovernanceLabels.SIMULATED_OUTAGE,

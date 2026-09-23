@@ -7,7 +7,14 @@ import org.junit.Assert.assertSame
 import org.junit.Assert.assertThrows
 import org.junit.Assert.assertTrue
 import org.junit.Test
+import org.sih26168.app.ingress.NavigationIngressEvent
+import org.sih26168.contracts.enums.DisplayModeV1
 import org.sih26168.contracts.enums.NavigationModeV1
+import org.sih26168.contracts.enums.ProvenanceTypeV1
+import org.sih26168.contracts.models.EvidenceEnvelopeV1
+import org.sih26168.contracts.models.ProvenanceV1
+import org.sih26168.contracts.models.TimestampV1
+import org.sih26168.contracts.models.ValidityGateV1
 
 class ReplayNavigationViewModelTest {
     @Test
@@ -26,6 +33,9 @@ class ReplayNavigationViewModelTest {
         assertFalse(state.isCourseUp)
         assertFalse(state.isMapReady)
         assertNull(state.lastTrustedGnssFix)
+        assertEquals(DisplayModeV1.DETERMINISTIC_REPLAY, state.provenanceDisplay.displayMode)
+        assertEquals("REPLAY", state.provenanceDisplay.replayLabel)
+        assertEquals("EVIDENCE ORIGIN: UNAVAILABLE", state.provenanceDisplay.evidenceOriginLabel)
     }
 
     @Test
@@ -139,6 +149,75 @@ class ReplayNavigationViewModelTest {
         viewModel.onIntent(ReplayIntent.Reset)
 
         assertEquals(ReplayUiState(isMapReady = true), viewModel.uiState.value)
+    }
+
+    @Test
+    fun acceptedLiveOriginEvidence_keepsOriginWhileDisplayRemainsReplay() {
+        val viewModel = ReplayNavigationViewModel()
+        val event = ingressEvent(
+            sequence = 7L,
+            epochNs = 200L,
+            evidenceId = "live-7",
+            provenanceType = ProvenanceTypeV1.LIVE_DEVICE,
+        )
+
+        viewModel.onIntent(ReplayIntent.PresentIngressProvenance(event))
+
+        val display = viewModel.uiState.value.provenanceDisplay
+        assertEquals(DisplayModeV1.DETERMINISTIC_REPLAY, display.displayMode)
+        assertEquals("REPLAY", display.replayLabel)
+        assertEquals(ProvenanceTypeV1.LIVE_DEVICE, display.evidenceOrigin)
+        assertEquals("live-7", display.evidenceId)
+        assertEquals("session-1", display.sessionId)
+        assertEquals("imu", display.streamId)
+        assertEquals(7L, display.streamSequence)
+        assertEquals(200L, display.evidenceEpochNs)
+    }
+
+    @Test
+    fun provenancePresentation_rejectsInvalidOrRegressiveEvidence() {
+        val viewModel = ReplayNavigationViewModel()
+        viewModel.onIntent(
+            ReplayIntent.PresentIngressProvenance(
+                ingressEvent(sequence = 2L, epochNs = 200L, evidenceId = "event-2"),
+            ),
+        )
+
+        viewModel.onIntent(
+            ReplayIntent.PresentIngressProvenance(
+                ingressEvent(sequence = 3L, epochNs = 199L, evidenceId = "event-3"),
+            ),
+        )
+        viewModel.onIntent(
+            ReplayIntent.PresentIngressProvenance(
+                ingressEvent(sequence = 2L, epochNs = 201L, evidenceId = "event-2b"),
+            ),
+        )
+        viewModel.onIntent(
+            ReplayIntent.PresentIngressProvenance(
+                ingressEvent(sequence = 4L, epochNs = 202L, evidenceId = ""),
+            ),
+        )
+
+        assertEquals("event-2", viewModel.uiState.value.provenanceDisplay.evidenceId)
+    }
+
+    @Test
+    fun reset_clearsEvidenceIdentityButCannotClearReplayDisclosure() {
+        val viewModel = ReplayNavigationViewModel()
+        viewModel.onIntent(
+            ReplayIntent.PresentIngressProvenance(
+                ingressEvent(sequence = 1L, epochNs = 100L, evidenceId = "event-1"),
+            ),
+        )
+
+        viewModel.onIntent(ReplayIntent.Reset)
+
+        val display = viewModel.uiState.value.provenanceDisplay
+        assertEquals(DisplayModeV1.DETERMINISTIC_REPLAY, display.displayMode)
+        assertEquals("REPLAY", display.replayLabel)
+        assertNull(display.evidenceId)
+        assertNull(display.evidenceOrigin)
     }
 
     @Test
@@ -565,5 +644,31 @@ class ReplayNavigationViewModelTest {
         longitudeDegrees = 0.0,
         headingDegrees = headingDegrees,
         isHeadingStable = isHeadingStable,
+    )
+
+    private fun ingressEvent(
+        sequence: Long,
+        epochNs: Long,
+        evidenceId: String,
+        provenanceType: ProvenanceTypeV1 = ProvenanceTypeV1.DETERMINISTIC_REPLAY,
+    ): NavigationIngressEvent<String> = NavigationIngressEvent(
+        sequence = sequence,
+        envelope = EvidenceEnvelopeV1(
+            payloadType = "RawSensorSample",
+            timestamp = TimestampV1(
+                epochNs = epochNs,
+                arrivalElapsedRealtimeNs = epochNs,
+                clockId = "clock-1",
+                sourceTimestampNs = epochNs,
+            ),
+            provenance = ProvenanceV1(
+                evidenceId = evidenceId,
+                sessionId = "session-1",
+                streamId = "imu",
+                provenanceType = provenanceType,
+            ),
+            payload = evidenceId,
+            validityGate = ValidityGateV1(isFinite = true, isValid = true),
+        ),
     )
 }

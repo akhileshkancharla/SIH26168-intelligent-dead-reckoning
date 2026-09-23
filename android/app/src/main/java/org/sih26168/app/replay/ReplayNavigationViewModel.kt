@@ -42,6 +42,7 @@ class ReplayNavigationViewModel : ViewModel() {
             ReplayIntent.Reset -> reset()
             ReplayIntent.ToggleSimulatedOutage -> toggleSimulatedOutage()
             is ReplayIntent.SetSpeedMultiplier -> setSpeedMultiplier(intent.multiplier)
+            is ReplayIntent.PresentIngressProvenance -> presentIngressProvenance(intent)
             is ReplayIntent.PresentTelemetry -> presentTelemetry(intent)
         }
     }
@@ -96,6 +97,23 @@ class ReplayNavigationViewModel : ViewModel() {
     private fun setSpeedMultiplier(multiplier: Float) {
         if (multiplier in SUPPORTED_SPEED_MULTIPLIERS) {
             _uiState.update { it.copy(speedMultiplier = multiplier) }
+        }
+    }
+
+    private fun presentIngressProvenance(intent: ReplayIntent.PresentIngressProvenance) {
+        val next = ReplayProvenanceDisplayState.fromAcceptedIngress(intent.event) ?: return
+        _uiState.update { state ->
+            val current = state.provenanceDisplay
+            val nextEpochNs = next.evidenceEpochNs ?: return@update state
+            val nextSequence = next.streamSequence ?: return@update state
+            val isRegressiveTime = current.evidenceEpochNs?.let { nextEpochNs < it } == true
+            val isNonIncreasingSameStream = current.streamId == next.streamId &&
+                current.streamSequence?.let { nextSequence <= it } == true
+            if (isRegressiveTime || isNonIncreasingSameStream) {
+                state
+            } else {
+                state.copy(provenanceDisplay = next)
+            }
         }
     }
 
