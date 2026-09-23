@@ -103,7 +103,9 @@ class DeterministicReplayScheduler<T> private constructor(
     }
     private var virtualTimeNs: Long = originTimeNs
     private var speed: ReplaySpeed = ReplaySpeed.NORMAL
-    private var speedRemainder: Long = 0L
+    // All supported speeds are exactly representable in half-nanosecond units. Keeping the carry
+    // in this speed-independent unit means a control-only speed change cannot discard virtual time.
+    private var fractionalTimeUnits: Long = 0L
 
     fun snapshot(): ReplaySchedulerSnapshot = ReplaySchedulerSnapshot(
         status = status,
@@ -134,7 +136,6 @@ class DeterministicReplayScheduler<T> private constructor(
             return rejected(ReplayControlRejectionReason.INVALID_STATE)
         }
         speed = newSpeed
-        speedRemainder = 0L
         return accepted(emptyList())
     }
 
@@ -164,7 +165,7 @@ class DeterministicReplayScheduler<T> private constructor(
             ?: return rejected(ReplayControlRejectionReason.TIME_OVERFLOW)
 
         virtualTimeNs = nextVirtualTime
-        speedRemainder = scaled.remainder
+        fractionalTimeUnits = scaled.remainder
         val emitted = emitThrough(virtualTimeNs)
         completeIfExhausted()
         return accepted(emitted)
@@ -174,7 +175,7 @@ class DeterministicReplayScheduler<T> private constructor(
         cursor = 0
         virtualTimeNs = originTimeNs
         speed = ReplaySpeed.NORMAL
-        speedRemainder = 0L
+        fractionalTimeUnits = 0L
         status = if (records.isEmpty()) {
             ReplaySchedulerStatus.COMPLETED
         } else {
@@ -184,17 +185,25 @@ class DeterministicReplayScheduler<T> private constructor(
     }
 
     private fun scaleElapsedTime(elapsedTimeNs: Long): ScaledElapsedTime? {
-        val scaledNumerator = try {
+        val speedUnitsPerElapsedNanosecond = try {
+            Math.multiplyExact(
+                speed.numerator,
+                TIME_FRACTION_DENOMINATOR / speed.denominator,
+            )
+        } catch (_: ArithmeticException) {
+            return null
+        }
+        val scaledUnits = try {
             Math.addExact(
-                Math.multiplyExact(elapsedTimeNs, speed.numerator),
-                speedRemainder,
+                Math.multiplyExact(elapsedTimeNs, speedUnitsPerElapsedNanosecond),
+                fractionalTimeUnits,
             )
         } catch (_: ArithmeticException) {
             return null
         }
         return ScaledElapsedTime(
-            deltaNs = scaledNumerator / speed.denominator,
-            remainder = scaledNumerator % speed.denominator,
+            deltaNs = scaledUnits / TIME_FRACTION_DENOMINATOR,
+            remainder = scaledUnits % TIME_FRACTION_DENOMINATOR,
         )
     }
 
@@ -215,7 +224,7 @@ class DeterministicReplayScheduler<T> private constructor(
     private fun completeIfExhausted() {
         if (cursor == records.size) {
             status = ReplaySchedulerStatus.COMPLETED
-            speedRemainder = 0L
+            fractionalTimeUnits = 0L
         }
     }
 
@@ -235,6 +244,8 @@ class DeterministicReplayScheduler<T> private constructor(
     )
 
     companion object {
+        private const val TIME_FRACTION_DENOMINATOR = 2L
+
         fun <T> create(
             records: List<ScheduledReplayRecord<T>>,
         ): ReplayScheduleBuildResult<T> {

@@ -101,6 +101,24 @@ class DeterministicReplaySchedulerTest {
     }
 
     @Test
+    fun speedChanges_preserveFractionalVirtualTime() {
+        val scheduler = scheduler(
+            listOf(
+                record(timeNs = 0L, sequence = 1L, evidenceId = "origin"),
+                record(timeNs = 1L, sequence = 2L, evidenceId = "next"),
+            ),
+        )
+        scheduler.setSpeed(ReplaySpeed.HALF).accepted()
+        scheduler.play().accepted()
+
+        assertEquals(listOf("origin"), scheduler.advanceByElapsedTime(1L).accepted().ids())
+        scheduler.setSpeed(ReplaySpeed.NORMAL).accepted()
+        scheduler.setSpeed(ReplaySpeed.HALF).accepted()
+
+        assertEquals(listOf("next"), scheduler.advanceByElapsedTime(1L).accepted().ids())
+    }
+
+    @Test
     fun reset_restoresOriginCursorPauseAndNormalSpeed() {
         val scheduler = scheduler(standardRecords())
         scheduler.setSpeed(ReplaySpeed.DOUBLE).accepted()
