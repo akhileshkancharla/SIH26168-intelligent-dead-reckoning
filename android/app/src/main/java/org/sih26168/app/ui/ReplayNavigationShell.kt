@@ -32,6 +32,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -51,6 +52,10 @@ object ReplayGovernanceLabels {
     const val DEMO = "DEMO"
     const val SIMULATED_OUTAGE = "SIMULATED OUTAGE"
     const val OSM_ATTRIBUTION = "© OpenStreetMap contributors"
+}
+
+object ReplayGovernanceTags {
+    const val MANDATORY_REPLAY_BADGE = "mandatory-replay-badge"
 }
 
 @Composable
@@ -84,6 +89,11 @@ private fun GovernanceFrame(state: ReplayUiState) {
             modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
             verticalArrangement = Arrangement.spacedBy(6.dp),
         ) {
+            GovernanceBadge(
+                label = state.provenanceDisplay.replayLabel,
+                prominent = true,
+                modifier = Modifier.testTag(ReplayGovernanceTags.MANDATORY_REPLAY_BADGE),
+            )
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -93,7 +103,6 @@ private fun GovernanceFrame(state: ReplayUiState) {
             ) {
                 GovernanceBadge(state.provenanceDisplay.sourceLabel)
                 GovernanceBadge(ReplayGovernanceLabels.DEMO)
-                GovernanceBadge(state.provenanceDisplay.replayLabel, prominent = true)
                 GovernanceBadge(state.provenanceDisplay.evidenceOriginLabel)
                 if (state.isOutageActive) {
                     GovernanceBadge(
@@ -107,8 +116,13 @@ private fun GovernanceFrame(state: ReplayUiState) {
 }
 
 @Composable
-private fun GovernanceBadge(label: String, prominent: Boolean = false) {
+private fun GovernanceBadge(
+    label: String,
+    prominent: Boolean = false,
+    modifier: Modifier = Modifier,
+) {
     Surface(
+        modifier = modifier,
         color = if (prominent) {
             MaterialTheme.colorScheme.errorContainer
         } else {

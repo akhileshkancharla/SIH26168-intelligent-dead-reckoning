@@ -16,7 +16,7 @@ Project execution is tracked in the private [SIH26168 Development Roadmap](https
 
 - Python: `python -m unittest discover -s tools/bootstrap/tests`
 - C++: `cmake -S . -B build && cmake --build build && ctest --test-dir build`
-- Android: `gradle -p android testDebugUnitTest lintDebug assembleDebug`
+- Android: `gradle -p android testDebugUnitTest lintDebug assembleDebug assembleDebugAndroidTest`
 - Full policy verification: `python ci/verify_repository.py all`
 
 Pull requests use [selective CI](docs/CI_WORKFLOW.md); pushes to `main` and manual runs execute the full public/synthetic suite.
