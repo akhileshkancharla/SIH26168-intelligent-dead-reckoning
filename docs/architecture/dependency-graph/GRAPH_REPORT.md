@@ -5,11 +5,11 @@
 - Snapshot classification: `generated-and-sanitized`
 - Source repository: `akhileshkancharla/SIH26168-intelligent-dead-reckoning`
 - Source branch: `issue/WP-09.6-wp-09-6-verify-complete`
-- Source parent commit: `e369775e6bbc0ba759a97ce796f4ac0810818fa0`
+- Source parent commit: `31e4f5a0203e6e736e0a50ea63f482ed4e56010d`
 - Graphify version: `0.9.53`
 - Graphify mode: code-only static extraction; semantic document extraction disabled
-- Counts: 2853 nodes, 4802 edges, 192 communities
-- Edge evidence: 4641 extracted, 161 inferred
+- Counts: 3202 nodes, 5418 edges, 216 communities
+- Edge evidence: 5232 extracted, 186 inferred
 - CI mode: `snapshot-validation-only`
 
 ## VERIFIED FROM CODE
@@ -22,10 +22,10 @@ The C++ core is host-buildable, while Android acquisition, JNI, training, map, a
 
 | Module | Extracted source files | Current interpretation |
 | --- | ---: | --- |
-| Android app | 24 | Launcher/UI scaffold; no sensor-to-position path |
+| Android app | 29 | Launcher/UI scaffold; no sensor-to-position path |
 | Portable core | 22 | Host-buildable S2 core plus contract smoke |
-| Contracts | 23 | Bootstrap replay schema and enum artifacts |
-| Repository automation | 12 | Repository and GitHub governance tooling |
+| Contracts | 24 | Bootstrap replay schema and enum artifacts |
+| Repository automation | 13 | Repository and GitHub governance tooling |
 | Policy CI | 15 | Repository validation and generated-file checks |
 | Acquisition/JNI/ML/maps/analyzer | 0 | README-only or disconnected placeholders |
 
@@ -57,19 +57,19 @@ Current high-degree nodes are primarily repository administration tooling, not n
 | Node | Degree | Source |
 | --- | ---: | --- |
 | `ReplayNavigationViewModel` | 69 | [android/app/src/main/java/org/sih26168/app/replay/ReplayNavigationViewModel.kt:L16](../../../android/app/src/main/java/org/sih26168/app/replay/ReplayNavigationViewModel.kt) |
-| `MapLibreMapViewport.kt` | 43 | [android/app/src/main/java/org/sih26168/app/ui/map/MapLibreMapViewport.kt:L1](../../../android/app/src/main/java/org/sih26168/app/ui/map/MapLibreMapViewport.kt) |
-| `ReplayNavigationShell.kt` | 38 | [android/app/src/main/java/org/sih26168/app/ui/ReplayNavigationShell.kt:L1](../../../android/app/src/main/java/org/sih26168/app/ui/ReplayNavigationShell.kt) |
+| `MapLibreMapViewport.kt` | 42 | [android/app/src/main/java/org/sih26168/app/ui/map/MapLibreMapViewport.kt:L1](../../../android/app/src/main/java/org/sih26168/app/ui/map/MapLibreMapViewport.kt) |
+| `ReplayNavigationShell.kt` | 40 | [android/app/src/main/java/org/sih26168/app/ui/ReplayNavigationShell.kt:L1](../../../android/app/src/main/java/org/sih26168/app/ui/ReplayNavigationShell.kt) |
 | `configure_project.mjs` | 37 | [tools/bootstrap/configure_project.mjs:L1](../../../tools/bootstrap/configure_project.mjs) |
 | `ReplayNavigationViewModelTest` | 36 | [android/app/src/test/java/org/sih26168/app/replay/ReplayNavigationViewModelTest.kt:L15](../../../android/app/src/test/java/org/sih26168/app/replay/ReplayNavigationViewModelTest.kt) |
 | `generate_contract_bindings.py` | 35 | [ci/generate_contract_bindings.py:L1](../../../ci/generate_contract_bindings.py) |
+| `ReplayUiState` | 33 | [android/app/src/main/java/org/sih26168/app/replay/ReplayUiState.kt:L85](../../../android/app/src/main/java/org/sih26168/app/replay/ReplayUiState.kt) |
 | `reference_oracle.py` | 31 | [core/navigation/verification/python/reference_oracle.py:L1](../../../core/navigation/verification/python/reference_oracle.py) |
 | `ReplayIntent` | 28 | [android/app/src/main/java/org/sih26168/app/replay/ReplayIntent.kt:L59](../../../android/app/src/main/java/org/sih26168/app/replay/ReplayIntent.kt) |
-| `ReplayUiState` | 28 | [android/app/src/main/java/org/sih26168/app/replay/ReplayUiState.kt:L85](../../../android/app/src/main/java/org/sih26168/app/replay/ReplayUiState.kt) |
 | `navigation_jni_wire.cpp` | 27 | [android/navigation-jni/src/navigation_jni_wire.cpp:L1](../../../android/navigation-jni/src/navigation_jni_wire.cpp) |
 
 ### Weakly connected or orphan candidates
 
-The raw Graphify report identified 894 isolated symbol nodes. This sanitizer independently found 1152 repository-backed nodes with degree at most one; the bounded sample below is diagnostic, not deletion evidence.
+The raw Graphify report identified 1021 isolated symbol nodes. This sanitizer independently found 1290 repository-backed nodes with degree at most one; the bounded sample below is diagnostic, not deletion evidence.
 
 | Node | Degree | Source |
 | --- | ---: | --- |
@@ -81,13 +81,13 @@ The raw Graphify report identified 894 isolated symbol nodes. This sanitizer ind
 | `smoke.cpp` | 0 | [core/navigation/src/smoke.cpp](../../../core/navigation/src/smoke.cpp) |
 | `sih26168_bootstrap/__init__.py` | 0 | [tools/bootstrap/src/sih26168_bootstrap/__init__.py](../../../tools/bootstrap/src/sih26168_bootstrap/__init__.py) |
 | `tests/__init__.py` | 0 | [tools/dataset/tests/__init__.py](../../../tools/dataset/tests/__init__.py) |
-| `Pause` | 1 | [android/app/src/main/java/org/sih26168/app/replay/ReplayIntent.kt](../../../android/app/src/main/java/org/sih26168/app/replay/ReplayIntent.kt) |
-| `Play` | 1 | [android/app/src/main/java/org/sih26168/app/replay/ReplayIntent.kt](../../../android/app/src/main/java/org/sih26168/app/replay/ReplayIntent.kt) |
-| `PresentTelemetry` | 1 | [android/app/src/main/java/org/sih26168/app/replay/ReplayIntent.kt](../../../android/app/src/main/java/org/sih26168/app/replay/ReplayIntent.kt) |
-| `Reset` | 1 | [android/app/src/main/java/org/sih26168/app/replay/ReplayIntent.kt](../../../android/app/src/main/java/org/sih26168/app/replay/ReplayIntent.kt) |
-| `SetSpeedMultiplier` | 1 | [android/app/src/main/java/org/sih26168/app/replay/ReplayIntent.kt](../../../android/app/src/main/java/org/sih26168/app/replay/ReplayIntent.kt) |
-| `Step` | 1 | [android/app/src/main/java/org/sih26168/app/replay/ReplayIntent.kt](../../../android/app/src/main/java/org/sih26168/app/replay/ReplayIntent.kt) |
-| `ToggleSimulatedOutage` | 1 | [android/app/src/main/java/org/sih26168/app/replay/ReplayIntent.kt](../../../android/app/src/main/java/org/sih26168/app/replay/ReplayIntent.kt) |
+| `DUPLICATE_EVIDENCE_ID` | 1 | [android/app/src/main/java/org/sih26168/app/ingress/SharedNavigationIngress.kt](../../../android/app/src/main/java/org/sih26168/app/ingress/SharedNavigationIngress.kt) |
+| `NEGATIVE_SEQUENCE` | 1 | [android/app/src/main/java/org/sih26168/app/ingress/SharedNavigationIngress.kt](../../../android/app/src/main/java/org/sih26168/app/ingress/SharedNavigationIngress.kt) |
+| `NON_INCREASING_STREAM_SEQUENCE` | 1 | [android/app/src/main/java/org/sih26168/app/ingress/SharedNavigationIngress.kt](../../../android/app/src/main/java/org/sih26168/app/ingress/SharedNavigationIngress.kt) |
+| `REENTRANT_SUBMISSION` | 1 | [android/app/src/main/java/org/sih26168/app/ingress/SharedNavigationIngress.kt](../../../android/app/src/main/java/org/sih26168/app/ingress/SharedNavigationIngress.kt) |
+| `SOURCE_MODE_MISMATCH` | 1 | [android/app/src/main/java/org/sih26168/app/ingress/SharedNavigationIngress.kt](../../../android/app/src/main/java/org/sih26168/app/ingress/SharedNavigationIngress.kt) |
+| `UNSUPPORTED_PAYLOAD_TYPE` | 1 | [android/app/src/main/java/org/sih26168/app/ingress/SharedNavigationIngress.kt](../../../android/app/src/main/java/org/sih26168/app/ingress/SharedNavigationIngress.kt) |
+| `INVALID_STATE` | 1 | [android/app/src/main/java/org/sih26168/app/replay/DeterministicReplayScheduler.kt](../../../android/app/src/main/java/org/sih26168/app/replay/DeterministicReplayScheduler.kt) |
 
 ### Cycles
 
