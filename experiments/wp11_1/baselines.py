@@ -52,6 +52,31 @@ def _step(point: Point, speed_mps: float, heading_deg: float, dt_s: float) -> Po
     )
 
 
+def _constant_turn_step(
+    point: Point,
+    speed_mps: float,
+    heading_deg: float,
+    turn_rate_deg_s: float,
+    dt_s: float,
+) -> tuple[Point, float]:
+    """Integrate one constant-speed, constant-turn-rate circular arc."""
+    start_heading = math.radians(heading_deg)
+    angular_rate = math.radians(turn_rate_deg_s)
+    end_heading = start_heading + angular_rate * dt_s
+
+    if math.isclose(angular_rate, 0.0, abs_tol=1e-12):
+        return _step(point, speed_mps, heading_deg, dt_s), heading_deg % 360.0
+
+    radius = speed_mps / angular_rate
+    return (
+        Point(
+            point.east_m + radius * (math.cos(start_heading) - math.cos(end_heading)),
+            point.north_m + radius * (math.sin(end_heading) - math.sin(start_heading)),
+        ),
+        math.degrees(end_heading) % 360.0,
+    )
+
+
 def hold_last_position(samples: Sequence[Sample], masked: Sequence[bool]) -> list[Point]:
     """Zero-order hold; the minimum-information matched baseline."""
     truth = to_local(samples)
@@ -111,8 +136,7 @@ def constant_turn_rate(samples: Sequence[Sample], masked: Sequence[bool]) -> lis
             position = point
         else:
             dt = max(0.0, sample.time_s - previous_time)
-            heading = (heading + turn_rate * dt) % 360.0
-            position = _step(position, speed, heading, dt)
+            position, heading = _constant_turn_step(position, speed, heading, turn_rate, dt)
         result.append(position)
         previous_time = sample.time_s
     return result
@@ -127,4 +151,3 @@ BASELINES = {
 
 def errors_m(prediction: Iterable[Point], truth: Iterable[Point]) -> list[float]:
     return [math.hypot(p.east_m - t.east_m, p.north_m - t.north_m) for p, t in zip(prediction, truth, strict=True)]
-
