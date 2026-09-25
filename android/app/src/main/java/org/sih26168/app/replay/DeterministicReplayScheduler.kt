@@ -146,6 +146,9 @@ class DeterministicReplayScheduler<T> private constructor(
 
         val epochNs = records[cursor].monotonicTimeNs
         virtualTimeNs = epochNs
+        // Stepping snaps the clock to an exact source epoch. Any sub-nanosecond carry belongs to
+        // the pre-step clock position and must not influence playback after the snap.
+        fractionalTimeUnits = 0L
         val emitted = emitThrough(epochNs)
         completeIfExhausted()
         return accepted(emitted)

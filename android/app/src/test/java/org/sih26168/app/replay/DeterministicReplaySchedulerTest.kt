@@ -119,6 +119,30 @@ class DeterministicReplaySchedulerTest {
     }
 
     @Test
+    fun step_discardsFractionalCarryFromThePreStepClockPosition() {
+        val scheduler = scheduler(
+            listOf(
+                record(timeNs = 0L, sequence = 1L, evidenceId = "origin"),
+                record(timeNs = 10L, sequence = 2L, evidenceId = "stepped"),
+                record(timeNs = 11L, sequence = 3L, evidenceId = "after-step"),
+            ),
+        )
+        scheduler.setSpeed(ReplaySpeed.HALF).accepted()
+        scheduler.play().accepted()
+
+        assertEquals(listOf("origin"), scheduler.advanceByElapsedTime(1L).accepted().ids())
+        scheduler.pause().accepted()
+        assertEquals(listOf("stepped"), scheduler.step().accepted().ids())
+        scheduler.play().accepted()
+
+        assertTrue(scheduler.advanceByElapsedTime(1L).accepted().emitted.isEmpty())
+        assertEquals(
+            listOf("after-step"),
+            scheduler.advanceByElapsedTime(1L).accepted().ids(),
+        )
+    }
+
+    @Test
     fun reset_restoresOriginCursorPauseAndNormalSpeed() {
         val scheduler = scheduler(standardRecords())
         scheduler.setSpeed(ReplaySpeed.DOUBLE).accepted()
