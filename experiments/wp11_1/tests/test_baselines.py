@@ -5,7 +5,7 @@ import unittest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from baselines import Sample, constant_turn_rate, constant_velocity, hold_last_position, to_local
+from baselines import Point, Sample, _constant_turn_step, constant_turn_rate, constant_velocity, hold_last_position, to_local
 from evaluate import periodic_mask, summarize
 
 
@@ -34,6 +34,27 @@ class BaselineTests(unittest.TestCase):
         mask = [False, False, True, True, True, False]
         self.assertEqual(constant_turn_rate(samples, mask), constant_turn_rate(samples, mask))
 
+    def test_constant_turn_rate_integrates_left_arc(self):
+        point, heading = _constant_turn_step(Point(0.0, 0.0), 1.0, 90.0, 90.0, 1.0)
+        expected = 2.0 / math.pi
+        self.assertAlmostEqual(point.east_m, expected)
+        self.assertAlmostEqual(point.north_m, -expected)
+        self.assertAlmostEqual(heading, 180.0)
+
+    def test_constant_turn_rate_integrates_right_arc(self):
+        point, heading = _constant_turn_step(Point(0.0, 0.0), 1.0, 90.0, -90.0, 1.0)
+        expected = 2.0 / math.pi
+        self.assertAlmostEqual(point.east_m, expected)
+        self.assertAlmostEqual(point.north_m, expected)
+        self.assertAlmostEqual(heading, 0.0)
+
+    def test_constant_turn_rate_wraps_heading(self):
+        point, heading = _constant_turn_step(Point(0.0, 0.0), 1.0, 350.0, 20.0, 1.0)
+        radius = 9.0 / math.pi
+        self.assertAlmostEqual(point.east_m, 0.0, places=12)
+        self.assertAlmostEqual(point.north_m, 2.0 * radius * math.sin(math.radians(10.0)))
+        self.assertAlmostEqual(heading, 10.0)
+
     def test_periodic_mask(self):
         self.assertEqual(periodic_mask(8, 1.0, 2.0, 2.0, 5.0), [False, False, True, True, False, False, False, True])
 
@@ -45,4 +66,3 @@ class BaselineTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
-
