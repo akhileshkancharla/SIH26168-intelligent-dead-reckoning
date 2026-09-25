@@ -15,11 +15,26 @@ import org.junit.Test
 import org.sih26168.app.ReplayDisclosure
 import org.sih26168.app.ui.OfflineMapAssets
 import org.sih26168.app.ui.ReplayGovernanceLabels
+import org.sih26168.app.ui.pinnedDisclosureLabels
 import org.sih26168.contracts.enums.AlignmentStatusV1
 import org.sih26168.contracts.enums.NavigationModeV1
 
 /** Synthetic presentation-boundary checks; device radio isolation is verified separately. */
 class AirplaneModeReplayVerificationTest {
+    @Test
+    fun primaryDisclosureSlotsRemainPinnedForNormalAndBlackoutPresentation() {
+        val normal = ReplayUiState()
+        val blackout = normal.copy(
+            isOutageActive = true,
+            navigationMode = NavigationModeV1.BLACKOUT_DR,
+        )
+
+        assertEquals(listOf("REPLAY"), pinnedDisclosureLabels(normal.isOutageActive))
+        assertEquals(listOf("REPLAY", "SIMULATED OUTAGE"),
+            pinnedDisclosureLabels(blackout.isOutageActive))
+        // Instrumented Compose tests additionally measure these slots in 320dp/360dp roots.
+    }
+
     @Test
     fun bundledStyleAndManifestDeclareOnlyLocalMapResources() {
         val main = appMainDirectory()

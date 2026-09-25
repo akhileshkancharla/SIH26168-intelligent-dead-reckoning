@@ -31,6 +31,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -62,6 +63,20 @@ object ReplayGovernanceLabels {
     const val REPLAY_MODE = "REPLAY MODE"
 }
 
+/** Primary disclosures are rendered before all secondary metadata, without a scroll container. */
+internal fun pinnedDisclosureLabels(isOutageActive: Boolean): List<String> =
+    if (isOutageActive) {
+        listOf(ReplayDisclosure.LABEL, ReplayGovernanceLabels.SIMULATED_OUTAGE)
+    } else {
+        listOf(ReplayDisclosure.LABEL)
+    }
+
+object GovernanceBadgeTags {
+    const val FRAME = "governance-frame"
+    const val REPLAY = "governance-replay"
+    const val OUTAGE = "governance-outage"
+}
+
 @Composable
 fun ReplayNavigationShell(
     state: ReplayUiState,
@@ -88,36 +103,51 @@ fun ReplayNavigationShell(
 
 @Composable
 private fun GovernanceFrame(state: ReplayUiState) {
-    Surface(modifier = Modifier.fillMaxWidth(), tonalElevation = 4.dp) {
+    Surface(modifier = Modifier.fillMaxWidth().testTag(GovernanceBadgeTags.FRAME),
+        tonalElevation = 4.dp) {
         Column(
             modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
             verticalArrangement = Arrangement.spacedBy(6.dp),
         ) {
             Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .horizontalScroll(rememberScrollState()),
+                modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                GovernanceBadge(ReplayGovernanceLabels.SOURCE)
-                GovernanceBadge(ReplayGovernanceLabels.DEMO)
-                GovernanceBadge(ReplayDisclosure.LABEL, prominent = true)
-                GovernanceBadge(ReplayGovernanceLabels.REPLAY_MODE)
-                if (state.isOutageActive) {
+                pinnedDisclosureLabels(state.isOutageActive).forEach { label ->
                     GovernanceBadge(
-                        ReplayGovernanceLabels.SIMULATED_OUTAGE,
+                        label,
                         prominent = true,
+                        modifier = Modifier.weight(1f).testTag(
+                            if (label == ReplayDisclosure.LABEL) {
+                                GovernanceBadgeTags.REPLAY
+                            } else {
+                                GovernanceBadgeTags.OUTAGE
+                            },
+                        ),
                     )
                 }
+            }
+            GovernanceBadge(ReplayGovernanceLabels.SOURCE,
+                modifier = Modifier.fillMaxWidth())
+            Row(modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                GovernanceBadge(ReplayGovernanceLabels.DEMO, modifier = Modifier.weight(1f))
+                GovernanceBadge(ReplayGovernanceLabels.REPLAY_MODE,
+                    modifier = Modifier.weight(1f))
             }
         }
     }
 }
 
 @Composable
-private fun GovernanceBadge(label: String, prominent: Boolean = false) {
+private fun GovernanceBadge(
+    label: String,
+    prominent: Boolean = false,
+    modifier: Modifier = Modifier,
+) {
     Surface(
+        modifier = modifier,
         color = if (prominent) {
             MaterialTheme.colorScheme.errorContainer
         } else {
