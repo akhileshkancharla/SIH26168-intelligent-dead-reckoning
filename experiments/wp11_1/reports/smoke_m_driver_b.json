@@ -1,0 +1,48 @@
+{
+  "scientific_status": "exploratory; not a promotion or safety claim",
+  "input": {
+    "path": "V-M.csv",
+    "sha256": "ecf977cb798082d59ad1b03ce5631a61dbf525dfe484eb005ca630b5e95b86af",
+    "samples": 20000
+  },
+  "protocol": {
+    "sample_period_s": 0.09999999999854481,
+    "start_s": 60.0,
+    "duration_s": 30.0,
+    "spacing_s": 120.0,
+    "masked_samples": 4999,
+    "matched_input_and_mask": true
+  },
+  "baselines": {
+    "hold": {
+      "mean_m": 107.05382689164429,
+      "rmse_m": 145.00085001061592,
+      "p95_m": 303.6361563916752,
+      "max_m": 491.03763795142777,
+      "endpoint_m": 129.7375378682966
+    },
+    "constant_velocity": {
+      "mean_m": 61.96475730387758,
+      "rmse_m": 89.05595793390606,
+      "p95_m": 194.65468414145988,
+      "max_m": 335.92713470807684,
+      "endpoint_m": 175.21652035243014
+    },
+    "constant_turn_rate": {
+      "mean_m": 91.05049307110914,
+      "rmse_m": 135.12477059797303,
+      "p95_m": 297.32724042496847,
+      "max_m": 470.7796094967754,
+      "endpoint_m": 194.31150899436227
+    }
+  },
+  "runtime": {
+    "python": "3.12.10 (tags/v3.12.10:0cc8128, Apr  8 2025, 12:21:36) [MSC v.1943 64 bit (AMD64)]",
+    "platform": "Windows-11-10.0.26200-SP0"
+  },
+  "limitations": [
+    "Single-journey execution is smoke evidence only.",
+    "Periodic mask is provisional until WP-11.3 freezes the blackout protocol.",
+    "No learned model is evaluated in WP-11.1."
+  ]
+}
