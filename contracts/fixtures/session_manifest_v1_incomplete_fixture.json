@@ -1,0 +1,38 @@
+{
+  "schema_version": 1,
+  "session_id": "synthetic-session-incomplete-001",
+  "status": "INCOMPLETE",
+  "clock_id": "CLOCK_BOOTTIME",
+  "boot_id": "synthetic-boot-002",
+  "app_build": {
+    "version_name": "1.0.0-test",
+    "version_code": 1,
+    "git_commit": "0123456789abcdef0123456789abcdef01234567",
+    "build_type": "DEBUG"
+  },
+  "device_profile": {
+    "profile_id": "synthetic-device-profile",
+    "manufacturer": null,
+    "model": null,
+    "sdk_int": null,
+    "hardware": null
+  },
+  "streams": [
+    {
+      "stream_id": "imu",
+      "interface_id": "I-01",
+      "clock_id": "CLOCK_BOOTTIME",
+      "coordinate_frame": "ANDROID_SENSOR_BODY",
+      "units": {},
+      "sample_count": 0,
+      "first_sequence": null,
+      "last_sequence": null
+    }
+  ],
+  "chunks": [],
+  "loss_counts": {
+    "imu": 0
+  },
+  "config_hash": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+  "privacy_class": "SYNTHETIC_NON_PRIVATE"
+}

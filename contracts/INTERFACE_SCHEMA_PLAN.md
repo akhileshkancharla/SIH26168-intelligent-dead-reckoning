@@ -408,6 +408,8 @@ Data validation enforces mathematical and physical boundaries in addition to syn
 - **Sequence & Ordering:** Exact file chunk order and SHA-256 digest array
 - **Quality & Validity:** Cryptographic SHA-256 for every chunk file; strictly relative paths; status in `[COMPLETE, INCOMPLETE, EVIDENCE_DEGRADED]`
 - **Rejection Behaviour:** Corrupt, tampered, or missing chunk files fail session loading
+- **Executable Contract:** `contracts/schemas/session_manifest_v1.schema.json`; synthetic COMPLETE and INCOMPLETE fixtures live under `contracts/fixtures/`
+- **Legacy S1 Compatibility:** `contracts/I18_LEGACY_S1_MAPPING.md`; legacy `complete` maps only to `status`, missing mandatory metadata is never invented, and incomplete legacy metadata is diagnostic-only
 
 ---
 

@@ -1133,6 +1133,12 @@ def verification_scripts() -> None:
     EXCLUDED = {".git", "build", ".gradle", ".cxx", "__pycache__"}
     REQUIRED = ["README.md", "CONTRIBUTING.md", "SECURITY.md", "CODE_OF_CONDUCT.md", ".gitignore", ".pre-commit-config.yaml", ".github/CODEOWNERS", ".github/pull_request_template.md", "docs/DEVELOPMENT_STATUS.md", "docs/PRIVATE_ARTIFACT_POLICY.md", "docs/GENERATED_FILE_POLICY.md", "docs/CLAIMS_AND_EVIDENCE_POLICY.md", "docs/BRANCH_AND_RELEASE_POLICY.md", "docs/TEAM_RESPONSIBILITY_MATRIX.md", "docs/SUBMISSION_FREEZE_POLICY.md", "docs/architecture/ADR_INDEX.md"]
     FORBIDDEN_SUFFIXES = {".pbf", ".sqlite", ".sqlite3", ".db", ".apk", ".aab", ".onnx", ".pt", ".pth", ".tflite", ".keystore", ".jks", ".pem", ".key", ".jsonl"}
+    APPROVED_FORBIDDEN_FILES = {
+        "android/acquisition/imported/S1_Android_Acquisition_Spike/fixtures/deterministic_session/chunk_00001.jsonl": {
+            "size_bytes": 4895,
+            "sha256": "8cd785a19e3c472f8b13d3b28b148dd09cf74f067455b4b23aa131cd909672c2",
+        },
+    }
     ACTION = re.compile(r"^\s*-?\s*uses:\s*[^@\s]+@([0-9a-f]{40})(?:\s+#.*)?$", re.M)
     ABSOLUTE = re.compile(r"(?i)((?<![A-Za-z0-9_])[A-Z]:[\\/]|C:/Users/|/Users/[^/]+/|/home/[^/]+/|/workspace/|/tmp/)")
     WEB_URL = re.compile(r"https?://[^\s<>()\"']+")
@@ -1144,6 +1150,11 @@ def verification_scripts() -> None:
     def text(p):
         try: return p.read_text(encoding="utf-8")
         except UnicodeDecodeError: return ""
+    def approved_forbidden_file(p, rel):
+        approval=APPROVED_FORBIDDEN_FILES.get(rel)
+        if approval is None or p.stat().st_size != approval["size_bytes"]: return False
+        with p.open("rb") as stream:
+            return hashlib.file_digest(stream, "sha256").hexdigest() == approval["sha256"]
     def policy(errors):
         for r in REQUIRED:
             if not (ROOT/r).is_file(): errors.append(f"missing required file: {r}")
@@ -1157,7 +1168,8 @@ def verification_scripts() -> None:
     def forbidden(errors):
         for p in files():
             rel=p.relative_to(ROOT).as_posix(); lower=rel.lower()
-            if p.suffix.lower() in FORBIDDEN_SUFFIXES or p.name==".env" or lower.startswith(("data/","private/")): errors.append(f"forbidden file: {rel}")
+            prohibited=p.suffix.lower() in FORBIDDEN_SUFFIXES or p.name==".env" or lower.startswith(("data/","private/"))
+            if prohibited and not approved_forbidden_file(p,rel): errors.append(f"forbidden file: {rel}")
             if p.stat().st_size > 5*1024*1024: errors.append(f"file exceeds 5 MiB: {rel}")
             value=text(p)
             scan_value=WEB_URL.sub("",value)
