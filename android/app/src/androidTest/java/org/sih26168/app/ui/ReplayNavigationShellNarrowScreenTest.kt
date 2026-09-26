@@ -33,4 +33,22 @@ class ReplayNavigationShellNarrowScreenTest {
         composeRule.onNodeWithTag(ReplayGovernanceTags.MANDATORY_REPLAY_BADGE)
             .assertIsDisplayed()
     }
+
+    @Test
+    fun mandatoryOutageBadge_isVisibleWithoutHorizontalScrollingAt240Dp() {
+        composeRule.setContent {
+            MaterialTheme {
+                Box(modifier = Modifier.size(width = 240.dp, height = 480.dp)) {
+                    ReplayNavigationShell(
+                        state = ReplayUiState(isOutageActive = true),
+                        onIntent = {},
+                        viewportContent = {},
+                    )
+                }
+            }
+        }
+
+        composeRule.onNodeWithTag(ReplayGovernanceTags.MANDATORY_OUTAGE_BADGE)
+            .assertIsDisplayed()
+    }
 }

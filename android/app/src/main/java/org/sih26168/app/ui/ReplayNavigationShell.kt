@@ -29,10 +29,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -56,6 +56,7 @@ object ReplayGovernanceLabels {
 
 object ReplayGovernanceTags {
     const val MANDATORY_REPLAY_BADGE = "mandatory-replay-badge"
+    const val MANDATORY_OUTAGE_BADGE = "mandatory-outage-badge"
 }
 
 @Composable
@@ -94,6 +95,13 @@ private fun GovernanceFrame(state: ReplayUiState) {
                 prominent = true,
                 modifier = Modifier.testTag(ReplayGovernanceTags.MANDATORY_REPLAY_BADGE),
             )
+            if (state.isOutageActive) {
+                GovernanceBadge(
+                    label = ReplayGovernanceLabels.SIMULATED_OUTAGE,
+                    prominent = true,
+                    modifier = Modifier.testTag(ReplayGovernanceTags.MANDATORY_OUTAGE_BADGE),
+                )
+            }
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -104,12 +112,6 @@ private fun GovernanceFrame(state: ReplayUiState) {
                 GovernanceBadge(state.provenanceDisplay.sourceLabel)
                 GovernanceBadge(ReplayGovernanceLabels.DEMO)
                 GovernanceBadge(state.provenanceDisplay.evidenceOriginLabel)
-                if (state.isOutageActive) {
-                    GovernanceBadge(
-                        ReplayGovernanceLabels.SIMULATED_OUTAGE,
-                        prominent = true,
-                    )
-                }
             }
         }
     }
