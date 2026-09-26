@@ -55,6 +55,23 @@ class BaselineTests(unittest.TestCase):
         self.assertAlmostEqual(point.north_m, 2.0 * radius * math.sin(math.radians(10.0)))
         self.assertAlmostEqual(heading, 10.0)
 
+    def test_initial_blackout_requires_visible_anchor(self):
+        mask = [True, True, True, False, False, False]
+        for baseline in (hold_last_position, constant_velocity, constant_turn_rate):
+            with self.subTest(baseline=baseline.__name__):
+                with self.assertRaisesRegex(ValueError, "visible initialization"):
+                    baseline(self.samples(), mask)
+
+    def test_masked_truth_cannot_initialize_predictions(self):
+        mask = [True, True, True, False, False, False]
+        perturbed = self.samples()
+        perturbed[1] = Sample(1.0, 0.0, 100.0 / 111_195.0, 1.0, 90.0)
+        for baseline in (hold_last_position, constant_velocity, constant_turn_rate):
+            with self.subTest(baseline=baseline.__name__):
+                for samples in (self.samples(), perturbed):
+                    with self.assertRaisesRegex(ValueError, "visible initialization"):
+                        baseline(samples, mask)
+
     def test_periodic_mask(self):
         self.assertEqual(periodic_mask(8, 1.0, 2.0, 2.0, 5.0), [False, False, True, True, False, False, False, True])
 
