@@ -77,8 +77,17 @@ def _constant_turn_step(
     )
 
 
+def _require_visible_initialization(samples: Sequence[Sample], masked: Sequence[bool]) -> None:
+    """Fail closed when a blackout has no preceding visible GNSS anchor."""
+    if len(samples) != len(masked):
+        raise ValueError("samples and masked must have the same length")
+    if samples and masked[0]:
+        raise ValueError("blackout mask must begin with a visible initialization sample")
+
+
 def hold_last_position(samples: Sequence[Sample], masked: Sequence[bool]) -> list[Point]:
     """Zero-order hold; the minimum-information matched baseline."""
+    _require_visible_initialization(samples, masked)
     truth = to_local(samples)
     result: list[Point] = []
     last_visible: Point | None = None
@@ -91,6 +100,7 @@ def hold_last_position(samples: Sequence[Sample], masked: Sequence[bool]) -> lis
 
 def constant_velocity(samples: Sequence[Sample], masked: Sequence[bool]) -> list[Point]:
     """Propagate last visible GNSS speed and heading during each blackout."""
+    _require_visible_initialization(samples, masked)
     truth = to_local(samples)
     result: list[Point] = []
     position: Point | None = None
@@ -111,6 +121,7 @@ def constant_velocity(samples: Sequence[Sample], masked: Sequence[bool]) -> list
 
 def constant_turn_rate(samples: Sequence[Sample], masked: Sequence[bool]) -> list[Point]:
     """Propagate speed and a last-observed finite-difference heading rate."""
+    _require_visible_initialization(samples, masked)
     truth = to_local(samples)
     result: list[Point] = []
     position: Point | None = None
