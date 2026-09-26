@@ -86,20 +86,11 @@ class SourceBoundNavigationIngress(
         }
 
         val streamId = envelope.provenance.streamId
-        val previousSequence = lastSequenceByStream[streamId]
         consumedEvidenceIds += envelope.provenance.evidenceId
         lastSequenceByStream[streamId] = event.sequence
         deliveringToSink = true
         try {
             sink.accept(event)
-        } catch (failure: Throwable) {
-            consumedEvidenceIds -= envelope.provenance.evidenceId
-            if (previousSequence == null) {
-                lastSequenceByStream -= streamId
-            } else {
-                lastSequenceByStream[streamId] = previousSequence
-            }
-            throw failure
         } finally {
             deliveringToSink = false
         }

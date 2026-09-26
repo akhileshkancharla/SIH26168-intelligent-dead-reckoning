@@ -115,9 +115,11 @@ class SharedNavigationIngressTest {
     }
 
     @Test
-    fun consumerFailure_doesNotConsumeEvidenceOrAdvanceSequence() {
+    fun consumerFailure_afterSideEffect_keepsEvidenceAndSequenceConsumed() {
         var fail = true
+        val forwarded = mutableListOf<NavigationIngressEvent<*>>()
         val ingress = SourceBoundNavigationIngress(DisplayModeV1.LIVE_DEVICE) {
+            forwarded += it
             if (fail) error("downstream unavailable")
         }
         val event = event(evidenceId = "imu-1")
@@ -130,7 +132,19 @@ class SharedNavigationIngressTest {
         }
 
         fail = false
-        assertAccepted(ingress.submit(event), "imu-1")
+        assertRejected(
+            ingress.submit(event),
+            NavigationIngressRejectionReason.DUPLICATE_EVIDENCE_ID,
+        )
+        assertRejected(
+            ingress.submit(event(evidenceId = "imu-retry", sequence = 1L)),
+            NavigationIngressRejectionReason.NON_INCREASING_STREAM_SEQUENCE,
+        )
+        assertEquals(1, forwarded.size)
+        assertAccepted(
+            ingress.submit(event(evidenceId = "imu-2", sequence = 2L)),
+            "imu-2",
+        )
     }
 
     @Test

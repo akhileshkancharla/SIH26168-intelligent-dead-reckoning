@@ -4,12 +4,12 @@
 
 - Snapshot classification: `generated-and-sanitized`
 - Source repository: `akhileshkancharla/SIH26168-intelligent-dead-reckoning`
-- Source branch: `issue/WP-04.2-wp-04-2-implement-monotonic`
-- Source parent commit: `3f9583b4968bee886a37fec0eb6b6190f1cf45cd`
+- Source branch: `issue/WP-04.3-wp-04-3-create-shared`
+- Source parent commit: `92e7605fe9078fad2a5d4539a1e33095881df3d4`
 - Graphify version: `0.9.53`
 - Graphify mode: code-only static extraction; semantic document extraction disabled
-- Counts: 3073 nodes, 5086 edges, 217 communities
-- Edge evidence: 4960 extracted, 126 inferred
+- Counts: 3110 nodes, 5175 edges, 218 communities
+- Edge evidence: 5037 extracted, 138 inferred
 - CI mode: `snapshot-validation-only`
 
 ## VERIFIED FROM CODE
@@ -22,7 +22,7 @@ The C++ core is host-buildable, while Android acquisition, JNI, training, map, a
 
 | Module | Extracted source files | Current interpretation |
 | --- | ---: | --- |
-| Android app | 25 | Launcher/UI scaffold; no sensor-to-position path |
+| Android app | 27 | Launcher/UI scaffold; no sensor-to-position path |
 | Portable core | 22 | Host-buildable S2 core plus contract smoke |
 | Contracts | 24 | Bootstrap replay schema and enum artifacts |
 | Repository automation | 13 | Repository and GitHub governance tooling |
@@ -69,7 +69,7 @@ Current high-degree nodes are primarily repository administration tooling, not n
 
 ### Weakly connected or orphan candidates
 
-The raw Graphify report identified 999 isolated symbol nodes. This sanitizer independently found 1261 repository-backed nodes with degree at most one; the bounded sample below is diagnostic, not deletion evidence.
+The raw Graphify report identified 1005 isolated symbol nodes. This sanitizer independently found 1267 repository-backed nodes with degree at most one; the bounded sample below is diagnostic, not deletion evidence.
 
 | Node | Degree | Source |
 | --- | ---: | --- |
@@ -82,12 +82,12 @@ The raw Graphify report identified 999 isolated symbol nodes. This sanitizer ind
 | `sih26168-bootstrap` | 0 | [pyproject.toml](../../../pyproject.toml) |
 | `sih26168_bootstrap/__init__.py` | 0 | [tools/bootstrap/src/sih26168_bootstrap/__init__.py](../../../tools/bootstrap/src/sih26168_bootstrap/__init__.py) |
 | `tests/__init__.py` | 0 | [tools/dataset/tests/__init__.py](../../../tools/dataset/tests/__init__.py) |
-| `INVALID_STATE` | 1 | [android/app/src/main/java/org/sih26168/app/replay/DeterministicReplayScheduler.kt](../../../android/app/src/main/java/org/sih26168/app/replay/DeterministicReplayScheduler.kt) |
-| `NEGATIVE_ELAPSED_TIME` | 1 | [android/app/src/main/java/org/sih26168/app/replay/DeterministicReplayScheduler.kt](../../../android/app/src/main/java/org/sih26168/app/replay/DeterministicReplayScheduler.kt) |
-| `TIME_OVERFLOW` | 1 | [android/app/src/main/java/org/sih26168/app/replay/DeterministicReplayScheduler.kt](../../../android/app/src/main/java/org/sih26168/app/replay/DeterministicReplayScheduler.kt) |
-| `BLANK_EVIDENCE_ID` | 1 | [android/app/src/main/java/org/sih26168/app/replay/DeterministicReplayScheduler.kt](../../../android/app/src/main/java/org/sih26168/app/replay/DeterministicReplayScheduler.kt) |
-| `BLANK_STREAM_ID` | 1 | [android/app/src/main/java/org/sih26168/app/replay/DeterministicReplayScheduler.kt](../../../android/app/src/main/java/org/sih26168/app/replay/DeterministicReplayScheduler.kt) |
-| `DUPLICATE_EVIDENCE_ID` | 1 | [android/app/src/main/java/org/sih26168/app/replay/DeterministicReplayScheduler.kt](../../../android/app/src/main/java/org/sih26168/app/replay/DeterministicReplayScheduler.kt) |
+| `DUPLICATE_EVIDENCE_ID` | 1 | [android/app/src/main/java/org/sih26168/app/ingress/SharedNavigationIngress.kt](../../../android/app/src/main/java/org/sih26168/app/ingress/SharedNavigationIngress.kt) |
+| `NEGATIVE_SEQUENCE` | 1 | [android/app/src/main/java/org/sih26168/app/ingress/SharedNavigationIngress.kt](../../../android/app/src/main/java/org/sih26168/app/ingress/SharedNavigationIngress.kt) |
+| `NON_INCREASING_STREAM_SEQUENCE` | 1 | [android/app/src/main/java/org/sih26168/app/ingress/SharedNavigationIngress.kt](../../../android/app/src/main/java/org/sih26168/app/ingress/SharedNavigationIngress.kt) |
+| `REENTRANT_SUBMISSION` | 1 | [android/app/src/main/java/org/sih26168/app/ingress/SharedNavigationIngress.kt](../../../android/app/src/main/java/org/sih26168/app/ingress/SharedNavigationIngress.kt) |
+| `SOURCE_MODE_MISMATCH` | 1 | [android/app/src/main/java/org/sih26168/app/ingress/SharedNavigationIngress.kt](../../../android/app/src/main/java/org/sih26168/app/ingress/SharedNavigationIngress.kt) |
+| `UNSUPPORTED_PAYLOAD_TYPE` | 1 | [android/app/src/main/java/org/sih26168/app/ingress/SharedNavigationIngress.kt](../../../android/app/src/main/java/org/sih26168/app/ingress/SharedNavigationIngress.kt) |
 
 ### Cycles
 
