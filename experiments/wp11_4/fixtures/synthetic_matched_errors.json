@@ -1,0 +1,30 @@
+{
+  "dataset_manifest_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "mask_id": "synthetic-frozen-blackout-v1",
+  "schema_version": 1,
+  "split_id": "synthetic-journey-safe-test-v1",
+  "variants": [
+    {
+      "errors_m": [3.0, 4.0, 5.0],
+      "evidence_sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "kind": "baseline",
+      "sample_ids": ["synthetic-mask-0001", "synthetic-mask-0002", "synthetic-mask-0003"],
+      "variant_id": "constant_velocity"
+    },
+    {
+      "errors_m": [2.0, 3.0, 4.0],
+      "evidence_sha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+      "kind": "model",
+      "sample_ids": ["synthetic-mask-0001", "synthetic-mask-0002", "synthetic-mask-0003"],
+      "variant_id": "ridge_full"
+    },
+    {
+      "errors_m": [2.5, 3.5, 4.5],
+      "evidence_sha256": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+      "kind": "feature_ablation",
+      "omitted_features": ["speed_mps"],
+      "sample_ids": ["synthetic-mask-0001", "synthetic-mask-0002", "synthetic-mask-0003"],
+      "variant_id": "ridge_without_speed"
+    }
+  ]
+}
