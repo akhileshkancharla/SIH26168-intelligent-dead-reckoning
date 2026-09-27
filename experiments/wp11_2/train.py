@@ -1,6 +1,6 @@
 import argparse,hashlib,json,math,platform
 from pathlib import Path
-from experiments.wp11_2.core import DEFAULT_FEATURES,TrainingConfig,fit,load
+from experiments.wp11_2.core import DEFAULT_FEATURES,TrainingConfig,VERSION,fit,load
 
 def metrics(rows,w):
     e=[w[0]+sum(a*b for a,b in zip(w[1:],x))-y for x,y in rows]
