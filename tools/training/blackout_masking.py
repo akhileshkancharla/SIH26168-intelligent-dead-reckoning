@@ -25,6 +25,24 @@ PROTOCOL_SCHEMA_VERSION = 1
 FROZEN_STATUS = "FROZEN"
 SOFTWARE_SIMULATED = "SOFTWARE_SIMULATED"
 
+# Offline feature names derived from the measurement members of the
+# authoritative I-02 LocationGnssFixV1 contract.  Provenance, clock, mock and
+# field-mask metadata are deliberately excluded: a GNSS blackout may withhold
+# measurements from inference, but it must not erase their audit identity.
+APPROVED_GNSS_FEATURES = frozenset(
+    {
+        "gnss.lat_deg",
+        "gnss.lon_deg",
+        "gnss.alt_m",
+        "gnss.hacc_m",
+        "gnss.vacc_m",
+        "gnss.speed_mps",
+        "gnss.speed_acc_mps",
+        "gnss.bearing_deg",
+        "gnss.bearing_acc_deg",
+    }
+)
+
 _PROTOCOL_KEYS = {"schema_version", "protocol_id", "clock_id", "status", "intervals"}
 _INTERVAL_KEYS = {
     "event_id",
@@ -176,6 +194,12 @@ def freeze_protocol(document: Mapping[str, Any]) -> FrozenBlackoutProtocol:
             raise BlackoutMaskError(f"{prefix}.hidden_fields must contain non-empty strings")
         if len(set(raw_hidden)) != len(raw_hidden):
             raise BlackoutMaskError(f"{prefix}.hidden_fields contains duplicates")
+        unsupported_hidden = sorted(set(raw_hidden) - APPROVED_GNSS_FEATURES)
+        if unsupported_hidden:
+            raise BlackoutMaskError(
+                f"{prefix}.hidden_fields contains fields outside the approved I-02 GNSS "
+                f"measurement set: {unsupported_hidden}"
+            )
         intervals.append(
             BlackoutInterval(
                 event_id=event_id,
