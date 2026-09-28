@@ -3,9 +3,12 @@ from __future__ import annotations
 
 from dataclasses import replace
 import copy
+import json
+from pathlib import Path
 import unittest
 
 from tools.training.blackout_masking import (
+    APPROVED_GNSS_FEATURES,
     BlackoutMaskError,
     FrozenBlackoutProtocol,
     assert_no_withheld_features,
@@ -50,6 +53,26 @@ def record(record_id: str, epoch_ns: int, speed: float) -> dict:
 
 
 class FrozenProtocolTests(unittest.TestCase):
+    def test_approved_fields_match_i02_measurement_contract(self):
+        schema_path = (
+            Path(__file__).resolve().parents[3]
+            / "contracts"
+            / "schemas"
+            / "location_gnss_fix_v1.schema.json"
+        )
+        properties = set(json.loads(schema_path.read_text(encoding="utf-8"))["properties"])
+        non_measurement_fields = {
+            "schema_version",
+            "evidence_id",
+            "provider",
+            "source_timestamp_ns",
+            "arrival_elapsed_realtime_ns",
+            "is_mock",
+            "field_mask",
+        }
+        expected = {f"gnss.{name}" for name in properties - non_measurement_fields}
+        self.assertEqual(APPROVED_GNSS_FEATURES, expected)
+
     def test_identity_is_deterministic_across_interval_and_field_order(self):
         document = protocol_document()
         second = copy.deepcopy(document["intervals"][0])
@@ -119,6 +142,37 @@ class FrozenProtocolTests(unittest.TestCase):
             with self.subTest(patch=patch):
                 with self.assertRaises(BlackoutMaskError):
                     freeze_protocol(changed)
+
+    def test_rejects_non_gnss_hidden_fields(self):
+        for hidden_field in (
+            "imu.accel.x",
+            "label.residual_m",
+            "target",
+            "gnss.unknown",
+            "lat_deg",
+        ):
+            changed = protocol_document()
+            changed["intervals"][0]["hidden_fields"] = [hidden_field]
+            with self.subTest(hidden_field=hidden_field):
+                with self.assertRaisesRegex(BlackoutMaskError, "approved I-02 GNSS"):
+                    freeze_protocol(changed)
+
+    def test_accepts_every_approved_i02_measurement_field(self):
+        approved_fields = (
+            "gnss.lat_deg",
+            "gnss.lon_deg",
+            "gnss.alt_m",
+            "gnss.hacc_m",
+            "gnss.vacc_m",
+            "gnss.speed_mps",
+            "gnss.speed_acc_mps",
+            "gnss.bearing_deg",
+            "gnss.bearing_acc_deg",
+        )
+        changed = protocol_document()
+        changed["intervals"][0]["hidden_fields"] = list(approved_fields)
+        protocol = freeze_protocol(changed)
+        self.assertEqual(protocol.intervals[0].hidden_fields, tuple(sorted(approved_fields)))
 
     def test_rejects_protocol_hash_mismatch(self):
         protocol = freeze_protocol(protocol_document())
