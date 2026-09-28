@@ -130,5 +130,24 @@ class PipelineTests(unittest.TestCase):
         self.assertEqual(artifact["split"]["validation_rows"], 1)
 
 
+    def test_rejects_reappearing_closed_journey_group(self) -> None:
+        path = Path(self.temporary.name) / "interleaved-groups.csv"
+        with path.open("w", newline="", encoding="utf-8") as handle:
+            writer = csv.DictWriter(handle, fieldnames=self.fieldnames)
+            writer.writeheader()
+            for group, timestamp in (("a", 1), ("b", 1), ("a", 2)):
+                writer.writerow(
+                    {
+                        "session_id": group,
+                        "timestamp_ns": timestamp,
+                        "accelerometer_x": timestamp,
+                        "gyroscope_z": timestamp,
+                        "residual_m": timestamp,
+                    }
+                )
+        with self.assertRaisesRegex(ValueError, "one contiguous block"):
+            train(path, self.config)
+
+
 if __name__ == "__main__":
     unittest.main()
