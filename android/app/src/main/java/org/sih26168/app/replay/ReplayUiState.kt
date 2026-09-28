@@ -53,6 +53,7 @@ data class ReplayPositionMetrics(
 )
 
 data class ReplayUiState(
+    val provenanceDisplay: ReplayProvenanceDisplayState = ReplayProvenanceDisplayState(),
     val isReplaying: Boolean = false,
     val currentTimestampNs: Long = 0L,
     val speedMultiplier: Float = 1f,

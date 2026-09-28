@@ -1,5 +1,6 @@
 package org.sih26168.app.replay
 
+import org.sih26168.app.ingress.NavigationIngressEvent
 import org.sih26168.contracts.enums.NavigationModeV1
 
 data object RecenterMapIntent : ReplayIntent
@@ -60,6 +61,11 @@ sealed interface ReplayIntent {
     data object ToggleSimulatedOutage : ReplayIntent
 
     data class SetSpeedMultiplier(val multiplier: Float) : ReplayIntent
+
+    /** Presents provenance from an event already accepted by the shared ingress boundary. */
+    data class PresentIngressProvenance(
+        val event: NavigationIngressEvent<*>,
+    ) : ReplayIntent
 
     /**
      * Read-only presentation telemetry supplied by the replay/scientific boundary.

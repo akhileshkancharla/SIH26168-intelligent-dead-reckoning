@@ -29,14 +29,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import java.util.Locale
-import org.sih26168.app.ReplayDisclosure
 import org.sih26168.app.replay.ReplayIntent
 import org.sih26168.app.replay.MapMatcherStatus
 import org.sih26168.app.replay.ReplayNavigationViewModel
@@ -49,10 +49,14 @@ import org.sih26168.app.replay.TrajectoryPresentationLabels
 import org.sih26168.app.replay.isSeparationTetherVisible
 
 object ReplayGovernanceLabels {
-    const val SOURCE = "SOURCE: DETERMINISTIC_REPLAY"
     const val DEMO = "DEMO"
     const val SIMULATED_OUTAGE = "SIMULATED OUTAGE"
     const val OSM_ATTRIBUTION = "© OpenStreetMap contributors"
+}
+
+object ReplayGovernanceTags {
+    const val MANDATORY_REPLAY_BADGE = "mandatory-replay-badge"
+    const val MANDATORY_OUTAGE_BADGE = "mandatory-outage-badge"
 }
 
 @Composable
@@ -86,6 +90,18 @@ private fun GovernanceFrame(state: ReplayUiState) {
             modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
             verticalArrangement = Arrangement.spacedBy(6.dp),
         ) {
+            GovernanceBadge(
+                label = state.provenanceDisplay.replayLabel,
+                prominent = true,
+                modifier = Modifier.testTag(ReplayGovernanceTags.MANDATORY_REPLAY_BADGE),
+            )
+            if (state.isOutageActive) {
+                GovernanceBadge(
+                    label = ReplayGovernanceLabels.SIMULATED_OUTAGE,
+                    prominent = true,
+                    modifier = Modifier.testTag(ReplayGovernanceTags.MANDATORY_OUTAGE_BADGE),
+                )
+            }
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -93,23 +109,22 @@ private fun GovernanceFrame(state: ReplayUiState) {
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                GovernanceBadge(ReplayGovernanceLabels.SOURCE)
+                GovernanceBadge(state.provenanceDisplay.sourceLabel)
                 GovernanceBadge(ReplayGovernanceLabels.DEMO)
-                GovernanceBadge(ReplayDisclosure.LABEL, prominent = true)
-                if (state.isOutageActive) {
-                    GovernanceBadge(
-                        ReplayGovernanceLabels.SIMULATED_OUTAGE,
-                        prominent = true,
-                    )
-                }
+                GovernanceBadge(state.provenanceDisplay.evidenceOriginLabel)
             }
         }
     }
 }
 
 @Composable
-private fun GovernanceBadge(label: String, prominent: Boolean = false) {
+private fun GovernanceBadge(
+    label: String,
+    prominent: Boolean = false,
+    modifier: Modifier = Modifier,
+) {
     Surface(
+        modifier = modifier,
         color = if (prominent) {
             MaterialTheme.colorScheme.errorContainer
         } else {
