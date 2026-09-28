@@ -3,8 +3,8 @@
 ## Scope and inputs
 
 - Work item: issue #87, frozen GNSS-blackout masking protocol.
-- Source snapshot: `main` at GitHub commit `db1a1b0` (downloaded through the
-  authenticated repository UI on 2026-09-27).
+- Source snapshot: the PR branch was updated from current `main` through the
+  authenticated repository UI on 2026-09-28 before the review fix was applied.
 - Governing inputs: Architecture Revision 3; Development Design Baseline;
   interfaces I-14, I-20, and I-22; the active WP-10 runtime-feature firewall;
   and the issue acceptance boundary.
@@ -19,6 +19,9 @@
   and reference views without mutating raw input.
 - Configured GNSS fields are removed, never zeroed, interpolated, or
   forward-filled, and a defense-in-depth canary checks every masked result.
+- Hidden fields are restricted to the measurement members of the authoritative
+  I-02 `LocationGnssFixV1` contract; IMU, target/label, metadata, unprefixed,
+  and unknown names fail closed before protocol hashing.
 - Protocol, record, clock, ordering, duplicate identity, finite-value, and hash
   mismatches fail closed.
 - The standard clean Python CI runner now discovers the training tests.
@@ -29,7 +32,7 @@ Executed from the repository root with the host Python environment:
 
 ```text
 python -m unittest discover -s tools/training/tests -v
-11 tests passed
+14 tests passed
 
 python -m unittest discover -s tools/dataset/tests -v
 162 tests passed
@@ -41,7 +44,9 @@ python -m unittest discover -s ci/tests -v
 passed
 
 python ci/run_python_checks.py python
-passed in a fresh external virtual environment, including training tests
+the prior head passed in a fresh external virtual environment; the current
+host rerun stalled while installing build dependencies, so GitHub CI remains
+authoritative for the updated head and this rerun is not represented as a pass
 ```
 
 Dependency-graph regeneration was attempted with the repository wrapper:
