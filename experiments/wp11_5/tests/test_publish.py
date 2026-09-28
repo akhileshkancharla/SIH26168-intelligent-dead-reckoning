@@ -1,3 +1,4 @@
+import hashlib
 import json
 from pathlib import Path
 import sys
@@ -7,10 +8,11 @@ import unittest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from publish import PublicationError, evaluate, main, render_markdown
+from publish import PublicationError, encode_publication, evaluate, main, render_markdown
 
 
 FIXTURE = Path(__file__).resolve().parents[1] / "fixtures" / "synthetic_ablation.json"
+UPSTREAM_REPORT = Path(__file__).resolve().parents[2] / "wp11_4" / "reports" / "synthetic_ablation.json"
 
 
 class PublicationTests(unittest.TestCase):
@@ -39,6 +41,13 @@ class PublicationTests(unittest.TestCase):
         self.assertEqual(self.publish(), self.publish())
         self.assertEqual(render_markdown(self.publish()), render_markdown(self.publish()))
 
+    def test_fixture_is_byte_identical_to_upstream_report(self):
+        self.assertEqual(FIXTURE.read_bytes(), UPSTREAM_REPORT.read_bytes())
+        self.assertEqual(
+            hashlib.sha256(FIXTURE.read_bytes()).hexdigest(),
+            "18b7b5c2518f8ce7ac757c673fd637278c221c38f2341e9342b80f7bcd9fd26a",
+        )
+
     def test_rejects_promoted_upstream_status(self):
         report = self.report()
         report["scientific_status"] = "promoted"
@@ -60,17 +69,35 @@ class PublicationTests(unittest.TestCase):
     def test_rejects_non_finite_metrics(self):
         report = self.report()
         report["variants"][0]["metrics"]["rmse_m"] = float("nan")
-        with self.assertRaisesRegex(PublicationError, "finite and non-negative"):
+        with self.assertRaisesRegex(PublicationError, "non-standard JSON constant"):
             self.evaluate_changed(report)
 
     def test_hashed_bytes_must_match_evaluated_report(self):
         with self.assertRaisesRegex(PublicationError, "exactly represent"):
             evaluate(self.report(), b"{}", "reference")
 
+    def test_rejects_duplicate_json_keys(self):
+        with self.assertRaisesRegex(PublicationError, "duplicate JSON key"):
+            evaluate(self.report(), b'{"schema_version":1,"schema_version":1}', "reference")
+
+    def test_rejects_non_standard_json_constants(self):
+        with self.assertRaisesRegex(PublicationError, "non-standard JSON constant"):
+            evaluate(self.report(), b'{"unused":NaN}', "reference")
+
+    def test_rejects_non_object_document(self):
+        with self.assertRaisesRegex(PublicationError, "top-level JSON object"):
+            evaluate([], b"[]", "reference")
+
     def test_requires_positive_sample_count(self):
         report = self.report()
         report["sample_count"] = 0
         with self.assertRaisesRegex(PublicationError, "positive integer"):
+            self.evaluate_changed(report)
+
+    def test_rejects_boolean_schema_version(self):
+        report = self.report()
+        report["schema_version"] = True
+        with self.assertRaisesRegex(PublicationError, "schema_version must be 1"):
             self.evaluate_changed(report)
 
     def test_requires_exactly_one_model_variant(self):
@@ -108,6 +135,9 @@ class PublicationTests(unittest.TestCase):
                 sys.argv = previous
             self.assertEqual(json.loads(output_json.read_text())["recommendation"], "do-not-promote")
             self.assertIn("DO NOT PROMOTE", output_markdown.read_text())
+            self.assertEqual(output_json.read_bytes(), encode_publication(json.loads(output_json.read_bytes())))
+            self.assertNotIn(b"\r\n", output_json.read_bytes())
+            self.assertNotIn(b"\r\n", output_markdown.read_bytes())
 
 
 if __name__ == "__main__":
