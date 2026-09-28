@@ -1,0 +1,164 @@
+"""Deterministic classical baselines for matched GNSS-blackout evaluation.
+
+The module intentionally has no third-party dependencies. Coordinates are converted
+to a local tangent-plane approximation, and every baseline consumes the same truth
+samples and blackout mask.
+"""
+
+from __future__ import annotations
+
+from dataclasses import dataclass
+import math
+from typing import Iterable, Sequence
+
+EARTH_RADIUS_M = 6_371_008.8
+
+
+@dataclass(frozen=True)
+class Sample:
+    time_s: float
+    latitude_deg: float
+    longitude_deg: float
+    speed_mps: float
+    heading_deg: float
+
+
+@dataclass(frozen=True)
+class Point:
+    east_m: float
+    north_m: float
+
+
+def to_local(samples: Sequence[Sample]) -> list[Point]:
+    if not samples:
+        return []
+    lat0 = math.radians(samples[0].latitude_deg)
+    lon0 = math.radians(samples[0].longitude_deg)
+    cos_lat0 = math.cos(lat0)
+    return [
+        Point(
+            EARTH_RADIUS_M * (math.radians(s.longitude_deg) - lon0) * cos_lat0,
+            EARTH_RADIUS_M * (math.radians(s.latitude_deg) - lat0),
+        )
+        for s in samples
+    ]
+
+
+def _step(point: Point, speed_mps: float, heading_deg: float, dt_s: float) -> Point:
+    heading = math.radians(heading_deg)
+    return Point(
+        point.east_m + speed_mps * math.sin(heading) * dt_s,
+        point.north_m + speed_mps * math.cos(heading) * dt_s,
+    )
+
+
+def _constant_turn_step(
+    point: Point,
+    speed_mps: float,
+    heading_deg: float,
+    turn_rate_deg_s: float,
+    dt_s: float,
+) -> tuple[Point, float]:
+    """Integrate one constant-speed, constant-turn-rate circular arc."""
+    start_heading = math.radians(heading_deg)
+    angular_rate = math.radians(turn_rate_deg_s)
+    end_heading = start_heading + angular_rate * dt_s
+
+    if math.isclose(angular_rate, 0.0, abs_tol=1e-12):
+        return _step(point, speed_mps, heading_deg, dt_s), heading_deg % 360.0
+
+    radius = speed_mps / angular_rate
+    return (
+        Point(
+            point.east_m + radius * (math.cos(start_heading) - math.cos(end_heading)),
+            point.north_m + radius * (math.sin(end_heading) - math.sin(start_heading)),
+        ),
+        math.degrees(end_heading) % 360.0,
+    )
+
+
+def _require_visible_initialization(samples: Sequence[Sample], masked: Sequence[bool]) -> None:
+    """Fail closed when a blackout has no preceding visible GNSS anchor."""
+    if len(samples) != len(masked):
+        raise ValueError("samples and masked must have the same length")
+    if samples and masked[0]:
+        raise ValueError("blackout mask must begin with a visible initialization sample")
+
+
+def hold_last_position(samples: Sequence[Sample], masked: Sequence[bool]) -> list[Point]:
+    """Zero-order hold; the minimum-information matched baseline."""
+    _require_visible_initialization(samples, masked)
+    truth = to_local(samples)
+    result: list[Point] = []
+    last_visible: Point | None = None
+    for point, is_masked in zip(truth, masked, strict=True):
+        if not is_masked:
+            last_visible = point
+        result.append(last_visible if last_visible is not None else point)
+    return result
+
+
+def constant_velocity(samples: Sequence[Sample], masked: Sequence[bool]) -> list[Point]:
+    """Propagate last visible GNSS speed and heading during each blackout."""
+    _require_visible_initialization(samples, masked)
+    truth = to_local(samples)
+    result: list[Point] = []
+    position: Point | None = None
+    speed = 0.0
+    heading = 0.0
+    previous_time: float | None = None
+    for sample, point, is_masked in zip(samples, truth, masked, strict=True):
+        if not is_masked or position is None or previous_time is None:
+            position = point
+            speed = max(0.0, sample.speed_mps)
+            heading = sample.heading_deg
+        else:
+            position = _step(position, speed, heading, max(0.0, sample.time_s - previous_time))
+        result.append(position)
+        previous_time = sample.time_s
+    return result
+
+
+def constant_turn_rate(samples: Sequence[Sample], masked: Sequence[bool]) -> list[Point]:
+    """Propagate speed and a last-observed finite-difference heading rate."""
+    _require_visible_initialization(samples, masked)
+    truth = to_local(samples)
+    result: list[Point] = []
+    position: Point | None = None
+    speed = 0.0
+    heading = 0.0
+    turn_rate = 0.0
+    previous_time: float | None = None
+    previous_visible_heading: float | None = None
+    previous_visible_time: float | None = None
+    for sample, point, is_masked in zip(samples, truth, masked, strict=True):
+        if not is_masked:
+            if previous_visible_heading is not None and previous_visible_time is not None:
+                dt = sample.time_s - previous_visible_time
+                delta = (sample.heading_deg - previous_visible_heading + 180.0) % 360.0 - 180.0
+                if dt > 0:
+                    turn_rate = delta / dt
+            position = point
+            speed = max(0.0, sample.speed_mps)
+            heading = sample.heading_deg
+            previous_visible_heading = heading
+            previous_visible_time = sample.time_s
+        elif position is None or previous_time is None:
+            position = point
+        else:
+            dt = max(0.0, sample.time_s - previous_time)
+            position, heading = _constant_turn_step(position, speed, heading, turn_rate, dt)
+        result.append(position)
+        previous_time = sample.time_s
+    return result
+
+
+BASELINES = {
+    "hold": hold_last_position,
+    "constant_velocity": constant_velocity,
+    "constant_turn_rate": constant_turn_rate,
+}
+
+
+def errors_m(prediction: Iterable[Point], truth: Iterable[Point]) -> list[float]:
+    return [math.hypot(p.east_m - t.east_m, p.north_m - t.north_m) for p, t in zip(prediction, truth, strict=True)]
