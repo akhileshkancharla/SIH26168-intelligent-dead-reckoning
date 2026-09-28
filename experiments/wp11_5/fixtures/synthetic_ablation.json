@@ -16,24 +16,48 @@
   "split_id": "synthetic-journey-safe-test-v1",
   "variants": [
     {
+      "delta_vs_best_baseline_rmse_m": 0.0,
       "evidence_sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
       "kind": "baseline",
-      "metrics": {"endpoint_m": 5.0, "max_m": 5.0, "mean_m": 4.0, "p95_m": 5.0, "rmse_m": 4.08248290463863},
+      "metrics": {
+        "endpoint_m": 5.0,
+        "max_m": 5.0,
+        "mean_m": 4.0,
+        "p95_m": 5.0,
+        "rmse_m": 4.08248290463863
+      },
       "omitted_features": [],
       "variant_id": "constant_velocity"
     },
     {
+      "delta_vs_best_baseline_rmse_m": -0.9733565536090256,
       "evidence_sha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
       "kind": "model",
-      "metrics": {"endpoint_m": 4.0, "max_m": 4.0, "mean_m": 3.0, "p95_m": 4.0, "rmse_m": 3.1091263510296048},
+      "metrics": {
+        "endpoint_m": 4.0,
+        "max_m": 4.0,
+        "mean_m": 3.0,
+        "p95_m": 4.0,
+        "rmse_m": 3.1091263510296048
+      },
       "omitted_features": [],
       "variant_id": "ridge_full"
     },
     {
+      "delta_vs_best_baseline_rmse_m": -0.4885064624973263,
+      "delta_vs_full_model_rmse_m": 0.4848500911116993,
       "evidence_sha256": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
       "kind": "feature_ablation",
-      "metrics": {"endpoint_m": 4.5, "max_m": 4.5, "mean_m": 3.5, "p95_m": 4.5, "rmse_m": 3.593976442141304},
-      "omitted_features": ["speed_mps"],
+      "metrics": {
+        "endpoint_m": 4.5,
+        "max_m": 4.5,
+        "mean_m": 3.5,
+        "p95_m": 4.5,
+        "rmse_m": 3.593976442141304
+      },
+      "omitted_features": [
+        "speed_mps"
+      ],
       "variant_id": "ridge_without_speed"
     }
   ]
