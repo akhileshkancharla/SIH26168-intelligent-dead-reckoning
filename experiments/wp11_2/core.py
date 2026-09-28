@@ -128,11 +128,16 @@ def split_by_group(
     rows: list[Sample], train_fraction: float
 ) -> tuple[list[Sample], list[Sample], tuple[str, ...], tuple[str, ...]]:
     groups: list[str] = []
-    seen_groups: set[str] = set()
+    closed_groups: set[str] = set()
+    current_group: str | None = None
     for row in rows:
-        if row.group_id not in seen_groups:
-            seen_groups.add(row.group_id)
+        if row.group_id != current_group:
+            if row.group_id in closed_groups:
+                raise ValueError("journey groups must occupy one contiguous block")
+            if current_group is not None:
+                closed_groups.add(current_group)
             groups.append(row.group_id)
+            current_group = row.group_id
     # File order is authoritative. Session timestamps are boot-scoped and must
     # not be compared across journey groups.
     split_index = max(1, min(len(groups) - 1, int(len(groups) * train_fraction)))
