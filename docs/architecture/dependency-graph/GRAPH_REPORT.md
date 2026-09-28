@@ -4,12 +4,12 @@
 
 - Snapshot classification: `generated-and-sanitized`
 - Source repository: `akhileshkancharla/SIH26168-intelligent-dead-reckoning`
-- Source branch: `contract/I-18-session-manifest-v1`
-- Source parent commit: `2a2445f60168fecc2d467f50931ccea27d8c4361`
+- Source branch: `issue/WP-09.4-wp-09-4-visualize-uncertainty`
+- Source parent commit: `4835a7d516e4a864e960b41d0c3ab54f2726a88c`
 - Graphify version: `0.9.53`
 - Graphify mode: code-only static extraction; semantic document extraction disabled
-- Counts: 2928 nodes, 4666 edges, 214 communities
-- Edge evidence: 4582 extracted, 84 inferred
+- Counts: 3006 nodes, 4916 edges, 221 communities
+- Edge evidence: 4790 extracted, 126 inferred
 - CI mode: `snapshot-validation-only`
 
 ## VERIFIED FROM CODE
@@ -56,20 +56,20 @@ Current high-degree nodes are primarily repository administration tooling, not n
 
 | Node | Degree | Source |
 | --- | ---: | --- |
+| `ReplayNavigationViewModel` | 59 | [android/app/src/main/java/org/sih26168/app/replay/ReplayNavigationViewModel.kt:L16](../../../android/app/src/main/java/org/sih26168/app/replay/ReplayNavigationViewModel.kt) |
+| `MapLibreMapViewport.kt` | 41 | [android/app/src/main/java/org/sih26168/app/ui/map/MapLibreMapViewport.kt:L1](../../../android/app/src/main/java/org/sih26168/app/ui/map/MapLibreMapViewport.kt) |
 | `configure_project.mjs` | 37 | [tools/bootstrap/configure_project.mjs:L1](../../../tools/bootstrap/configure_project.mjs) |
 | `generate_contract_bindings.py` | 35 | [ci/generate_contract_bindings.py:L1](../../../ci/generate_contract_bindings.py) |
-| `MapLibreMapViewport.kt` | 33 | [android/app/src/main/java/org/sih26168/app/ui/map/MapLibreMapViewport.kt:L1](../../../android/app/src/main/java/org/sih26168/app/ui/map/MapLibreMapViewport.kt) |
+| `ReplayNavigationViewModelTest` | 31 | [android/app/src/test/java/org/sih26168/app/replay/ReplayNavigationViewModelTest.kt:L12](../../../android/app/src/test/java/org/sih26168/app/replay/ReplayNavigationViewModelTest.kt) |
 | `reference_oracle.py` | 31 | [core/navigation/verification/python/reference_oracle.py:L1](../../../core/navigation/verification/python/reference_oracle.py) |
-| `ReplayNavigationViewModel` | 30 | [android/app/src/main/java/org/sih26168/app/replay/ReplayNavigationViewModel.kt:L9](../../../android/app/src/main/java/org/sih26168/app/replay/ReplayNavigationViewModel.kt) |
+| `ReplayNavigationShell.kt` | 29 | [android/app/src/main/java/org/sih26168/app/ui/ReplayNavigationShell.kt:L1](../../../android/app/src/main/java/org/sih26168/app/ui/ReplayNavigationShell.kt) |
+| `ReplayIntent` | 27 | [android/app/src/main/java/org/sih26168/app/replay/ReplayIntent.kt:L51](../../../android/app/src/main/java/org/sih26168/app/replay/ReplayIntent.kt) |
 | `navigation_jni_wire.cpp` | 27 | [android/navigation-jni/src/navigation_jni_wire.cpp:L1](../../../android/navigation-jni/src/navigation_jni_wire.cpp) |
 | `MeasurementInput` | 27 | [core/navigation/include/sih26168/navigation_core.hpp:L141](../../../core/navigation/include/sih26168/navigation_core.hpp) |
-| `sanitize_graph.py` | 27 | [tools/graphify/sanitize_graph.py:L1](../../../tools/graphify/sanitize_graph.py) |
-| `InitialState` | 26 | [core/navigation/include/sih26168/navigation_core.hpp:L104](../../../core/navigation/include/sih26168/navigation_core.hpp) |
-| `navigation_api.cpp` | 26 | [core/navigation/src/navigation_api.cpp:L1](../../../core/navigation/src/navigation_api.cpp) |
 
 ### Weakly connected or orphan candidates
 
-The raw Graphify report identified 974 isolated symbol nodes. This sanitizer independently found 1235 repository-backed nodes with degree at most one; the bounded sample below is diagnostic, not deletion evidence.
+The raw Graphify report identified 982 isolated symbol nodes. This sanitizer independently found 1243 repository-backed nodes with degree at most one; the bounded sample below is diagnostic, not deletion evidence.
 
 | Node | Degree | Source |
 | --- | ---: | --- |
@@ -79,7 +79,6 @@ The raw Graphify report identified 974 isolated symbol nodes. This sanitizer ind
 | `update_manifest.py` | 0 | [ci/update_manifest.py](../../../ci/update_manifest.py) |
 | `verify_repository.ps1` | 0 | [ci/verify_repository.ps1](../../../ci/verify_repository.ps1) |
 | `smoke.cpp` | 0 | [core/navigation/src/smoke.cpp](../../../core/navigation/src/smoke.cpp) |
-| `sih26168-bootstrap` | 0 | [pyproject.toml](../../../pyproject.toml) |
 | `sih26168_bootstrap/__init__.py` | 0 | [tools/bootstrap/src/sih26168_bootstrap/__init__.py](../../../tools/bootstrap/src/sih26168_bootstrap/__init__.py) |
 | `tests/__init__.py` | 0 | [tools/dataset/tests/__init__.py](../../../tools/dataset/tests/__init__.py) |
 | `Pause` | 1 | [android/app/src/main/java/org/sih26168/app/replay/ReplayIntent.kt](../../../android/app/src/main/java/org/sih26168/app/replay/ReplayIntent.kt) |
@@ -88,6 +87,7 @@ The raw Graphify report identified 974 isolated symbol nodes. This sanitizer ind
 | `Reset` | 1 | [android/app/src/main/java/org/sih26168/app/replay/ReplayIntent.kt](../../../android/app/src/main/java/org/sih26168/app/replay/ReplayIntent.kt) |
 | `SetSpeedMultiplier` | 1 | [android/app/src/main/java/org/sih26168/app/replay/ReplayIntent.kt](../../../android/app/src/main/java/org/sih26168/app/replay/ReplayIntent.kt) |
 | `Step` | 1 | [android/app/src/main/java/org/sih26168/app/replay/ReplayIntent.kt](../../../android/app/src/main/java/org/sih26168/app/replay/ReplayIntent.kt) |
+| `ToggleSimulatedOutage` | 1 | [android/app/src/main/java/org/sih26168/app/replay/ReplayIntent.kt](../../../android/app/src/main/java/org/sih26168/app/replay/ReplayIntent.kt) |
 
 ### Cycles
 

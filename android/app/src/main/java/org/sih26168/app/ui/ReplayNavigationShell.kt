@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.Button
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
@@ -30,14 +31,22 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import java.util.Locale
 import org.sih26168.app.ReplayDisclosure
 import org.sih26168.app.replay.ReplayIntent
+import org.sih26168.app.replay.MapMatcherStatus
 import org.sih26168.app.replay.ReplayNavigationViewModel
 import org.sih26168.app.replay.ReplayUiState
+import org.sih26168.app.replay.ToggleCandidateBranches
+import org.sih26168.app.replay.ToggleTrajectoryLayerIntent
+import org.sih26168.app.replay.ToggleUncertaintyEllipse
+import org.sih26168.app.replay.TrajectoryLayerType
+import org.sih26168.app.replay.TrajectoryPresentationLabels
+import org.sih26168.app.replay.isSeparationTetherVisible
 
 object ReplayGovernanceLabels {
     const val SOURCE = "SOURCE: DETERMINISTIC_REPLAY"
@@ -212,6 +221,16 @@ private fun TelemetryAndControlSheet(
                 TelemetryValue("East", formatDistance(state.position.eastMeters))
                 TelemetryValue("Speed", formatSpeed(state.speedMetersPerSecond))
             }
+            if (state.isSeparationTetherVisible) {
+                Text(
+                    text = TrajectoryPresentationLabels
+                        .SEPARATION_FROM_LAST_TRUSTED_GNSS_FIX,
+                    style = MaterialTheme.typography.labelLarge,
+                    color = MaterialTheme.colorScheme.tertiary,
+                )
+            }
+            TrajectoryLayerFilters(state = state, onIntent = onIntent)
+            DiagnosticOverlayFilters(state = state, onIntent = onIntent)
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -252,6 +271,102 @@ private fun TelemetryAndControlSheet(
 }
 
 @Composable
+private fun DiagnosticOverlayFilters(
+    state: ReplayUiState,
+    onIntent: (ReplayIntent) -> Unit,
+) {
+    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+        Text(
+            text = "Scientific and matcher diagnostics",
+            style = MaterialTheme.typography.labelLarge,
+            fontWeight = FontWeight.SemiBold,
+        )
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .horizontalScroll(rememberScrollState()),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            FilterChip(
+                selected = state.showUncertaintyEllipse,
+                onClick = {
+                    onIntent(ToggleUncertaintyEllipse(!state.showUncertaintyEllipse))
+                },
+                label = { Text("2σ Covariance Ellipse") },
+            )
+            FilterChip(
+                selected = state.showCandidateBranches,
+                onClick = {
+                    onIntent(ToggleCandidateBranches(!state.showCandidateBranches))
+                },
+                label = { Text("Top-K Candidates") },
+            )
+            MatcherStatusChip(state.mapMatcherStatus)
+        }
+    }
+}
+
+@Composable
+private fun MatcherStatusChip(status: MapMatcherStatus) {
+    val (background, foreground) = when (status) {
+        MapMatcherStatus.CLEAR -> MATCHER_CLEAR to Color.Black
+        MapMatcherStatus.AMBIGUOUS -> MATCHER_AMBIGUOUS to Color.Black
+        MapMatcherStatus.NO_CANDIDATE -> MATCHER_NO_CANDIDATE to Color.White
+    }
+    Surface(
+        color = background,
+        contentColor = foreground,
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
+        shape = MaterialTheme.shapes.small,
+    ) {
+        Text(
+            text = "Matcher: ${status.name}",
+            modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
+            style = MaterialTheme.typography.labelLarge,
+            fontWeight = FontWeight.Bold,
+        )
+    }
+}
+
+@Composable
+private fun TrajectoryLayerFilters(
+    state: ReplayUiState,
+    onIntent: (ReplayIntent) -> Unit,
+) {
+    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+        Text(
+            text = "Map layers",
+            style = MaterialTheme.typography.labelLarge,
+            fontWeight = FontWeight.SemiBold,
+        )
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .horizontalScroll(rememberScrollState()),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            TrajectoryLayerType.entries.forEach { layer ->
+                FilterChip(
+                    selected = layer in state.enabledLayers,
+                    onClick = { onIntent(ToggleTrajectoryLayerIntent(layer)) },
+                    label = { Text(layer.filterLabel(state)) },
+                )
+            }
+        }
+    }
+}
+
+private fun TrajectoryLayerType.filterLabel(state: ReplayUiState): String = when (this) {
+    TrajectoryLayerType.RAW_GNSS -> "Raw GNSS"
+    TrajectoryLayerType.SCIENTIFIC_FUSED -> "Scientific [S]"
+    TrajectoryLayerType.MAP_MATCHED -> "Map-matched (${state.mapMatcherStatus.name})"
+    TrajectoryLayerType.REFERENCE_GROUND_TRUTH -> "Reference [R] · evaluation only"
+    TrajectoryLayerType.DISPLAY_SMOOTHED -> "Display-smoothed [D] · diagnostics only"
+    TrajectoryLayerType.PLANNED_ROUTE -> "Planned route"
+}
+
+@Composable
 private fun TelemetryValue(label: String, value: String) {
     Column(modifier = Modifier.size(width = 112.dp, height = 48.dp)) {
         Text(text = label, style = MaterialTheme.typography.labelMedium)
@@ -280,6 +395,10 @@ private fun formatSpeed(value: Double?): String =
 
 private fun formatMultiplier(value: Float): String =
     if (value % 1f == 0f) "${value.toInt()}×" else "$value×"
+
+private val MATCHER_CLEAR = Color(0xFF24D18B)
+private val MATCHER_AMBIGUOUS = Color(0xFFFFB800)
+private val MATCHER_NO_CANDIDATE = Color(0xFFC7353F)
 
 @Preview(showBackground = true, widthDp = 720, heightDp = 540)
 @Composable
