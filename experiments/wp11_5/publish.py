@@ -17,13 +17,40 @@ from typing import Any
 
 
 SCHEMA_VERSION = 1
-PUBLISHER_VERSION = "wp11.5-v1"
+PUBLISHER_VERSION = "wp11.5-v2"
 UPSTREAM_STATUS = "exploratory-not-promoted"
 REQUIRED_KINDS = {"baseline", "model", "feature_ablation"}
 
 
 class PublicationError(ValueError):
     """Raised when the upstream evidence is unsafe to publish."""
+
+
+def _load_evidence_json(source_bytes: bytes) -> dict[str, Any]:
+    """Parse strict JSON while rejecting duplicate keys and non-object roots."""
+
+    def unique_object(pairs: list[tuple[str, Any]]) -> dict[str, Any]:
+        result: dict[str, Any] = {}
+        for key, value in pairs:
+            if key in result:
+                raise PublicationError(f"duplicate JSON key: {key}")
+            result[key] = value
+        return result
+
+    def reject_constant(value: str) -> None:
+        raise PublicationError(f"non-standard JSON constant is not allowed: {value}")
+
+    try:
+        document = json.loads(
+            source_bytes.decode("utf-8"),
+            object_pairs_hook=unique_object,
+            parse_constant=reject_constant,
+        )
+    except (UnicodeDecodeError, json.JSONDecodeError) as error:
+        raise PublicationError("source_bytes must contain the evaluated JSON document") from error
+    if not isinstance(document, dict):
+        raise PublicationError("source_bytes must contain a top-level JSON object")
+    return document
 
 
 def _text(document: dict[str, Any], field: str) -> str:
@@ -50,15 +77,17 @@ def _finite(value: Any, field: str) -> float:
 
 def evaluate(report: dict[str, Any], source_bytes: bytes, upstream_reference: str) -> dict[str, Any]:
     """Validate an ablation report and build a fail-closed recommendation."""
-    try:
-        hashed_document = json.loads(source_bytes.decode("utf-8"))
-    except (UnicodeDecodeError, json.JSONDecodeError) as error:
-        raise PublicationError("source_bytes must contain the evaluated JSON document") from error
+    hashed_document = _load_evidence_json(source_bytes)
     canonical_hashed = json.dumps(hashed_document, sort_keys=True, separators=(",", ":"))
     canonical_report = json.dumps(report, sort_keys=True, separators=(",", ":"))
     if canonical_hashed != canonical_report:
         raise PublicationError("source_bytes must exactly represent the evaluated report")
-    if report.get("schema_version") != SCHEMA_VERSION:
+    schema_version = report.get("schema_version")
+    if (
+        isinstance(schema_version, bool)
+        or not isinstance(schema_version, int)
+        or schema_version != SCHEMA_VERSION
+    ):
         raise PublicationError(f"schema_version must be {SCHEMA_VERSION}")
     runner_version = _text(report, "runner_version")
     if _text(report, "scientific_status") != UPSTREAM_STATUS:
@@ -215,6 +244,13 @@ def render_markdown(publication: dict[str, Any]) -> str:
     return "\n".join(lines) + "\n"
 
 
+def encode_publication(publication: dict[str, Any]) -> bytes:
+    """Return the canonical UTF-8/LF JSON representation."""
+    return (
+        json.dumps(publication, indent=2, sort_keys=True, allow_nan=False) + "\n"
+    ).encode("utf-8")
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("input", type=Path)
@@ -228,11 +264,8 @@ def main() -> int:
     publication = evaluate(report, source_bytes, args.upstream_reference)
     args.output_json.parent.mkdir(parents=True, exist_ok=True)
     args.output_markdown.parent.mkdir(parents=True, exist_ok=True)
-    args.output_json.write_text(
-        json.dumps(publication, indent=2, sort_keys=True, allow_nan=False) + "\n",
-        encoding="utf-8",
-    )
-    args.output_markdown.write_text(render_markdown(publication), encoding="utf-8")
+    args.output_json.write_bytes(encode_publication(publication))
+    args.output_markdown.write_bytes(render_markdown(publication).encode("utf-8"))
     return 0
 
 
