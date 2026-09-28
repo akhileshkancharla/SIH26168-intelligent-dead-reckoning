@@ -8,12 +8,12 @@ Architecture Revision 3 model-promotion gates.
 ## Evidence identity
 
 - Upstream reference: `PR #175 commit a6c525f, experiments/wp11_4/reports/synthetic_ablation.json`
-- Upstream report SHA-256: `72ab899d3e364e3410e4c13333fe72efeedc56d5e2b9f0e9e2eb58d462b81f9a`
+- Upstream report SHA-256: `18b7b5c2518f8ce7ac757c673fd637278c221c38f2341e9342b80f7bcd9fd26a`
 - Upstream input SHA-256: `dc7f88ea2b75aa10bf62f4a17081a434a9f64949c0b296fde9216d61d529b41d`
 - Dataset manifest SHA-256: `aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa`
 - Split / mask: `synthetic-journey-safe-test-v1` / `synthetic-frozen-blackout-v1`
 - Evidence class: `synthetic-fixture`
-- Publisher version: `wp11.5-v1`
+- Publisher version: `wp11.5-v2`
 
 ## Exploratory aggregate metrics
 
