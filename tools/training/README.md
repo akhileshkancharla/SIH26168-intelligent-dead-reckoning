@@ -10,7 +10,9 @@ synthetic or private offline records:
 
 - protocols must be explicitly `FROZEN`, use the declared session monotonic
   clock, contain non-overlapping half-open intervals (`start_ns <= t < end_ns`),
-  and declare the exact GNSS fields hidden by each software-simulated outage;
+  and declare only measurement fields from the authoritative I-02
+  `LocationGnssFixV1` contract; IMU, label, target, metadata, and unknown fields
+  fail closed;
 - canonical ordering and compact JSON produce a stable SHA-256 protocol identity
   that experiment evidence can pin;
 - source records are never mutated; hidden GNSS values move to a separate
