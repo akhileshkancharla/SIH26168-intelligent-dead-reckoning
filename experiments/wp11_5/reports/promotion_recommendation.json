@@ -21,7 +21,7 @@
   ],
   "mask_id": "synthetic-frozen-blackout-v1",
   "model_vs_best_baseline_rmse_delta_m": -0.9733565536090256,
-  "publisher_version": "wp11.5-v1",
+  "publisher_version": "wp11.5-v2",
   "recommendation": "do-not-promote",
   "sample_count": 3,
   "schema_version": 1,
@@ -35,7 +35,7 @@
     "Raw private data and per-sample coordinates must remain outside Git."
   ],
   "upstream_reference": "PR #175 commit a6c525f, experiments/wp11_4/reports/synthetic_ablation.json",
-  "upstream_report_sha256": "72ab899d3e364e3410e4c13333fe72efeedc56d5e2b9f0e9e2eb58d462b81f9a",
+  "upstream_report_sha256": "18b7b5c2518f8ce7ac757c673fd637278c221c38f2341e9342b80f7bcd9fd26a",
   "upstream_runner_version": "wp11.4-v1",
   "variants": [
     {
