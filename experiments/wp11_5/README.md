@@ -9,6 +9,12 @@ aggregate evidence but no S4 completion, approved threshold, redistribution,
 model-package, runtime-parity, latency, or device evidence. Consequently its
 only valid recommendation is `do-not-promote`.
 
+This PR is stacked on the WP-11.4 branch from PR #175. The committed fixture is
+byte-identical to `experiments/wp11_4/reports/synthetic_ablation.json` at
+SHA-256 `18b7b5c2518f8ce7ac757c673fd637278c221c38f2341e9342b80f7bcd9fd26a`.
+Generated JSON and Markdown use explicit UTF-8 with LF line endings so their
+artifact hashes remain stable across platforms.
+
 Run the synthetic publication with:
 
 ```text
