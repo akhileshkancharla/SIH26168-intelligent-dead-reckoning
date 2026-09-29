@@ -98,6 +98,92 @@ std::uint64_t create(jni::HandleRegistry& registry, const api::InitialState& sta
     return handle;
 }
 
+void requireSameState(const api::StateSnapshot& direct, const api::StateSnapshot& boundary,
+                      const std::string& context) {
+    require(direct.sequence.value == boundary.sequence.value, context + ": state sequence differs");
+    require(direct.epoch_ns.nanoseconds == boundary.epoch_ns.nanoseconds,
+            context + ": state epoch differs");
+    require(direct.navigation_frame == boundary.navigation_frame,
+            context + ": navigation frame differs");
+    require(direct.body_frame == boundary.body_frame, context + ": body frame differs");
+    require(direct.position_n_m == boundary.position_n_m, context + ": position differs");
+    require(direct.velocity_n_mps == boundary.velocity_n_mps, context + ": velocity differs");
+    require(direct.q_n_b_wxyz == boundary.q_n_b_wxyz, context + ": attitude differs");
+    require(direct.accel_bias_b_mps2 == boundary.accel_bias_b_mps2,
+            context + ": accelerometer bias differs");
+    require(direct.gyro_bias_b_radps == boundary.gyro_bias_b_radps,
+            context + ": gyroscope bias differs");
+    require(direct.origin_id.value == boundary.origin_id.value, context + ": origin differs");
+    require(direct.mode == boundary.mode, context + ": navigation mode differs");
+    require(direct.validity == boundary.validity, context + ": state validity differs");
+}
+
+void requireSameCovariance(const api::CovarianceSnapshot& direct,
+                           const api::CovarianceSnapshot& boundary,
+                           const std::string& context) {
+    require(direct.state_sequence.value == boundary.state_sequence.value,
+            context + ": covariance sequence differs");
+    require(direct.epoch_ns.nanoseconds == boundary.epoch_ns.nanoseconds,
+            context + ": covariance epoch differs");
+    require(direct.ordering_id == boundary.ordering_id,
+            context + ": covariance ordering differs");
+    require(direct.covariance_15x15 == boundary.covariance_15x15,
+            context + ": covariance values differ");
+    require(direct.quality_flags == boundary.quality_flags,
+            context + ": covariance quality differs");
+}
+
+void requireSameSnapshots(const api::NavigationCore& direct, const jni::SnapshotPair& boundary,
+                          const std::string& context) {
+    requireSameState(direct.stateSnapshot(), boundary.state, context);
+    requireSameCovariance(direct.covarianceSnapshot(), boundary.covariance, context);
+}
+
+void requireSameResult(const api::PropagationResult& direct,
+                       const api::PropagationResult& boundary,
+                       const std::string& context) {
+    require(direct.status == boundary.status, context + ": propagation status differs");
+    require(direct.delta_time_seconds == boundary.delta_time_seconds,
+            context + ": propagation delta time differs");
+    require(direct.gap_detected == boundary.gap_detected,
+            context + ": propagation gap decision differs");
+    require(direct.state_sequence.value == boundary.state_sequence.value,
+            context + ": propagation result sequence differs");
+}
+
+void requireSameResult(const api::MeasurementResult& direct,
+                       const api::MeasurementResult& boundary,
+                       const std::string& context) {
+    require(direct.status == boundary.status, context + ": measurement status differs");
+    require(direct.dimension == boundary.dimension, context + ": measurement dimension differs");
+    require(direct.normalized_innovation_squared == boundary.normalized_innovation_squared,
+            context + ": measurement innovation differs");
+    require(direct.state_sequence.value == boundary.state_sequence.value,
+            context + ": measurement result sequence differs");
+}
+
+jni::PropagationResponse propagate(jni::HandleRegistry& registry, std::uint64_t handle,
+                                   const api::ImuBatch& input) {
+    const auto [status, bytes] = registry.propagate(handle, jni::encodeImuBatch(input));
+    require(status == jni::BoundaryStatus::Ok, "propagation boundary rejected valid wire input");
+    const auto decoded = jni::decodePropagationResponse(bytes);
+    require(decoded.status == jni::BoundaryStatus::Ok, "propagation response decode failed");
+    require(decoded.value.boundary_status == jni::BoundaryStatus::Ok,
+            "propagation response reported a boundary failure");
+    return decoded.value;
+}
+
+jni::MeasurementResponse update(jni::HandleRegistry& registry, std::uint64_t handle,
+                                const api::MeasurementInput& input) {
+    const auto [status, bytes] = registry.update(handle, jni::encodeMeasurement(input));
+    require(status == jni::BoundaryStatus::Ok, "measurement boundary rejected valid wire input");
+    const auto decoded = jni::decodeMeasurementResponse(bytes);
+    require(decoded.status == jni::BoundaryStatus::Ok, "measurement response decode failed");
+    require(decoded.value.boundary_status == jni::BoundaryStatus::Ok,
+            "measurement response reported a boundary failure");
+    return decoded.value;
+}
+
 }  // namespace
 
 int main() {
@@ -219,6 +305,138 @@ int main() {
         require(response.value.result.state_sequence.value
                     == response.value.snapshots.state.sequence.value,
                 "measurement state sequence changed");
+    });
+
+    run("direct_and_jni_accepted_paths_are_exactly_equivalent", [] {
+        api::NavigationCore direct(initialState());
+        jni::HandleRegistry registry;
+        const auto handle = create(registry);
+
+        const auto propagation_input = batch();
+        const auto direct_propagation = direct.propagate(propagation_input);
+        const auto boundary_propagation = propagate(registry, handle, propagation_input);
+        requireSameResult(direct_propagation, boundary_propagation.result,
+                          "accepted propagation");
+        requireSameSnapshots(direct, boundary_propagation.snapshots, "accepted propagation");
+
+        const auto measurement_input = measurement();
+        const auto direct_measurement = direct.update(measurement_input);
+        const auto boundary_measurement = update(registry, handle, measurement_input);
+        requireSameResult(direct_measurement, boundary_measurement.result,
+                          "accepted measurement");
+        requireSameSnapshots(direct, boundary_measurement.snapshots, "accepted measurement");
+    });
+
+    run("direct_and_jni_precheck_rejection_consume_the_same_evidence_id", [] {
+        api::NavigationCore direct(initialState());
+        jni::HandleRegistry registry;
+        const auto handle = create(registry);
+        auto input = measurement();
+        input.measurement_id.value = "precheck-rejected";
+        input.state_epoch_ns.nanoseconds = 1'000'000'000;
+        input.arrival_timestamp.nanoseconds = 1'000'001'000;
+        input.precheck.status = api::MeasurementPrecheckStatus::Rejected;
+        input.precheck.reason_code = "provider_accuracy";
+
+        const auto direct_rejection = direct.update(input);
+        const auto boundary_rejection = update(registry, handle, input);
+        requireSameResult(direct_rejection, boundary_rejection.result, "precheck rejection");
+        requireSameSnapshots(direct, boundary_rejection.snapshots, "precheck rejection");
+        require(direct_rejection.status == api::MeasurementStatus::RejectedPrecheck,
+                "precheck fixture did not reach the intended rejection");
+
+        input.precheck.status = api::MeasurementPrecheckStatus::Passed;
+        input.precheck.reason_code = "passed";
+        const auto direct_replay = direct.update(input);
+        const auto boundary_replay = update(registry, handle, input);
+        requireSameResult(direct_replay, boundary_replay.result, "precheck evidence replay");
+        requireSameSnapshots(direct, boundary_replay.snapshots, "precheck evidence replay");
+        require(direct_replay.status == api::MeasurementStatus::RejectedDuplicateEvidenceIdentifier,
+                "precheck-rejected evidence ID was reusable");
+    });
+
+    run("direct_and_jni_innovation_rejection_consume_the_same_evidence_id", [] {
+        auto state = initialState();
+        state.covariance = api::identityCovariance(0.01);
+        api::NavigationCore direct(state);
+        jni::HandleRegistry registry;
+        const auto handle = create(registry, state);
+        auto input = measurement();
+        input.measurement_id.value = "innovation-rejected";
+        input.state_epoch_ns.nanoseconds = 1'000'000'000;
+        input.arrival_timestamp.nanoseconds = 1'000'001'000;
+        input.kind = api::MeasurementKind::Position;
+        input.z = {100.0, -100.0, 30.0, 0.0, 0.0, 0.0};
+        input.R = {};
+        input.R[0] = 0.01;
+        input.R[7] = 0.01;
+        input.R[14] = 0.01;
+
+        const auto direct_rejection = direct.update(input);
+        const auto boundary_rejection = update(registry, handle, input);
+        requireSameResult(direct_rejection, boundary_rejection.result, "innovation rejection");
+        requireSameSnapshots(direct, boundary_rejection.snapshots, "innovation rejection");
+        require(direct_rejection.status == api::MeasurementStatus::RejectedInnovationGate,
+                "outlier fixture did not reach the innovation gate");
+
+        const auto direct_replay = direct.update(input);
+        const auto boundary_replay = update(registry, handle, input);
+        requireSameResult(direct_replay, boundary_replay.result, "innovation evidence replay");
+        requireSameSnapshots(direct, boundary_replay.snapshots, "innovation evidence replay");
+        require(direct_replay.status == api::MeasurementStatus::RejectedDuplicateEvidenceIdentifier,
+                "innovation-rejected evidence ID was reusable");
+    });
+
+    run("direct_and_jni_invalid_imu_consume_the_same_evidence_ids", [] {
+        api::NavigationCore direct(initialState());
+        jni::HandleRegistry registry;
+        const auto handle = create(registry);
+        auto input = batch();
+        input.samples[0].angular_rate_b_radps[1] =
+            std::numeric_limits<double>::quiet_NaN();
+
+        const auto direct_rejection = direct.propagate(input);
+        const auto boundary_rejection = propagate(registry, handle, input);
+        requireSameResult(direct_rejection, boundary_rejection.result, "non-finite IMU rejection");
+        requireSameSnapshots(direct, boundary_rejection.snapshots, "non-finite IMU rejection");
+        require(direct_rejection.status == api::PropagationStatus::RejectedNonFinite,
+                "non-finite fixture did not reach the intended rejection");
+
+        input.samples[0].angular_rate_b_radps[1] = -0.02;
+        const auto direct_replay = direct.propagate(input);
+        const auto boundary_replay = propagate(registry, handle, input);
+        requireSameResult(direct_replay, boundary_replay.result, "IMU evidence replay");
+        requireSameSnapshots(direct, boundary_replay.snapshots, "IMU evidence replay");
+        require(direct_replay.status == api::PropagationStatus::RejectedDuplicateEvidenceIdentifier,
+                "invalid IMU evidence IDs were reusable");
+    });
+
+    run("malformed_wire_does_not_consume_evidence_or_mutate_state", [] {
+        api::NavigationCore direct(initialState());
+        jni::HandleRegistry registry;
+        const auto handle = create(registry);
+        const auto before = jni::decodeSnapshotResponse(registry.snapshot(handle).second);
+        require(before.status == jni::BoundaryStatus::Ok, "initial snapshot decode failed");
+
+        const auto input = batch();
+        auto malformed = jni::encodeImuBatch(input);
+        malformed.resize(malformed.size() - 1);
+        const auto [malformed_status, malformed_response] = registry.propagate(handle, malformed);
+        require(malformed_status == jni::BoundaryStatus::MalformedLength,
+                "malformed wire payload reached the core");
+        require(malformed_response.empty(), "malformed wire payload returned a core response");
+        const auto after = jni::decodeSnapshotResponse(registry.snapshot(handle).second);
+        require(after.status == jni::BoundaryStatus::Ok, "post-rejection snapshot decode failed");
+        requireSameState(before.value.snapshots.state, after.value.snapshots.state,
+                         "malformed wire rejection");
+        requireSameCovariance(before.value.snapshots.covariance, after.value.snapshots.covariance,
+                              "malformed wire rejection");
+
+        const auto direct_result = direct.propagate(input);
+        const auto boundary_result = propagate(registry, handle, input);
+        requireSameResult(direct_result, boundary_result.result, "post-malformed propagation");
+        requireSameSnapshots(direct, boundary_result.snapshots, "post-malformed propagation");
+        require(direct_result.accepted(), "malformed wire payload consumed the valid evidence IDs");
     });
 
     run("null_stale_and_double_destroy", [] {

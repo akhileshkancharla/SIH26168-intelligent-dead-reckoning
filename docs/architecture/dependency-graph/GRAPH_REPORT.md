@@ -4,12 +4,12 @@
 
 - Snapshot classification: `generated-and-sanitized`
 - Source repository: `akhileshkancharla/SIH26168-intelligent-dead-reckoning`
-- Source branch: `issue/WP-06.1-wp-06-1-freeze-s3`
-- Source parent commit: `11a8fb7519e4095f5235cda9589de9ce8b536df0`
+- Source branch: `issue/WP-03.6-wp-03-6-add-jni`
+- Source parent commit: `d706d09f48df5df8bfd87e5ecea31bd2c14ab1b0`
 - Graphify version: `0.9.53`
 - Graphify mode: code-only static extraction; semantic document extraction disabled
-- Counts: 3473 nodes, 5637 edges, 239 communities
-- Edge evidence: 5488 extracted, 149 inferred
+- Counts: 3482 nodes, 5674 edges, 231 communities
+- Edge evidence: 5525 extracted, 149 inferred
 - CI mode: `snapshot-validation-only`
 
 ## VERIFIED FROM CODE
@@ -63,9 +63,9 @@ Current high-degree nodes are primarily repository administration tooling, not n
 | `ReplayNavigationViewModelTest` | 31 | [android/app/src/test/java/org/sih26168/app/replay/ReplayNavigationViewModelTest.kt:L12](../../../android/app/src/test/java/org/sih26168/app/replay/ReplayNavigationViewModelTest.kt) |
 | `reference_oracle.py` | 31 | [core/navigation/verification/python/reference_oracle.py:L1](../../../core/navigation/verification/python/reference_oracle.py) |
 | `ReplayNavigationShell.kt` | 29 | [android/app/src/main/java/org/sih26168/app/ui/ReplayNavigationShell.kt:L1](../../../android/app/src/main/java/org/sih26168/app/ui/ReplayNavigationShell.kt) |
+| `MeasurementInput` | 28 | [core/navigation/include/sih26168/navigation_core.hpp:L141](../../../core/navigation/include/sih26168/navigation_core.hpp) |
 | `ReplayIntent` | 27 | [android/app/src/main/java/org/sih26168/app/replay/ReplayIntent.kt:L51](../../../android/app/src/main/java/org/sih26168/app/replay/ReplayIntent.kt) |
 | `navigation_jni_wire.cpp` | 27 | [android/navigation-jni/src/navigation_jni_wire.cpp:L1](../../../android/navigation-jni/src/navigation_jni_wire.cpp) |
-| `MeasurementInput` | 27 | [core/navigation/include/sih26168/navigation_core.hpp:L141](../../../core/navigation/include/sih26168/navigation_core.hpp) |
 
 ### Weakly connected or orphan candidates
 
