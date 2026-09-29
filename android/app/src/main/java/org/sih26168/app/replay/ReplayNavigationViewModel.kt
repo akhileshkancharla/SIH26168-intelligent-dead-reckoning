@@ -35,9 +35,14 @@ class ReplayNavigationViewModel : ViewModel() {
                 _uiState.update { it.copy(showCandidateBranches = intent.visible) }
             is PresentPositionCovarianceIntent -> presentPositionCovariance(intent)
             is PresentMapCandidatesIntent -> presentMapCandidates(intent.candidates)
+            is UpdateHealthStates -> updateHealthStates(intent)
             is NavigationModeChangedIntent -> updateNavigationMode(intent)
-            ReplayIntent.Play -> _uiState.update { it.copy(isReplaying = true) }
-            ReplayIntent.Pause -> _uiState.update { it.copy(isReplaying = false) }
+            ReplayIntent.Play -> _uiState.update {
+                it.copy(isReplaying = true, replayEngineStatus = ReplayEngineStatus.PLAYING)
+            }
+            ReplayIntent.Pause -> _uiState.update {
+                it.copy(isReplaying = false, replayEngineStatus = ReplayEngineStatus.PAUSED)
+            }
             ReplayIntent.Step -> stepOnce()
             ReplayIntent.Reset -> reset()
             ReplayIntent.ToggleSimulatedOutage -> toggleSimulatedOutage()
@@ -49,6 +54,43 @@ class ReplayNavigationViewModel : ViewModel() {
     private fun reset() {
         latestCandidateInputs = emptyList()
         _uiState.update { ReplayUiState(isMapReady = it.isMapReady) }
+    }
+
+    private fun updateHealthStates(intent: UpdateHealthStates) {
+        _uiState.update { state ->
+            val engine = intent.replayEngine ?: state.replayEngineStatus
+            state.copy(
+                gnssHealth = intent.gnss?.validatedFor(state) ?: state.gnssHealth,
+                alignmentHealth = intent.alignment?.validated() ?: state.alignmentHealth,
+                modelHealth = intent.model?.validated() ?: state.modelHealth,
+                replayEngineStatus = engine,
+                isReplaying = engine == ReplayEngineStatus.PLAYING,
+            )
+        }
+    }
+
+    private fun GnssHealthState.validatedFor(state: ReplayUiState): GnssHealthState {
+        val valid = status != GnssFixStatus.OUTAGE_SIMULATED &&
+            (satelliteCount == null || satelliteCount in 0..MAX_SATELLITES) &&
+            (hdop == null || (hdop.isFinite() && hdop > 0.0 && hdop <= MAX_DOP)) &&
+            (pdop == null || (pdop.isFinite() && pdop > 0.0 && pdop <= MAX_DOP)) &&
+            (trustedFixTimestampNs == null ||
+                trustedFixTimestampNs in 0L..state.currentTimestampNs)
+        return if (valid) this else GnssHealthState()
+    }
+
+    private fun AlignmentHealthState.validated(): AlignmentHealthState {
+        val valid = (uncertaintyDegrees == null ||
+            (uncertaintyDegrees.isFinite() && uncertaintyDegrees in 0.0..180.0)) &&
+            (convergenceProgress == null ||
+                (convergenceProgress.isFinite() && convergenceProgress in 0.0..1.0))
+        return if (valid) this else AlignmentHealthState()
+    }
+
+    private fun ModelHealthState.validated(): ModelHealthState {
+        val valid = residualMagnitude == null ||
+            (residualMagnitude.isFinite() && residualMagnitude in 0.0..MAX_RESIDUAL_MAGNITUDE)
+        return if (valid) this else ModelHealthState()
     }
 
     private fun presentPositionCovariance(intent: PresentPositionCovarianceIntent) {
@@ -348,6 +390,9 @@ class ReplayNavigationViewModel : ViewModel() {
         const val STEP_INTERVAL_NS = 100_000_000L
         const val COURSE_UP_MIN_SPEED_METERS_PER_SECOND = 1.0
         const val DISPLAY_RECOVERY_DURATION_NS = 2_000_000_000L
+        const val MAX_SATELLITES = 128
+        const val MAX_DOP = 50.0
+        const val MAX_RESIDUAL_MAGNITUDE = 1_000_000.0
         val SUPPORTED_SPEED_MULTIPLIERS = listOf(0.5f, 1f, 2f)
     }
 
