@@ -4,12 +4,12 @@
 
 - Snapshot classification: `generated-and-sanitized`
 - Source repository: `akhileshkancharla/SIH26168-intelligent-dead-reckoning`
-- Source branch: `resolve/pr179-on-ac5b210`
-- Source parent commit: `ac5b21096964beb7ab511d015ff0516ef63151bd`
+- Source branch: `issue/WP-06.2-wp-06-2-implement-candidate`
+- Source parent commit: `920cf6697b16f9b9dc9fed51cebcbf64d30cab14`
 - Graphify version: `0.9.53`
 - Graphify mode: code-only static extraction; semantic document extraction disabled
-- Counts: 3515 nodes, 5739 edges, 250 communities
-- Edge evidence: 5590 extracted, 149 inferred
+- Counts: 3615 nodes, 5923 edges, 249 communities
+- Edge evidence: 5773 extracted, 150 inferred
 - CI mode: `snapshot-validation-only`
 
 ## VERIFIED FROM CODE
@@ -23,7 +23,7 @@ The C++ core is host-buildable, while Android acquisition, JNI, training, map, a
 | Module | Extracted source files | Current interpretation |
 | --- | ---: | --- |
 | Android app | 27 | Launcher/UI scaffold; no sensor-to-position path |
-| Portable core | 26 | Host-buildable S2 core plus contract smoke |
+| Portable core | 29 | Host-buildable S2 core plus contract smoke |
 | Contracts | 24 | Bootstrap replay schema and enum artifacts |
 | Repository automation | 14 | Repository and GitHub governance tooling |
 | Policy CI | 15 | Repository validation and generated-file checks |
@@ -62,14 +62,14 @@ Current high-degree nodes are primarily repository administration tooling, not n
 | `generate_contract_bindings.py` | 35 | [ci/generate_contract_bindings.py:L1](../../../ci/generate_contract_bindings.py) |
 | `ReplayNavigationViewModelTest` | 31 | [android/app/src/test/java/org/sih26168/app/replay/ReplayNavigationViewModelTest.kt:L12](../../../android/app/src/test/java/org/sih26168/app/replay/ReplayNavigationViewModelTest.kt) |
 | `reference_oracle.py` | 31 | [core/navigation/verification/python/reference_oracle.py:L1](../../../core/navigation/verification/python/reference_oracle.py) |
-| `ReplayNavigationShell.kt` | 29 | [android/app/src/main/java/org/sih26168/app/ui/ReplayNavigationShell.kt:L1](../../../android/app/src/main/java/org/sih26168/app/ui/ReplayNavigationShell.kt) |
+| `ReplayNavigationShell.kt` | 30 | [android/app/src/main/java/org/sih26168/app/ui/ReplayNavigationShell.kt:L1](../../../android/app/src/main/java/org/sih26168/app/ui/ReplayNavigationShell.kt) |
 | `MeasurementInput` | 28 | [core/navigation/include/sih26168/navigation_core.hpp:L141](../../../core/navigation/include/sih26168/navigation_core.hpp) |
 | `ReplayIntent` | 27 | [android/app/src/main/java/org/sih26168/app/replay/ReplayIntent.kt:L51](../../../android/app/src/main/java/org/sih26168/app/replay/ReplayIntent.kt) |
 | `navigation_jni_wire.cpp` | 27 | [android/navigation-jni/src/navigation_jni_wire.cpp:L1](../../../android/navigation-jni/src/navigation_jni_wire.cpp) |
 
 ### Weakly connected or orphan candidates
 
-The raw Graphify report identified 1191 isolated symbol nodes. This sanitizer independently found 1475 repository-backed nodes with degree at most one; the bounded sample below is diagnostic, not deletion evidence.
+The raw Graphify report identified 1228 isolated symbol nodes. This sanitizer independently found 1513 repository-backed nodes with degree at most one; the bounded sample below is diagnostic, not deletion evidence.
 
 | Node | Degree | Source |
 | --- | ---: | --- |
