@@ -52,6 +52,10 @@ struct CandidateEstimatorConfig {
     std::size_t minimum_dynamic_intervals{3};
     std::size_t minimum_m2_samples{3};
     double minimum_dynamic_acceleration_mps2{0.1};
+    // Maximum absolute timestamp difference for a one-to-one I-07/I-03
+    // evidence pair. Zero is the fail-closed default: the source epochs must
+    // match exactly unless a reviewed run configuration declares otherwise.
+    std::int64_t maximum_m2_pairing_skew_ns{0};
 };
 
 enum class CandidateSolveOutcome {

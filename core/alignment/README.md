@@ -10,6 +10,12 @@ and conditional S3-M2 by `SIH26168-S3-v1`.
   attitude and horizontal velocity snapshots as bounded alignment evidence. It
   is available for the protocol's conditional M2 execution only; this module
   does not choose between M1 and M2.
+- Each I-07 observation used by M2 must pair one-to-one with a distinct,
+  quality-eligible, non-stationary I-03 sample. Pairing selects the closest
+  source epoch within `maximum_m2_pairing_skew_ns`; equal-skew candidates use
+  the earlier I-03 sample. The fail-closed default is zero skew, so an explicit
+  reviewed run configuration is required to permit nonzero timestamp skew.
+  Only identities from completed pairs are reported as consumed evidence.
 - Magnetometer input is absent from M1 and is neither required nor authoritative
   in M2.
 

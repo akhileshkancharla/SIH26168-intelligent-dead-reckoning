@@ -5,6 +5,7 @@
 
 #include <algorithm>
 #include <cmath>
+#include <limits>
 #include <unordered_set>
 #include <utility>
 
@@ -37,7 +38,8 @@ bool validConfig(const CandidateEstimatorConfig& config) {
         && config.minimum_dynamic_intervals > 0
         && config.minimum_m2_samples > 0
         && finite(config.minimum_dynamic_acceleration_mps2)
-        && config.minimum_dynamic_acceleration_mps2 > 0.0;
+        && config.minimum_dynamic_acceleration_mps2 > 0.0
+        && config.maximum_m2_pairing_skew_ns >= 0;
 }
 
 template <typename Sample, typename Validator>
@@ -339,22 +341,47 @@ CandidateSolveResult solveM2(const std::vector<BodyImuSample>& imu_samples,
         return result;
     }
 
-    std::vector<std::string> contemporaneous_imu_evidence;
-    std::size_t contemporaneous_imu_count = 0;
-    for (const auto& sample : imu_samples) {
-        if (sample.quality_eligible && !sample.stationary
-            && sample.epoch_ns >= navigation_samples[qualified_begin].epoch_ns
-            && sample.epoch_ns <= navigation_samples[qualified_end].epoch_ns) {
-            appendUnique(contemporaneous_imu_evidence, sample.evidence_id);
-            appendUnique(contemporaneous_imu_evidence, sample.quality_evidence_id);
-            ++contemporaneous_imu_count;
+    // Pair every I-07 observation used by M2 with one distinct, qualified raw
+    // I-03 sample. Select the minimum absolute skew within the configured
+    // bound; ordered input makes an equal-skew tie resolve to the earlier IMU.
+    std::vector<bool> paired_imu(imu_samples.size(), false);
+    std::vector<std::string> paired_evidence;
+    std::size_t paired_count = 0;
+    for (std::size_t navigation_index = qualified_begin;
+         navigation_index <= qualified_end; ++navigation_index) {
+        const auto navigation_epoch = navigation_samples[navigation_index].epoch_ns;
+        std::size_t best_imu_index = imu_samples.size();
+        std::uint64_t best_skew = std::numeric_limits<std::uint64_t>::max();
+        for (std::size_t imu_index = 0; imu_index < imu_samples.size(); ++imu_index) {
+            const auto& imu = imu_samples[imu_index];
+            if (paired_imu[imu_index] || !imu.quality_eligible || imu.stationary) continue;
+            const std::uint64_t skew = navigation_epoch >= imu.epoch_ns
+                ? static_cast<std::uint64_t>(navigation_epoch - imu.epoch_ns)
+                : static_cast<std::uint64_t>(imu.epoch_ns - navigation_epoch);
+            if (skew <= static_cast<std::uint64_t>(config.maximum_m2_pairing_skew_ns)
+                && skew < best_skew) {
+                best_imu_index = imu_index;
+                best_skew = skew;
+            }
         }
+        if (best_imu_index == imu_samples.size()) {
+            auto result = failure(kMethod, CandidateSolveOutcome::InsufficientDynamicExcitation);
+            result.motion_observations_used = paired_count;
+            result.qualified_motion_duration_seconds = duration_seconds;
+            result.consumed_evidence_ids = std::move(paired_evidence);
+            return result;
+        }
+        paired_imu[best_imu_index] = true;
+        const auto& paired_sample = imu_samples[best_imu_index];
+        appendUnique(paired_evidence, paired_sample.evidence_id);
+        appendUnique(paired_evidence, paired_sample.quality_evidence_id);
+        ++paired_count;
     }
-    if (contemporaneous_imu_count < config.minimum_m2_samples) {
+    if (paired_count < config.minimum_m2_samples) {
         auto result = failure(kMethod, CandidateSolveOutcome::InsufficientDynamicExcitation);
-        result.motion_observations_used = qualified_count;
+        result.motion_observations_used = paired_count;
         result.qualified_motion_duration_seconds = duration_seconds;
-        result.consumed_evidence_ids = std::move(contemporaneous_imu_evidence);
+        result.consumed_evidence_ids = std::move(paired_evidence);
         return result;
     }
 
@@ -363,7 +390,7 @@ CandidateSolveResult solveM2(const std::vector<BodyImuSample>& imu_samples,
     double accumulated_heading_change = 0.0;
     double previous_course = 0.0;
     bool have_previous_course = false;
-    std::vector<std::string> consumed_evidence = std::move(contemporaneous_imu_evidence);
+    std::vector<std::string> consumed_evidence = std::move(paired_evidence);
 
     for (std::size_t index = qualified_begin; index <= qualified_end; ++index) {
         const auto& sample = navigation_samples[index];

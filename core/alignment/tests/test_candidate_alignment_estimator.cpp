@@ -331,6 +331,51 @@ int main() {
         require(!result.hasEstimate(), "M2 without raw IMU returned an estimate");
     });
 
+    run("m2_rejects_clustered_raw_imu_without_per_observation_pairs", [] {
+        const auto samples = m2Fixture(Eigen::Quaterniond::Identity());
+        auto clustered_imu = m2ImuFixture(samples);
+        clustered_imu[0].epoch_ns = samples.front().epoch_ns;
+        clustered_imu[1].epoch_ns = samples.front().epoch_ns + 1;
+        clustered_imu[2].epoch_ns = samples.front().epoch_ns + 2;
+        const auto result = alignment::solveM2(clustered_imu, samples, smallConfig());
+        require(result.outcome == alignment::CandidateSolveOutcome::InsufficientDynamicExcitation,
+                "clustered I-03 evidence covered unpaired later I-07 observations");
+        require(!result.hasEstimate(), "clustered I-03 evidence returned an estimate");
+        require(result.motion_observations_used == 1,
+                "M2 did not report the exact number of completed evidence pairs");
+        require(std::find(result.consumed_evidence_ids.begin(),
+                          result.consumed_evidence_ids.end(), "m2-imu-0")
+                    != result.consumed_evidence_ids.end(),
+                "M2 omitted the identity of its completed I-03 pair");
+        require(std::find(result.consumed_evidence_ids.begin(),
+                          result.consumed_evidence_ids.end(), "m2-imu-1")
+                    == result.consumed_evidence_ids.end(),
+                "M2 claimed an unpaired I-03 sample as consumed");
+    });
+
+    run("m2_enforces_explicit_pairing_skew", [] {
+        const auto samples = m2Fixture(Eigen::Quaterniond::Identity());
+        auto within_bound = m2ImuFixture(samples);
+        constexpr std::int64_t kConfiguredSkew = 20'000'000;
+        for (auto& sample : within_bound) sample.epoch_ns += kConfiguredSkew;
+        auto config = smallConfig();
+        config.maximum_m2_pairing_skew_ns = kConfiguredSkew;
+        const auto accepted = alignment::solveM2(within_bound, samples, config);
+        require(accepted.hasEstimate(), "I-03 pairs at the declared skew bound were rejected");
+        require(std::find(accepted.consumed_evidence_ids.begin(),
+                          accepted.consumed_evidence_ids.end(), "m2-imu-2")
+                    != accepted.consumed_evidence_ids.end(),
+                "M2 omitted a paired I-03 evidence identity");
+
+        auto outside_bound = within_bound;
+        outside_bound.back().epoch_ns += 1;
+        const auto rejected = alignment::solveM2(outside_bound, samples, config);
+        require(rejected.outcome
+                    == alignment::CandidateSolveOutcome::InsufficientDynamicExcitation,
+                "I-03 evidence beyond the declared skew bound was accepted");
+        require(!rejected.hasEstimate(), "out-of-bound I-03 evidence returned an estimate");
+    });
+
     run("invalid_configuration_fails_closed", [] {
         auto fixture = m1Fixture();
         auto config = smallConfig();
@@ -342,6 +387,11 @@ int main() {
         require(alignment::solveM2(m2ImuFixture(m2), m2, config).outcome
                     == alignment::CandidateSolveOutcome::InvalidInput,
                 "invalid M2 configuration was accepted");
+        config = smallConfig();
+        config.maximum_m2_pairing_skew_ns = -1;
+        require(alignment::solveM2(m2ImuFixture(m2), m2, config).outcome
+                    == alignment::CandidateSolveOutcome::InvalidInput,
+                "negative M2 pairing skew was accepted");
     });
 
     run("outcomes_have_stable_strings", [] {
