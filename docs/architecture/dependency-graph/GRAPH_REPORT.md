@@ -4,12 +4,12 @@
 
 - Snapshot classification: `generated-and-sanitized`
 - Source repository: `akhileshkancharla/SIH26168-intelligent-dead-reckoning`
-- Source branch: `issue/WP-04.3-wp-04-3-create-shared`
-- Source parent commit: `92e7605fe9078fad2a5d4539a1e33095881df3d4`
+- Source branch: `issue/WP-06.1-wp-06-1-freeze-s3`
+- Source parent commit: `11a8fb7519e4095f5235cda9589de9ce8b536df0`
 - Graphify version: `0.9.53`
 - Graphify mode: code-only static extraction; semantic document extraction disabled
-- Counts: 3110 nodes, 5175 edges, 218 communities
-- Edge evidence: 5037 extracted, 138 inferred
+- Counts: 3473 nodes, 5637 edges, 239 communities
+- Edge evidence: 5488 extracted, 149 inferred
 - CI mode: `snapshot-validation-only`
 
 ## VERIFIED FROM CODE
@@ -25,7 +25,7 @@ The C++ core is host-buildable, while Android acquisition, JNI, training, map, a
 | Android app | 27 | Launcher/UI scaffold; no sensor-to-position path |
 | Portable core | 22 | Host-buildable S2 core plus contract smoke |
 | Contracts | 24 | Bootstrap replay schema and enum artifacts |
-| Repository automation | 13 | Repository and GitHub governance tooling |
+| Repository automation | 14 | Repository and GitHub governance tooling |
 | Policy CI | 15 | Repository validation and generated-file checks |
 | Acquisition/JNI/ML/maps/analyzer | 0 | README-only or disconnected placeholders |
 
@@ -57,7 +57,7 @@ Current high-degree nodes are primarily repository administration tooling, not n
 | Node | Degree | Source |
 | --- | ---: | --- |
 | `ReplayNavigationViewModel` | 59 | [android/app/src/main/java/org/sih26168/app/replay/ReplayNavigationViewModel.kt:L16](../../../android/app/src/main/java/org/sih26168/app/replay/ReplayNavigationViewModel.kt) |
-| `MapLibreMapViewport.kt` | 41 | [android/app/src/main/java/org/sih26168/app/ui/map/MapLibreMapViewport.kt:L1](../../../android/app/src/main/java/org/sih26168/app/ui/map/MapLibreMapViewport.kt) |
+| `MapLibreMapViewport.kt` | 40 | [android/app/src/main/java/org/sih26168/app/ui/map/MapLibreMapViewport.kt:L1](../../../android/app/src/main/java/org/sih26168/app/ui/map/MapLibreMapViewport.kt) |
 | `configure_project.mjs` | 37 | [tools/bootstrap/configure_project.mjs:L1](../../../tools/bootstrap/configure_project.mjs) |
 | `generate_contract_bindings.py` | 35 | [ci/generate_contract_bindings.py:L1](../../../ci/generate_contract_bindings.py) |
 | `ReplayNavigationViewModelTest` | 31 | [android/app/src/test/java/org/sih26168/app/replay/ReplayNavigationViewModelTest.kt:L12](../../../android/app/src/test/java/org/sih26168/app/replay/ReplayNavigationViewModelTest.kt) |
@@ -69,7 +69,7 @@ Current high-degree nodes are primarily repository administration tooling, not n
 
 ### Weakly connected or orphan candidates
 
-The raw Graphify report identified 1005 isolated symbol nodes. This sanitizer independently found 1267 repository-backed nodes with degree at most one; the bounded sample below is diagnostic, not deletion evidence.
+The raw Graphify report identified 1191 isolated symbol nodes. This sanitizer independently found 1467 repository-backed nodes with degree at most one; the bounded sample below is diagnostic, not deletion evidence.
 
 | Node | Degree | Source |
 | --- | ---: | --- |

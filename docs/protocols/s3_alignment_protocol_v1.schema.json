@@ -1,0 +1,209 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://sih26168.invalid/protocols/s3_alignment_protocol_v1.schema.json",
+  "title": "SIH26168 S3 alignment and mount-slip protocol",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version", "protocol_id", "protocol_status", "frozen_against",
+    "claims_boundary", "design", "invariants", "hypotheses", "candidate_methods",
+    "scenarios", "metrics", "thresholds", "status_policy",
+    "evidence_requirements", "exclusion_policy", "outcome_policy", "change_control"
+  ],
+  "properties": {
+    "schema_version": {"const": 1},
+    "protocol_id": {"const": "SIH26168-S3-v1"},
+    "protocol_status": {"const": "FROZEN_BEFORE_EXECUTION"},
+    "frozen_against": {
+      "type": "object", "additionalProperties": false,
+      "required": ["architecture_revision", "base_commit", "issue", "open_decision"],
+      "properties": {
+        "architecture_revision": {"const": 3},
+        "base_commit": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+        "issue": {"const": 55},
+        "open_decision": {"const": "OD-04"}
+      }
+    },
+    "claims_boundary": {
+      "type": "object", "additionalProperties": false,
+      "required": ["permitted", "prohibited"],
+      "properties": {
+        "permitted": {"$ref": "#/$defs/non_empty_unique_strings"},
+        "prohibited": {"$ref": "#/$defs/non_empty_unique_strings"}
+      }
+    },
+    "design": {
+      "type": "object", "additionalProperties": false,
+      "required": [
+        "minimum_named_devices", "minimum_mounts_per_device", "minimum_vehicles",
+        "run_order", "run_count_scope", "candidate_progression", "percentile_method",
+        "reference_rotation_uncertainty_deg_max",
+        "motion_speed_mps_min", "gnss_bearing_accuracy_deg_max",
+        "gnss_speed_accuracy_mps_max", "motion_segment_s_min", "turn_heading_change_deg_min",
+        "valid_sustain_s_min", "no_slip_observation_s_min"
+      ],
+      "properties": {
+        "minimum_named_devices": {"const": 2},
+        "minimum_mounts_per_device": {"const": 3},
+        "minimum_vehicles": {"const": 1},
+        "run_order": {"const": "preassigned_and_seeded_before_collection"},
+        "run_count_scope": {"const": "per_candidate_per_named_device_balanced_across_mounts"},
+        "candidate_progression": {"const": "complete_M1_then_execute_preassigned_M2_only_if_M1_fails"},
+        "percentile_method": {"const": "nearest_rank"},
+        "reference_rotation_uncertainty_deg_max": {"const": 1.0},
+        "motion_speed_mps_min": {"const": 3.0},
+        "gnss_bearing_accuracy_deg_max": {"const": 5.0},
+        "gnss_speed_accuracy_mps_max": {"const": 0.5},
+        "motion_segment_s_min": {"const": 10.0},
+        "turn_heading_change_deg_min": {"const": 30.0},
+        "valid_sustain_s_min": {"const": 2.0},
+        "no_slip_observation_s_min": {"const": 60.0}
+      }
+    },
+    "invariants": {
+      "type": "array", "minItems": 6, "uniqueItems": true,
+      "items": {"$ref": "#/$defs/id_statement"}
+    },
+    "hypotheses": {
+      "type": "array", "minItems": 5, "uniqueItems": true,
+      "items": {
+        "type": "object", "additionalProperties": false,
+        "required": ["id", "statement", "falsifier"],
+        "properties": {
+          "id": {"type": "string", "pattern": "^S3-H[0-9]+$"},
+          "statement": {"type": "string", "minLength": 1},
+          "falsifier": {"type": "string", "minLength": 1}
+        }
+      }
+    },
+    "candidate_methods": {
+      "type": "array", "minItems": 3, "uniqueItems": true,
+      "items": {
+        "type": "object", "additionalProperties": false,
+        "required": ["id", "role", "inputs", "magnetometer_policy", "selection_eligible"],
+        "properties": {
+          "id": {"type": "string", "pattern": "^S3-M[0-9]+$"},
+          "role": {"enum": ["negative_control", "candidate"]},
+          "inputs": {"$ref": "#/$defs/non_empty_unique_strings"},
+          "magnetometer_policy": {"enum": ["forbidden", "optional_non_authoritative"]},
+          "selection_eligible": {"type": "boolean"}
+        }
+      }
+    },
+    "scenarios": {
+      "type": "array", "minItems": 8, "uniqueItems": true,
+      "items": {
+        "type": "object", "additionalProperties": false,
+        "required": ["id", "minimum_runs", "required_conditions", "mandatory"],
+        "properties": {
+          "id": {"type": "string", "pattern": "^S3-S[0-9]+$"},
+          "minimum_runs": {"type": "integer", "minimum": 1},
+          "required_conditions": {"$ref": "#/$defs/non_empty_unique_strings"},
+          "mandatory": {"const": true}
+        }
+      }
+    },
+    "metrics": {
+      "type": "array", "minItems": 12, "uniqueItems": true,
+      "items": {
+        "type": "object", "additionalProperties": false,
+        "required": ["id", "unit", "aggregation"],
+        "properties": {
+          "id": {"type": "string", "pattern": "^S3-K[0-9]+$"},
+          "unit": {"type": "string", "minLength": 1},
+          "aggregation": {"type": "string", "minLength": 1}
+        }
+      }
+    },
+    "thresholds": {
+      "type": "object", "additionalProperties": false,
+      "required": [
+        "rotation_error_median_deg_max", "rotation_error_p95_deg_max",
+        "roll_pitch_error_p95_deg_max", "yaw_error_p95_deg_max",
+        "time_to_valid_p95_s_max", "covariance_95_coverage_min",
+        "invalid_i06_count_max", "stationary_false_valid_count_max",
+        "slip_rotation_deg_min", "slip_detection_rate_min",
+        "slip_detection_latency_p95_s_max", "no_slip_false_positive_count_max",
+        "dependent_aid_unsafe_enable_count_max", "replay_mismatch_count_max"
+      ],
+      "properties": {
+        "rotation_error_median_deg_max": {"const": 5.0},
+        "rotation_error_p95_deg_max": {"const": 10.0},
+        "roll_pitch_error_p95_deg_max": {"const": 5.0},
+        "yaw_error_p95_deg_max": {"const": 10.0},
+        "time_to_valid_p95_s_max": {"const": 15.0},
+        "covariance_95_coverage_min": {"const": 0.9},
+        "invalid_i06_count_max": {"const": 0},
+        "stationary_false_valid_count_max": {"const": 0},
+        "slip_rotation_deg_min": {"const": 15.0},
+        "slip_detection_rate_min": {"const": 1.0},
+        "slip_detection_latency_p95_s_max": {"const": 1.0},
+        "no_slip_false_positive_count_max": {"const": 0},
+        "dependent_aid_unsafe_enable_count_max": {"const": 0},
+        "replay_mismatch_count_max": {"const": 0}
+      }
+    },
+    "status_policy": {
+      "type": "object", "additionalProperties": false,
+      "required": ["allowed_statuses", "dependent_aids_enabled", "slip_transition"],
+      "properties": {
+        "allowed_statuses": {"const": ["UNINITIALIZED", "VALID", "UNCERTAIN", "SLIP_SUSPECTED"]},
+        "dependent_aids_enabled": {
+          "type": "object", "additionalProperties": false,
+          "required": ["UNINITIALIZED", "VALID", "UNCERTAIN", "SLIP_SUSPECTED"],
+          "properties": {
+            "UNINITIALIZED": {"const": false},
+            "VALID": {"const": true},
+            "UNCERTAIN": {"const": false},
+            "SLIP_SUSPECTED": {"const": false}
+          }
+        },
+        "slip_transition": {"const": "atomic_disable_before_or_with_SLIP_SUSPECTED"}
+      }
+    },
+    "evidence_requirements": {"$ref": "#/$defs/non_empty_unique_strings"},
+    "exclusion_policy": {
+      "type": "object", "additionalProperties": false,
+      "required": ["allowed", "prohibited"],
+      "properties": {
+        "allowed": {"$ref": "#/$defs/non_empty_unique_strings"},
+        "prohibited": {"$ref": "#/$defs/non_empty_unique_strings"}
+      }
+    },
+    "outcome_policy": {
+      "type": "object", "additionalProperties": false,
+      "required": ["rank_order", "selection_rule", "failure_rule", "pooling_rule"],
+      "properties": {
+        "rank_order": {
+          "type": "array", "minItems": 2, "uniqueItems": true,
+          "items": {"type": "string", "pattern": "^S3-M[0-9]+$"}
+        },
+        "selection_rule": {"const": "first_ranked_candidate_passing_every_invariant_scenario_and_threshold"},
+        "failure_rule": {"const": "reject_all_methods_and_keep_S3_unresolved"},
+        "pooling_rule": {"const": "no_cross_scenario_pooling_may_hide_a_failed_gate"}
+      }
+    },
+    "change_control": {
+      "type": "object", "additionalProperties": false,
+      "required": ["before_first_run", "after_first_run"],
+      "properties": {
+        "before_first_run": {"const": "signed_reviewed_commit_required"},
+        "after_first_run": {"const": "new_protocol_id_and_separate_evidence_required"}
+      }
+    }
+  },
+  "$defs": {
+    "non_empty_unique_strings": {
+      "type": "array", "minItems": 1, "uniqueItems": true,
+      "items": {"type": "string", "minLength": 1}
+    },
+    "id_statement": {
+      "type": "object", "additionalProperties": false,
+      "required": ["id", "statement"],
+      "properties": {
+        "id": {"type": "string", "pattern": "^S3-I[0-9]+$"},
+        "statement": {"type": "string", "minLength": 1}
+      }
+    }
+  }
+}
