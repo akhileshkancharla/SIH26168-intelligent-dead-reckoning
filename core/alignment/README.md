@@ -29,5 +29,30 @@ never produce a full candidate rotation.
 The result is a **candidate solve outcome**, not an I-06 record. This module
 does not assign `AlignmentStatusV1`, publish covariance, detect mount slip,
 enable alignment-dependent aids, select a scientifically accepted method, or
-modify C-07 navigation state. Those responsibilities remain with later WP-06
-issues and the reviewed S3 execution.
+modify C-07 navigation state.
+
+## I-06 alignment posterior
+
+The canonical Tier-C `contracts::AlignmentEstimate` POD is the bounded I-06
+representation added by WP-06.3. It records the active body-to-vehicle
+quaternion, a row-major 3x3 covariance in rad^2, explicit validity/failure
+status, observability, nullable slip probability, and method/evidence/config
+provenance. Its alignment-layer validator rejects
+non-finite or non-canonical quaternions, non-symmetric or non-positive-semidefinite
+covariance, out-of-range scalar values, and incomplete provenance.
+
+`AlignmentEstimatePublisher` preserves the latest accepted posterior without
+hidden overwrite. Sequence and epoch regressions are rejected. Any rejected
+publication fails the dependent-aid gate closed until a newer valid posterior
+is accepted. Only a structurally valid `VALID` posterior is eligible; the
+`UNINITIALIZED`, `UNCERTAIN`, and `SLIP_SUSPECTED` states are never eligible.
+Recovery from `SLIP_SUSPECTED` also requires evidence identity unseen in every
+accepted slip or other non-`VALID` assessment since the incident began. Each
+accepted non-`VALID` publication extends that recovery barrier; intermediate
+state changes and repeated slips cannot recycle their own evidence to restore
+eligibility.
+
+This layer does not estimate covariance, infer scientific acceptance
+thresholds, detect mount slip, choose between S3-M1 and S3-M2, or modify C-07
+navigation state. Those remain with the later reviewed WP-06 work and S3
+execution.
