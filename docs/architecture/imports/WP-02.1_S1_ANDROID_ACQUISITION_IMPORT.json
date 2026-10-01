@@ -1,0 +1,250 @@
+{
+  "schema_version": "wp-02.1.reduced_import_inventory.v1",
+  "source_manifest": "android/acquisition/imported/S1_Android_Acquisition_Spike/S1_ARTIFACT_MANIFEST_v1.json",
+  "source_manifest_sha256": "66ee2abc9be36ba35a97b41e774956e792808f0e1867c99082791fc476c932ff",
+  "imported_files": [
+    {
+      "path": "README.md",
+      "size": 3464,
+      "sha256": "4a74d4092e0c4963ae160ec9e7c3f43335701e69f088090d9b95ba1b42afdc83"
+    },
+    {
+      "path": "analyzer/__init__.py",
+      "size": 39,
+      "sha256": "1d16cb9e0c3e796cad3adeb5d2a86e7129aeb45a3f547b9ab09cbf373fdb8dec"
+    },
+    {
+      "path": "analyzer/requirements-lock.txt",
+      "size": 83,
+      "sha256": "0a70b1c3ae5758cce33483f0cbd8a2089a80022242892565ce1f5fd0ad917588"
+    },
+    {
+      "path": "analyzer/s1_analyzer.py",
+      "size": 17438,
+      "sha256": "731f473e7a48d8b311d611fff14e68ead270ace5a1ac6a1d4ebbf8ba00b7b405"
+    },
+    {
+      "path": "app/build.gradle.kts",
+      "size": 1465,
+      "sha256": "6be9e01515c4888c2fe0834007ccb831d6979fa0af7502d81c1290d9a08785d1"
+    },
+    {
+      "path": "app/gradle.lockfile",
+      "size": 5356,
+      "sha256": "6c4fe9e20173548aac9e4a53ebd609daf7473c6ee1576355ccbe3c4c3fe55540"
+    },
+    {
+      "path": "app/src/androidTest/java/org/sih26168/s1logger/RecordingInstrumentationTest.kt",
+      "size": 3638,
+      "sha256": "e69ef2ff0cab12871360fa1633742ee60fc530df7660fac272254f01b3838c9d"
+    },
+    {
+      "path": "app/src/main/AndroidManifest.xml",
+      "size": 1854,
+      "sha256": "23ab298eee66d7f2ff84c55791f4dcd8153998bc1843bc25e657036b0822331d"
+    },
+    {
+      "path": "app/src/main/java/org/sih26168/s1logger/JsonUtil.kt",
+      "size": 435,
+      "sha256": "c4d0d9ff0326a8d9ab861a807dce58ee6b7517e6a12a710a6de9831f46b9628f"
+    },
+    {
+      "path": "app/src/main/java/org/sih26168/s1logger/MainActivity.kt",
+      "size": 7280,
+      "sha256": "fffc36b2a46c89d5d0873cc51b3c691c7641778169e098426c7e9614dceef042"
+    },
+    {
+      "path": "app/src/main/java/org/sih26168/s1logger/RecordingContract.kt",
+      "size": 1380,
+      "sha256": "4c0d448100f45ab600045951818e3bbac9b49d269f299039d1973d6100e74d77"
+    },
+    {
+      "path": "app/src/main/java/org/sih26168/s1logger/RecordingService.kt",
+      "size": 22868,
+      "sha256": "0434149d230fa23f656b8ad5c18146f43ac68ea9f76320d74fc7f8895f7243dd"
+    },
+    {
+      "path": "app/src/main/java/org/sih26168/s1logger/SessionWriter.kt",
+      "size": 5815,
+      "sha256": "64e12d27d2362650c8f0a4e1a3d99f73ad60c94d96a04be9b182f04e3d823caa"
+    },
+    {
+      "path": "app/src/main/res/drawable/ic_stat_recording.xml",
+      "size": 358,
+      "sha256": "fc4368abb8804beb5bdb894e2859c0c2cd9ebe2150b40c36e4f021aee458fb0d"
+    },
+    {
+      "path": "app/src/main/res/values/strings.xml",
+      "size": 1318,
+      "sha256": "51e567d77fbfd673e2951325a60661e5cf93eb752deb95253f9b814111f21eac"
+    },
+    {
+      "path": "app/src/main/res/values/styles.xml",
+      "size": 332,
+      "sha256": "72f254f65bd26ed170fca81f40d8912a6dd47cf5ce325b71db5596d539850d0d"
+    },
+    {
+      "path": "app/src/main/res/xml/data_extraction_rules.xml",
+      "size": 671,
+      "sha256": "8b55ff5489071bb19a4e89967b604a16c0e4d1e87a2df3c73c64417314a59f22"
+    },
+    {
+      "path": "app/src/test/java/org/sih26168/s1logger/RecordingContractTest.kt",
+      "size": 1016,
+      "sha256": "73156072a764c40a79ce8e7912ba1ea7fd7bd0fbbfe334ad03ee98a790ede7d5"
+    },
+    {
+      "path": "build.gradle.kts",
+      "size": 143,
+      "sha256": "e81a95f31c9f6fe156a8ee858fa3d1b3b87e366585415224e8fbc090a7af6a06"
+    },
+    {
+      "path": "docs/S1_Android_Acquisition_Report.md",
+      "size": 15513,
+      "sha256": "68a883e0124f1d0c37df3b29ddae207656a359e01c9c950cb742b922977484cc"
+    },
+    {
+      "path": "docs/S1_Data_Contract.md",
+      "size": 6961,
+      "sha256": "46279e7f9f9ca433a13e8ae8a232001bfe01e069f9ff49b97473dbd9d50207e1"
+    },
+    {
+      "path": "docs/S1_Device_Test_Protocol.md",
+      "size": 9808,
+      "sha256": "aa9ad20a9465848ebc733873988379603d8b4d4286ce2f260b7e2379e5489c60"
+    },
+    {
+      "path": "docs/S1_Privacy_and_Safety.md",
+      "size": 4240,
+      "sha256": "0429939113d809f8fcbcd47d5a122d069dda88a252bd0c68494b4f2fd9fd860f"
+    },
+    {
+      "path": "fixtures/README.md",
+      "size": 330,
+      "sha256": "a26f98d05bc7dc446655196a5925b7479e2610ebcfe76ebb500a24ca3900e717"
+    },
+    {
+      "path": "fixtures/deterministic_session/chunk_00001.jsonl",
+      "size": 4895,
+      "sha256": "8cd785a19e3c472f8b13d3b28b148dd09cf74f067455b4b23aa131cd909672c2"
+    },
+    {
+      "path": "fixtures/deterministic_session/session_manifest.json",
+      "size": 435,
+      "sha256": "c59038a6d7953c09d0fc3f8d79d4d09d7b3d9c5d1a3ee6e1e89552d9d492e541"
+    },
+    {
+      "path": "gradle/wrapper/gradle-wrapper.jar",
+      "size": 43705,
+      "sha256": "81a82aaea5abcc8ff68b3dfcb58b3c3c429378efd98e7433460610fecd7ae45f"
+    },
+    {
+      "path": "gradle/wrapper/gradle-wrapper.properties",
+      "size": 280,
+      "sha256": "5bffcac8f7d9d8ed7122ea6464a5ec6491ba653dff5f2961b44554f16720da6b"
+    },
+    {
+      "path": "gradle.properties",
+      "size": 145,
+      "sha256": "be72ba0bf31344e8952e5a58fab5613199904dbf9822d0c2bf4a6d158cb20464"
+    },
+    {
+      "path": "gradlew",
+      "size": 8752,
+      "sha256": "734b3879d3501dce471cf0522d3bcbafe76873d9fc5129345b67fb43bd15e933"
+    },
+    {
+      "path": "gradlew.bat",
+      "size": 2966,
+      "sha256": "57931b17dd228e5c24dac90e815d0bf82477e831a4618dfab4136f5446b42a9f"
+    },
+    {
+      "path": "scripts/analyze_session.sh",
+      "size": 282,
+      "sha256": "e25410a85a19230f0edea6244b0c95515715be3ab6af69dbd46f2cbb69e222e9"
+    },
+    {
+      "path": "scripts/generate_artifact_manifest.py",
+      "size": 2198,
+      "sha256": "a7929db34697a29aac2a0b9226fbfd46c218ec11f2d61c7b8cb247542ec8f944"
+    },
+    {
+      "path": "scripts/run_all.sh",
+      "size": 344,
+      "sha256": "89df4e75b9f957e676486f28e5962921dc4beb9430cee29adcd70d0b01a7d716"
+    },
+    {
+      "path": "scripts/run_host_tests.sh",
+      "size": 204,
+      "sha256": "0de64c78d8269a2bf7e6889f1260b348e3b8d41bd67cf276320915195ccd9f19"
+    },
+    {
+      "path": "settings.gradle.kts",
+      "size": 348,
+      "sha256": "aee1472820def574171067dcec0fe20906614fe9db33cca8aa5bd151e1491fa2"
+    },
+    {
+      "path": "tests/test_analyzer.py",
+      "size": 3008,
+      "sha256": "0d42016c5083448e2fa510a5551237927287e5673639f0a23c162cd24c537734"
+    }
+  ],
+  "omitted_manifest_entries": [
+    {
+      "path": "results/S1_Android_Acquisition_Spike-debug-androidTest.apk",
+      "reason": "results evidence intentionally excluded from reduced WP-02.1 import"
+    },
+    {
+      "path": "results/S1_Android_Acquisition_Spike-debug.apk",
+      "reason": "results evidence intentionally excluded from reduced WP-02.1 import"
+    },
+    {
+      "path": "results/android/dependency_lock_generation.txt",
+      "reason": "results evidence intentionally excluded from reduced WP-02.1 import"
+    },
+    {
+      "path": "results/android/gradle_verification.txt",
+      "reason": "results evidence intentionally excluded from reduced WP-02.1 import"
+    },
+    {
+      "path": "results/android/lint-results-debug.txt",
+      "reason": "results evidence intentionally excluded from reduced WP-02.1 import"
+    },
+    {
+      "path": "results/android/lint-results-debug.xml",
+      "reason": "results evidence intentionally excluded from reduced WP-02.1 import"
+    },
+    {
+      "path": "results/android/unit-test-debug.xml",
+      "reason": "results evidence intentionally excluded from reduced WP-02.1 import"
+    },
+    {
+      "path": "results/android/unit-test-release.xml",
+      "reason": "results evidence intentionally excluded from reduced WP-02.1 import"
+    },
+    {
+      "path": "results/fixture_analysis/analysis_results.json",
+      "reason": "results evidence intentionally excluded from reduced WP-02.1 import"
+    },
+    {
+      "path": "results/fixture_analysis/delivered_rates.svg",
+      "reason": "results evidence intentionally excluded from reduced WP-02.1 import"
+    },
+    {
+      "path": "results/fixture_analysis/stream_statistics.csv",
+      "reason": "results evidence intentionally excluded from reduced WP-02.1 import"
+    },
+    {
+      "path": "results/fixture_analysis_run.txt",
+      "reason": "results evidence intentionally excluded from reduced WP-02.1 import"
+    },
+    {
+      "path": "results/host_tests.txt",
+      "reason": "results evidence intentionally excluded from reduced WP-02.1 import"
+    },
+    {
+      "path": "results/verification_summary.json",
+      "reason": "results evidence intentionally excluded from reduced WP-02.1 import"
+    }
+  ]
+}

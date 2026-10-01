@@ -26,6 +26,8 @@ def main() -> None:
         # Pip's download cache is reusable; installed packages are always fresh.
         subprocess.run([str(python), "-m", "pip", "install", "-e", "."], cwd=ROOT, check=True)
         subprocess.run([str(python), "-m", "unittest", "discover", "-s", tests, "-v"], cwd=ROOT, check=True)
+        if args.group == "python":
+            subprocess.run([str(python), "-m", "unittest", "discover", "-s", "tests", "-v"], cwd=ROOT / "android" / "acquisition" / "imported" / "S1_Android_Acquisition_Spike", check=True)
 
 
 if __name__ == "__main__":

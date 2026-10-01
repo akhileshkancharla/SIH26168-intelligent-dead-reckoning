@@ -103,6 +103,11 @@
       "sha256": "1aff07b11ae53679304b974806b5d11640011c5b7e2972e970882c2f15ef507d"
     },
     {
+      "path": "docs/architecture/imports/WP-02.1_S1_ANDROID_ACQUISITION_IMPORT.json",
+      "size_bytes": 8972,
+      "sha256": "f3afab7e49b999eddc0c559ae0c2a5a7f53a59ce3dd43ebc466bc1e5ea660004"
+    },
+    {
       "path": "docs/architecture/imports/WP-03.1_S2_NAVIGATION_CORE_IMPORT.md",
       "size_bytes": 10010,
       "sha256": "5c52fe8cf460613e5fb55813f10df1bf116375bdf8ad7d455048df8d82c6fa84"
