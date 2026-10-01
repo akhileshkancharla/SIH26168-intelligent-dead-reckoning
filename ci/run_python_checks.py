@@ -19,11 +19,7 @@ def main() -> None:
     test_directories = (
         ("tools/dataset/tests",)
         if args.group == "dataset"
-        else (
-            "tools/bootstrap/tests",
-            "experiments/wp11_1/tests",
-            "tools/training/tests",
-        )
+        else ("tools/bootstrap/tests", "experiments/wp11_2/tests")
     )
     with tempfile.TemporaryDirectory(prefix=f"sih-ci-{args.group}-") as directory:
         location = Path(directory).resolve()
