@@ -5,7 +5,8 @@
 - Work item: issue #87, frozen GNSS-blackout masking protocol.
 - Source snapshot: current `main` at
   `e7a84e5f1307e9b9bb18e6abc5fe525f2c3097dc` was merged into the PR branch on
-  2026-10-01. Graph regeneration used the resulting merged source tree.
+  2026-10-01. Graph regeneration used the resulting merged source tree at the
+  reachable pushed PR head `17b9d4806148b21757f8f7f4d9bc9d7e98fa10d9`.
 - Governing inputs: Architecture Revision 3; Development Design Baseline;
   interfaces I-14, I-20, and I-22; the active WP-10 runtime-feature firewall;
   and the issue acceptance boundary.
@@ -62,9 +63,10 @@ PASS: all
 
 python ci/run_python_checks.py python
 python ci/run_python_checks.py dataset
-GitHub Selective CI attempt #2 passed every requested lane on the prior PR
-head. The final merge-resolution head requires a fresh GitHub CI run after it
-is published; no future result is represented here as a pass.
+GitHub Selective CI run #177 passed every requested lane on PR head
+`17b9d4806148b21757f8f7f4d9bc9d7e98fa10d9`. The provenance-only follow-up
+requires a fresh GitHub CI run after it is published; no future result is
+represented here as a pass.
 ```
 
 Dependency-graph regeneration used the repository wrapper with the exact
@@ -75,15 +77,19 @@ powershell -NoProfile -ExecutionPolicy Bypass -File tools/graphify/update_graph.
 ```
 
 Two fresh rebuilds from the same final source tree produced byte-identical
-sanitized artifacts and repository manifest. The verified snapshot contains
-3695 nodes, 6112 edges, and 244 communities. Final artifact SHA-256 values:
+sanitized artifacts. Both `source_parent_commit` and
+`raw_graph_built_at_commit` name reachable pushed head
+`17b9d4806148b21757f8f7f4d9bc9d7e98fa10d9`, and
+`source_includes_working_tree` is false. The repository manifest was then
+regenerated from that final snapshot. The verified snapshot contains 3695
+nodes, 6112 edges, and 244 communities. Final artifact SHA-256 values:
 
 ```text
-GRAPH_REPORT.md             9fd0e853fc486d4f2835bea6cbcf825f2317aa18affd635879f8fe390b684547
-graph.json                  950846723190f1d9995211d87031a613a4c9356d5a9f9986982d6bbc28b03a5c
-metadata.json               fe4566595197beeb90d86f888d82d3932c9983c187bb5c7b705d07000d51bdea
-SHA256SUMS.txt              2fcf2ef634d91b1aae9d0779473df2176b9f0d15aa2d06633ff8b1d0c4c9138d
-repository_manifest.json   ebde41d1366bbec47e43c88714be0ab1cf204af9d92e95335deb9acf6eea6e7a
+GRAPH_REPORT.md             38fa3ceb2ce2637da800fe640b9cd686f40c3f2e6fa50edcfadb5fe8963e3250
+graph.json                  d0f922c79200f01813723213f1eb17efd32f851028611df4c38a72140d5a9328
+metadata.json               f89d4aaa940c8122295376e498634f132605008a0f1c50c92924271ad3ccaf96
+SHA256SUMS.txt              e4b10f966f98e3863d94900fde91be12cfc97b2bf606a1911b088b0238fd0db3
+repository_manifest.json   a3d3cf65dc0995c1d22f8b1eb76a59a51e2593c077806eabbffccfa91728d966
 ```
 
 The conservative CI selector requests every lane because the shared Python test
