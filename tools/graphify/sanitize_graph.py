@@ -311,17 +311,34 @@ def render_report(
         for node in graph.get("nodes", [])
         if isinstance(node, dict) and node.get("source_file")
     }
+    s1_prefix = "android/acquisition/imported/S1_Android_Acquisition_Spike/"
+    android_app_prefix = "android/app/"
+    jni_prefix = "android/navigation-jni/"
+    android_paths = {path for path in source_files if path.startswith("android/")}
+    categorized_android = {
+        path
+        for path in android_paths
+        if path.startswith((android_app_prefix, jni_prefix, s1_prefix))
+    }
     module_rows = (
-        ("Android app", "android/", "Launcher/UI scaffold; no sensor-to-position path"),
+        ("Android app", android_app_prefix, "Launcher/UI scaffold; no sensor-to-position path"),
+        ("Android JNI adapter", jni_prefix, "Native boundary; not connected to the imported S1 logger"),
+        ("Standalone S1 acquisition", s1_prefix, "Imported logger and analyzer; no integrated GNSS-to-position path"),
+        ("Other Android files", None, "Android build/configuration files outside the app, JNI, and S1 import"),
         ("Portable core", "core/", "Host-buildable S2 core plus contract smoke"),
         ("Contracts", "contracts/", "Bootstrap replay schema and enum artifacts"),
         ("Repository automation", "tools/bootstrap/", "Repository and GitHub governance tooling"),
         ("Policy CI", "ci/", "Repository validation and generated-file checks"),
-        ("Acquisition/JNI/ML/maps/analyzer", "__placeholder__", "README-only or disconnected placeholders"),
+        ("Training/maps and top-level analyzer", "__placeholder__", "No integrated source files in these top-level modules"),
     )
     module_lines = []
     for name, prefix, interpretation in module_rows:
-        count = 0 if prefix == "__placeholder__" else sum(path.startswith(prefix) for path in source_files)
+        if prefix is None:
+            count = len(android_paths - categorized_android)
+        elif prefix == "__placeholder__":
+            count = 0
+        else:
+            count = sum(path.startswith(prefix) for path in source_files)
         module_lines.append(f"| {name} | {count} | {interpretation} |")
 
     high_lines = []

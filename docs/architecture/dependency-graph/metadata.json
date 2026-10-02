@@ -47,7 +47,7 @@
   "node_count": 3877,
   "raw_graph_built_at_commit": "0081fa761fde005b0dcc6736266193e25efb95ca",
   "removed_volatile_fields": [],
-  "sanitizer_script_sha256": "69657380942a27dc643f80ab4323d20bc5f9d05ba22072e1bc1cfed1f253db33",
+  "sanitizer_script_sha256": "2d8ea440a9ac8c4c0476a234ed6a20dfab7f1166c76be26d0103fb7d60d594e3",
   "schema_version": 1,
   "snapshot_classification": "generated-and-sanitized",
   "source_branch": "issue/WP-02.1-wp-02-1-import-validated",

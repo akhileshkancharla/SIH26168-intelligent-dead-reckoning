@@ -22,12 +22,15 @@ The C++ core is host-buildable, while Android acquisition, JNI, training, map, a
 
 | Module | Extracted source files | Current interpretation |
 | --- | ---: | --- |
-| Android app | 45 | Launcher/UI scaffold; no sensor-to-position path |
+| Android app | 20 | Launcher/UI scaffold; no sensor-to-position path |
+| Android JNI adapter | 5 | Native boundary; not connected to the imported S1 logger |
+| Standalone S1 acquisition | 18 | Imported logger and analyzer; no integrated GNSS-to-position path |
+| Other Android files | 2 | Android build/configuration files outside the app, JNI, and S1 import |
 | Portable core | 33 | Host-buildable S2 core plus contract smoke |
 | Contracts | 24 | Bootstrap replay schema and enum artifacts |
 | Repository automation | 14 | Repository and GitHub governance tooling |
 | Policy CI | 16 | Repository validation and generated-file checks |
-| Acquisition/JNI/ML/maps/analyzer | 0 | README-only or disconnected placeholders |
+| Training/maps and top-level analyzer | 0 | No integrated source files in these top-level modules |
 
 ### Entry points
 
