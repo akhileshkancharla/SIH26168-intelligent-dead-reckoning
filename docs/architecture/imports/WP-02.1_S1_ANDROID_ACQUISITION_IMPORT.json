@@ -155,8 +155,8 @@
     },
     {
       "path": "gradlew.bat",
-      "size": 2966,
-      "sha256": "57931b17dd228e5c24dac90e815d0bf82477e831a4618dfab4136f5446b42a9f"
+      "size": 2872,
+      "sha256": "2209f919a22528af59a2af2ad97e8d056cca18e39f7d87aa3fd549a73b180150"
     },
     {
       "path": "scripts/analyze_session.sh",
