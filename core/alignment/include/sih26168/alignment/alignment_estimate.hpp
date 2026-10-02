@@ -65,6 +65,7 @@ public:
     [[nodiscard]] const std::optional<contracts::AlignmentEstimate>& latest()
         const noexcept;
     [[nodiscard]] bool dependentAidsEligible() const;
+    void failClosed() noexcept;
 
 private:
     std::optional<contracts::AlignmentEstimate> latest_;

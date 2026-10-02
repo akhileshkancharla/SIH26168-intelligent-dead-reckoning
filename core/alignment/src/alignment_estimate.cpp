@@ -220,4 +220,8 @@ bool AlignmentEstimatePublisher::dependentAidsEligible() const {
         && alignment::dependentAidsEligible(*latest_);
 }
 
+void AlignmentEstimatePublisher::failClosed() noexcept {
+    publication_healthy_ = false;
+}
+
 }  // namespace sih26168::alignment
