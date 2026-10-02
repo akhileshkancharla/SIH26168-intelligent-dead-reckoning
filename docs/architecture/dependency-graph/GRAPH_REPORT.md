@@ -5,7 +5,7 @@
 - Snapshot classification: `generated-and-sanitized`
 - Source repository: `akhileshkancharla/SIH26168-intelligent-dead-reckoning`
 - Source branch: `issue/WP-11.3-wp-11-3-implement-frozen`
-- Source parent commit: `5cf0d9d5d821a51ea12adbc9f9ca37c30e010fca`
+- Source parent commit: `17b9d4806148b21757f8f7f4d9bc9d7e98fa10d9`
 - Graphify version: `0.9.53`
 - Graphify mode: code-only static extraction; semantic document extraction disabled
 - Counts: 3695 nodes, 6112 edges, 244 communities
