@@ -1,7 +1,7 @@
 # This is a Gradle generated file for dependency locking.
 # Manual edits can break the build and are not advised.
 # This file is expected to be part of source control.
-androidx.annotation:annotation-jvm:1.7.0-beta01=debugAndroidTestRuntimeClasspath
+androidx.annotation:annotation-jvm:1.7.0-beta01=debugAndroidTestCompileClasspath,debugAndroidTestRuntimeClasspath
 androidx.annotation:annotation:1.7.0-beta01=debugAndroidTestCompileClasspath,debugAndroidTestRuntimeClasspath
 androidx.concurrent:concurrent-futures-ktx:1.1.0=debugAndroidTestCompileClasspath,debugAndroidTestRuntimeClasspath
 androidx.concurrent:concurrent-futures:1.1.0=debugAndroidTestCompileClasspath,debugAndroidTestRuntimeClasspath
@@ -29,6 +29,7 @@ org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.8.20=debugAndroidTestCompileClasspath,
 org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.20=debugAndroidTestCompileClasspath,debugAndroidTestRuntimeClasspath
 org.jetbrains.kotlin:kotlin-stdlib:2.3.10=debugAndroidTestCompileClasspath,debugAndroidTestRuntimeClasspath,debugCompileClasspath,debugRuntimeClasspath,debugUnitTestCompileClasspath,debugUnitTestRuntimeClasspath,kotlinBuildToolsApiClasspath,kotlinCompilerClasspath,releaseCompileClasspath,releaseRuntimeClasspath,releaseUnitTestCompileClasspath,releaseUnitTestRuntimeClasspath
 org.jetbrains.kotlin:kotlin-tooling-core:2.3.10=kotlinBuildToolsApiClasspath
+org.jetbrains.kotlinx:kotlinx-coroutines-bom:1.7.1=debugAndroidTestCompileClasspath,debugAndroidTestRuntimeClasspath
 org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.7.1=debugAndroidTestCompileClasspath,debugAndroidTestRuntimeClasspath
 org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.8.0=kotlinBuildToolsApiClasspath,kotlinCompilerClasspath
 org.jetbrains:annotations:13.0=debugAndroidTestCompileClasspath,debugAndroidTestRuntimeClasspath,debugCompileClasspath,debugRuntimeClasspath,debugUnitTestCompileClasspath,debugUnitTestRuntimeClasspath,kotlinBuildToolsApiClasspath,kotlinCompilerClasspath,releaseCompileClasspath,releaseRuntimeClasspath,releaseUnitTestCompileClasspath,releaseUnitTestRuntimeClasspath
