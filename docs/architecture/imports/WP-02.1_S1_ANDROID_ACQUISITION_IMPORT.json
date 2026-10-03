@@ -30,8 +30,8 @@
     },
     {
       "path": "app/gradle.lockfile",
-      "size": 5356,
-      "sha256": "6c4fe9e20173548aac9e4a53ebd609daf7473c6ee1576355ccbe3c4c3fe55540"
+      "size": 5506,
+      "sha256": "47c6d452403867556b0787a2df9fd05ac202924bd35a3473b41c98c6fbcd5154"
     },
     {
       "path": "app/src/androidTest/java/org/sih26168/s1logger/RecordingInstrumentationTest.kt",
