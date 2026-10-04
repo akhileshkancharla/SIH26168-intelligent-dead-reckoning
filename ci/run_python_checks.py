@@ -35,6 +35,13 @@ def main() -> None:
                 cwd=ROOT,
                 check=True,
             )
+        if args.group == "python":
+            subprocess.run(
+                [str(python), "-m", "unittest", "discover", "-s", "tests", "-v"],
+                cwd=ROOT / "android" / "acquisition" / "imported" / "S1_Android_Acquisition_Spike",
+                check=True,
+            )
+
 
 
 if __name__ == "__main__":
