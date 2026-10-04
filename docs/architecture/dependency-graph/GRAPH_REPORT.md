@@ -4,12 +4,12 @@
 
 - Snapshot classification: `generated-and-sanitized`
 - Source repository: `akhileshkancharla/SIH26168-intelligent-dead-reckoning`
-- Source branch: `codex/pr174-final-publish`
-- Source parent commit: `f5ec1203144a40588aa38270fa462ae51f3686f0`
+- Source branch: `issue/WP-07.2-wp-07-2-implement-explicit`
+- Source parent commit: `692a9bf85906e73dd6862c17ca850120792c31b4`
 - Graphify version: `0.9.53`
 - Graphify mode: code-only static extraction; semantic document extraction disabled
-- Counts: 3900 nodes, 6422 edges, 268 communities
-- Edge evidence: 6259 extracted, 163 inferred
+- Counts: 3994 nodes, 6614 edges, 272 communities
+- Edge evidence: 6429 extracted, 185 inferred
 - CI mode: `snapshot-validation-only`
 
 ## VERIFIED FROM CODE
@@ -23,7 +23,7 @@ The C++ core is host-buildable, while Android acquisition, JNI, training, map, a
 | Module | Extracted source files | Current interpretation |
 | --- | ---: | --- |
 | Android app | 27 | Launcher/UI scaffold; no sensor-to-position path |
-| Portable core | 39 | Host-buildable S2 core plus contract smoke |
+| Portable core | 42 | Host-buildable S2 core plus contract smoke |
 | Contracts | 24 | Bootstrap replay schema and enum artifacts |
 | Repository automation | 14 | Repository and GitHub governance tooling |
 | Policy CI | 15 | Repository validation and generated-file checks |
@@ -69,7 +69,7 @@ Current high-degree nodes are primarily repository administration tooling, not n
 
 ### Weakly connected or orphan candidates
 
-The raw Graphify report identified 1308 isolated symbol nodes. This sanitizer independently found 1614 repository-backed nodes with degree at most one; the bounded sample below is diagnostic, not deletion evidence.
+The raw Graphify report identified 1344 isolated symbol nodes. This sanitizer independently found 1651 repository-backed nodes with degree at most one; the bounded sample below is diagnostic, not deletion evidence.
 
 | Node | Degree | Source |
 | --- | ---: | --- |
