@@ -210,11 +210,11 @@ int main() {
         require(tracker.snapshot().mode == Mode::INITIALIZING,
                 "unattested aid initialized navigation");
         anchor(tracker);
-        expect(tracker.acceptedAid(at(1'001), "anchor", true,
-                                   Availability::HEALTHY), Error::DuplicateEvidenceId);
         expect(tracker.acceptedAid(at(1'000), "same-epoch", true,
                                    Availability::HEALTHY),
                Error::NonIncreasingAidEpoch);
+        expect(tracker.acceptedAid(at(1'001), "anchor", true,
+                                   Availability::HEALTHY), Error::DuplicateEvidenceId);
         const auto degraded = tracker.qualityDegraded(at(1'050));
         require(degraded.applied() && degraded.state_changed
                     && degraded.cause == Cause::QualityDegraded,

@@ -30,9 +30,9 @@ They must be supplied from the enclosing provenance/timestamp context at the
 adapter boundary; a caller must not guess them from wall time or another boot.
 This library does not change the versioned I-02 schema or generated bindings.
 
-The precheck deliberately does not implement outage transitions, biased-fix or
-physical plausibility screening, reacquisition dwell, or the C-07 innovation
-gate.
+The precheck deliberately does not implement WP-07.2 outage transitions,
+WP-07.3 biased-fix or physical plausibility screening, WP-07.4 reacquisition
+dwell, or the C-07 innovation gate.
 
 ## WP-07.2 outage-state tracker
 
