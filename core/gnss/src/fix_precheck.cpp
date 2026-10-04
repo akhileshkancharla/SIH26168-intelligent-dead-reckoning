@@ -13,6 +13,15 @@ namespace {
 constexpr std::array<std::string_view, 6> kOptionalFields = {
     "alt_m", "vacc_m", "speed_mps", "speed_acc_mps", "bearing_deg", "bearing_acc_deg"};
 
+bool validSourceKind(SourceKind kind) {
+    switch (kind) {
+        case SourceKind::Live:
+        case SourceKind::Replay:
+            return true;
+    }
+    return false;
+}
+
 bool finiteWithin(double value, double lower, double upper) {
     return std::isfinite(value) && value >= lower && value <= upper;
 }
@@ -55,10 +64,12 @@ Decision FixPrecheck::present(const LocationFix& fix, std::int64_t now_elapsed_r
     if (!consumed_ids_.insert(fix.evidence_id).second) return reject(Reason::DuplicateEvidenceId);
 
     if (policy_.session_id.empty() || policy_.boot_id.empty() || policy_.clock_id.empty()
-        || policy_.provider.empty() || policy_.max_age_ns < 0) {
+        || policy_.provider.empty() || policy_.max_age_ns < 0
+        || !validSourceKind(policy_.source_kind)) {
         return reject(Reason::InvalidPolicy);
     }
     if (fix.schema_version != 1) return reject(Reason::UnsupportedSchema);
+    if (!validSourceKind(fix.source_kind)) return reject(Reason::InvalidSourceKind);
     if (fix.session_id != policy_.session_id || fix.boot_id != policy_.boot_id
         || fix.clock_id != policy_.clock_id || fix.source_kind != policy_.source_kind
         || fix.provider != policy_.provider) {

@@ -169,5 +169,26 @@ int main() {
         expect(check.present(fix(), 1'020'000'000), Reason::InvalidPolicy);
         require(check.consumedCount() == 1, "invalid policy erased evidence identity");
     }
+    {
+        const auto invalid_kind = static_cast<SourceKind>(2);
+        auto invalid_policy = policy();
+        invalid_policy.source_kind = invalid_kind;
+        FixPrecheck check(invalid_policy);
+        auto malformed = fix("invalid-policy-kind");
+        malformed.source_kind = invalid_kind;
+        expect(check.present(malformed, 1'020'000'000), Reason::InvalidPolicy);
+        expect(check.present(malformed, 1'020'000'000), Reason::DuplicateEvidenceId);
+        require(check.consumedCount() == 1, "invalid policy kind erased evidence identity");
+    }
+    {
+        FixPrecheck check(policy());
+        auto malformed = fix("invalid-fix-kind");
+        malformed.source_kind = static_cast<SourceKind>(2);
+        expect(check.present(malformed, 1'020'000'000), Reason::InvalidSourceKind);
+        expect(check.present(malformed, 1'020'000'000), Reason::DuplicateEvidenceId);
+        require(check.consumedCount() == 1, "invalid fix kind erased evidence identity");
+        expect(check.present(fix("valid-after-invalid-kind"), 1'020'000'000),
+               Reason::Eligible);
+    }
     std::cout << "gnss-precheck-native: PASS\n";
 }

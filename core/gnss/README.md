@@ -12,6 +12,9 @@ Architecture Revision 3 leaves the operational GNSS freshness threshold
 provisional; this work package does not choose one. Times are boot-scoped
 monotonic nanoseconds. Wall/UTC times are not compared. Replay must retain its
 source identity and use the same precheck under a replay policy.
+Only the defined `Live` and `Replay` source kinds are valid. An unknown policy
+kind rejects as `InvalidPolicy`; an unknown fix kind rejects as
+`InvalidSourceKind` even if its malformed numeric value matches the policy.
 
 Every nonempty evidence ID is consumed on first presentation, even if the fix
 fails schema, provenance, timing or numerical checks. An eligible fix advances

@@ -54,6 +54,7 @@ enum class Reason {
     DuplicateEvidenceId,
     InvalidPolicy,
     UnsupportedSchema,
+    InvalidSourceKind,
     ProvenanceMismatch,
     MockFix,
     InvalidTimestamp,
