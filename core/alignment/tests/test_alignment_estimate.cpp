@@ -356,6 +356,18 @@ int main() {
                 "publisher health recovered without restoring eligibility");
     });
 
+    run("explicit_monitor_failure_disables_without_overwrite", [] {
+        alignment::AlignmentEstimatePublisher publisher;
+        const auto accepted = estimate();
+        require(publisher.publish(accepted).accepted, "initial posterior was rejected");
+        publisher.failClosed();
+        require(!publisher.dependentAidsEligible(),
+                "explicit monitor failure left dependent aids eligible");
+        require(publisher.latest().has_value()
+                    && publisher.latest()->sequence == accepted.sequence,
+                "explicit monitor failure overwrote the accepted posterior");
+    });
+
     run("failure_codes_have_stable_strings", [] {
         require(std::string(alignment::toString(
                     alignment::AlignmentEstimateError::MissingRecoveryEvidence))

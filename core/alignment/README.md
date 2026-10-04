@@ -53,6 +53,26 @@ state changes and repeated slips cannot recycle their own evidence to restore
 eligibility.
 
 This layer does not estimate covariance, infer scientific acceptance
-thresholds, detect mount slip, choose between S3-M1 and S3-M2, or modify C-07
-navigation state. Those remain with the later reviewed WP-06 work and S3
-execution.
+thresholds, choose between S3-M1 and S3-M2, or modify C-07 navigation state.
+Those remain with the later reviewed WP-06 work and S3 execution.
+
+## Mount movement and slip monitoring
+
+`MountSlipDetector` compares quality-eligible C-05 orientation evidence with an
+explicitly armed `VALID` I-06 baseline. It uses only the frozen S3 controlled
+slip magnitude (15 degrees) and maximum detection latency (one second): a
+geodesic change at the magnitude is synchronously published as
+`SLIP_SUSPECTED`, while a monitoring gap beyond the latency fails dependent
+aids closed. The detector does not require magnetometer input.
+
+Slip is latched. The detector never restores `VALID` itself and never reuses a
+pre-slip estimate. Re-arming requires a separately produced, publisher-accepted
+`VALID` posterior with new evidence identity. Invalid quaternion, provenance,
+ordering, quality, configuration, monitoring continuity or baseline state also
+fails the dependent-aid gate closed without overwriting the latest accepted
+posterior.
+
+These constants define the frozen S3 feasibility test; they are not a field
+performance claim. WP-06.4 does not execute controlled slips or demonstrate
+detection rate, latency or false-positive acceptance. Those evidence claims
+remain exclusively with WP-06.5 and WP-06.6.

@@ -1,9 +1,9 @@
 {
   "architecture_authority_statement": "Architecture Revision 3 is authoritative; this static graph is supporting evidence only.",
   "ci_mode": "snapshot-validation-only",
-  "community_count": 260,
-  "edge_count": 6181,
-  "extracted_edge_count": 6025,
+  "community_count": 257,
+  "edge_count": 6192,
+  "extracted_edge_count": 6032,
   "generator_script_version": "1.0.0",
   "graph_bootstrap_commands": [
     [
@@ -36,7 +36,7 @@
   "graphify_package": "graphifyy",
   "graphify_product": "Graphify",
   "graphify_version": "0.9.53",
-  "inferred_edge_count": 156,
+  "inferred_edge_count": 160,
   "known_graphify_limitations": [
     "Code-only AST extraction does not semantically index architecture documents.",
     "The committed dependency snapshot and bootstrap repository manifest are excluded to prevent recursive generated-artifact graphs.",
@@ -50,7 +50,7 @@
   "sanitizer_script_sha256": "69657380942a27dc643f80ab4323d20bc5f9d05ba22072e1bc1cfed1f253db33",
   "schema_version": 1,
   "snapshot_classification": "generated-and-sanitized",
-  "source_branch": "issue/WP-07.1-wp-07-1-implement-gnss",
+  "source_branch": "issue/WP-06.4-wp-06-4-implement-phone",
   "source_includes_working_tree": true,
   "source_parent_commit": "b3dc2a03447e93ad00f3169f358f89301c4e6c72",
   "source_repository": "akhileshkancharla/SIH26168-intelligent-dead-reckoning",
