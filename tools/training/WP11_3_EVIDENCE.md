@@ -4,9 +4,9 @@
 
 - Work item: issue #87, frozen GNSS-blackout masking protocol.
 - Source snapshot: current `main` at
-  `b3dc2a03447e93ad00f3169f358f89301c4e6c72` was merged into the PR branch on
-  2026-10-03. Graph regeneration used the resulting clean merged source tree at
-  the reachable pushed PR head `5231f3769ebc998f534a803ed1112aba76bcbb40`.
+  `5c5e0b9ce5cc419735612b682a7b26bfe36eb1ee` was merged into the PR branch.
+  Graph regeneration used the resulting clean merged source tree at reachable
+  pushed PR head `f5ec1203144a40588aa38270fa462ae51f3686f0`.
 - Governing inputs: Architecture Revision 3; Development Design Baseline;
   interfaces I-14, I-20, and I-22; the active WP-10 runtime-feature firewall;
   and the issue acceptance boundary.
@@ -53,7 +53,7 @@ python -m unittest discover -s ci/tests -v
 26 tests passed
 
 python tools/graphify/verify_graph.py
-PASS: sanitized Graphify snapshot (3760 nodes, 6210 edges, 250 communities)
+PASS: sanitized Graphify snapshot (3900 nodes, 6422 edges, 268 communities)
 
 python ci/generate_contract_bindings.py --check
 PASS: generated contract bindings
@@ -61,11 +61,8 @@ PASS: generated contract bindings
 python ci/verify_repository.py all
 PASS: all
 
-python ci/run_python_checks.py python
-python ci/run_python_checks.py dataset
-GitHub Selective CI run #177 passed every requested lane on the prior reviewed
-head. The current conflict-resolution follow-up requires a fresh GitHub CI run
-after it is published; no future result is represented here as a pass.
+The current manifest/evidence follow-up does not claim a new local test run.
+Publishing it requests a fresh current-head GitHub CI run.
 ```
 
 Dependency-graph regeneration used the repository wrapper with the exact
@@ -78,17 +75,18 @@ powershell -NoProfile -ExecutionPolicy Bypass -File tools/graphify/update_graph.
 Two fresh rebuilds from the same final source tree produced byte-identical
 sanitized artifacts. Both `source_parent_commit` and
 `raw_graph_built_at_commit` name reachable pushed head
-`5231f3769ebc998f534a803ed1112aba76bcbb40`, and
+`f5ec1203144a40588aa38270fa462ae51f3686f0`, and
 `source_includes_working_tree` is false. The repository manifest was then
-regenerated from that final snapshot. The verified snapshot contains 3760
-nodes, 6210 edges, and 250 communities. Final artifact SHA-256 values:
+regenerated after the graph snapshot was committed. The verified snapshot
+contains 3900 nodes, 6422 edges, and 268 communities. Final artifact SHA-256
+values:
 
 ```text
-GRAPH_REPORT.md             b9e1e169e5c3734dc8db117043e3a23f72e4f944e63db461c71d061b2829b18d
-graph.json                  9be50cd84e4d0eb301396a41d571688097aeabdfa89ec3a99eb70f805457eb80
-metadata.json               418b86ace97a99dbe31255b0cfcd63a520ffc9dc29feec2207df8510000231c1
-SHA256SUMS.txt              6117713baf45085ac1e89d7669250b94858e5f1e9b8199dfeb9a9a29abc8ecdf
-repository_manifest.json   a9073cfbf421c97f8ba3e1f1f07bbb23e38239b1f14202856374845852571bed
+GRAPH_REPORT.md             2ac0d0bccb1a0b11217f92595abfc8456f851269db885e53f1bfd72e823ca290
+graph.json                  d1d8a71b125a3633088bfacbae153e6e3e92c71afdbf90e94354daf313c79deb
+metadata.json               ded3ea52d321958543627f09acea5a60a68b1ba37454de596d5ed89d3222dda5
+SHA256SUMS.txt              70a1c22a639d8de0e4b30221fb87d92fa32f6345d833a205acc3ec869026e7ca
+repository_manifest.json   9449fbbacd3959c79754d385acd15fdea493f7583400163516e8b4178b5fd534
 ```
 
 The conservative CI selector requests every lane because the shared Python test
