@@ -125,8 +125,9 @@ private:
     bool policy_valid_{false};
     OutageSnapshot state_;
     std::optional<std::int64_t> last_observed_epoch_ns_;
-    std::unordered_set<std::string> accepted_aid_ids_;
-    std::unordered_set<std::string> candidate_ids_;
+    // Shared aid/candidate ledger: a valid-context presentation consumes its
+    // nonempty identity even when subsequent screening rejects the input.
+    std::unordered_set<std::string> consumed_evidence_ids_;
 };
 
 }  // namespace sih26168::gnss

@@ -230,6 +230,56 @@ int main() {
                 "reset age baseline had wrong boundary");
     });
 
+    run("rejected_aid_identity_cannot_be_rewritten", [] {
+        gnss::OutageStateTracker tracker(policy());
+        expect(tracker.acceptedAid(at(990), "replayed-fix", false,
+                                   Availability::HEALTHY), Error::IneligibleAid);
+        expect(tracker.acceptedAid(at(991), "replayed-fix", true,
+                                   Availability::HEALTHY), Error::DuplicateEvidenceId);
+        expect(tracker.acceptedAid(at(992), "bad-quality", true,
+                                   Availability::DEGRADED), Error::IneligibleAid);
+        expect(tracker.acceptedAid(at(993), "bad-quality", true,
+                                   Availability::HEALTHY), Error::DuplicateEvidenceId);
+        require(tracker.snapshot().mode == Mode::INITIALIZING
+                    && !tracker.snapshot().last_accepted_aid_ns,
+                "replayed rejection established GNSS aid");
+        anchor(tracker);
+        expect(tracker.acceptedAid(at(1'000), "same-epoch", true,
+                                   Availability::HEALTHY),
+               Error::NonIncreasingAidEpoch);
+        expect(tracker.acceptedAid(at(1'001), "same-epoch", true,
+                                   Availability::HEALTHY), Error::DuplicateEvidenceId);
+        require(tracker.snapshot().last_accepted_aid_ns == 1'000,
+                "replayed non-increasing aid moved the baseline");
+        require(tracker.advance(at(1'300)).cause == Cause::TimedOutage,
+                "rejected aid changed the outage deadline");
+        expect(tracker.candidateReturned(
+                   at(1'310), {gnss::Reason::Eligible, true, 0, "replayed-fix"}),
+               Error::DuplicateEvidenceId);
+        require(tracker.snapshot().mode == Mode::BLACKOUT_DR,
+                "rejected aid was reused as a returning candidate");
+    });
+
+    run("rejected_candidate_identity_cannot_be_upgraded", [] {
+        gnss::OutageStateTracker tracker(policy());
+        blackout(tracker);
+        expect(tracker.candidateReturned(
+                   at(1'310), {gnss::Reason::StaleFix, false, 310, "stale"}),
+               Error::IneligibleCandidate);
+        expect(tracker.candidateReturned(
+                   at(1'311), {gnss::Reason::Eligible, true, 0, "stale"}),
+               Error::DuplicateEvidenceId);
+        expect(tracker.candidateReturned(
+                   at(1'312), {gnss::Reason::InvalidPolicy, true, 0, "forged"}),
+               Error::IneligibleCandidate);
+        expect(tracker.candidateReturned(
+                   at(1'313), {gnss::Reason::Eligible, true, 0, "forged"}),
+               Error::DuplicateEvidenceId);
+        require(tracker.snapshot().mode == Mode::BLACKOUT_DR
+                    && tracker.snapshot().availability == Availability::UNAVAILABLE,
+                "upgraded rejected candidate entered reacquisition");
+    });
+
     run("declaration_requires_valid_kind_and_mask_provenance", [] {
         gnss::OutageStateTracker tracker(policy());
         anchor(tracker);

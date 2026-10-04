@@ -98,12 +98,12 @@ OutageResult OutageStateTracker::acceptedAid(const OutageContext& context,
         && state_.mode != Mode::DEGRADED) {
         return rejected(OutageError::InvalidTransition);
     }
+    if (evidence_id.empty()) return rejected(OutageError::MissingEvidenceId);
+    if (!consumed_evidence_ids_.insert(evidence_id).second) {
+        return rejected(OutageError::DuplicateEvidenceId);
+    }
     if (!core_update_accepted || screened_availability != Availability::HEALTHY) {
         return rejected(OutageError::IneligibleAid);
-    }
-    if (evidence_id.empty()) return rejected(OutageError::MissingEvidenceId);
-    if (accepted_aid_ids_.contains(evidence_id) || candidate_ids_.contains(evidence_id)) {
-        return rejected(OutageError::DuplicateEvidenceId);
     }
     if (state_.last_accepted_aid_ns
         && context.epoch_ns <= *state_.last_accepted_aid_ns) {
@@ -111,7 +111,6 @@ OutageResult OutageStateTracker::acceptedAid(const OutageContext& context,
     }
 
     const bool changed = state_.mode != Mode::GNSS_AIDED;
-    accepted_aid_ids_.insert(evidence_id);
     state_.last_accepted_aid_ns = context.epoch_ns;
     state_.availability = Availability::HEALTHY;
     state_.mode = Mode::GNSS_AIDED;
@@ -194,15 +193,16 @@ OutageResult OutageStateTracker::candidateReturned(const OutageContext& context,
     if (state_.mode != Mode::BLACKOUT_DR) {
         return rejected(OutageError::InvalidTransition);
     }
-    if (!precheck.eligible || precheck.reason != Reason::Eligible
-        || precheck.age_ns < 0 || precheck.evidence_id.empty()) {
+    if (precheck.evidence_id.empty()) {
         return rejected(OutageError::IneligibleCandidate);
     }
-    if (candidate_ids_.contains(precheck.evidence_id)
-        || accepted_aid_ids_.contains(precheck.evidence_id)) {
+    if (!consumed_evidence_ids_.insert(precheck.evidence_id).second) {
         return rejected(OutageError::DuplicateEvidenceId);
     }
-    candidate_ids_.insert(precheck.evidence_id);
+    if (!precheck.eligible || precheck.reason != Reason::Eligible
+        || precheck.age_ns < 0) {
+        return rejected(OutageError::IneligibleCandidate);
+    }
     state_.candidate_evidence_id = precheck.evidence_id;
     state_.availability = Availability::CANDIDATE_RETURN;
     state_.mode = Mode::REACQUIRING;

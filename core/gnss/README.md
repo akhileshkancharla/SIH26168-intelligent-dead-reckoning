@@ -67,3 +67,9 @@ for later I-14 writer integration, but it is not itself a finalized I-14
 manifest or a complete session log. Native tests are registered as
 `gnss-outage-native`; no field performance or integrated Android path is
 claimed.
+
+Within a valid clock context and permitted mode, the first nonempty aid or
+candidate evidence ID is consumed before its attestations are checked. A
+rejected ID cannot be re-presented with upgraded C-07/C-09 or precheck claims;
+the aid and candidate paths share one evidence ledger. Invalid clock contexts,
+terminal faults, and disallowed mode transitions fail before ledger mutation.
