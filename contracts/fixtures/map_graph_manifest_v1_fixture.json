@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "map_version": "synthetic-map-v1",
+  "source_pbf_sha256": "1111111111111111111111111111111111111111111111111111111111111111",
+  "region_sha256": "2222222222222222222222222222222222222222222222222222222222222222",
+  "graph_sha256": "3333333333333333333333333333333333333333333333333333333333333333",
+  "display_sha256": null,
+  "toolchain": {
+    "build_version": "synthetic-build-v1",
+    "python_version": "3.12",
+    "osmium_version": "4.3.1",
+    "requirements_lock_sha256": "4444444444444444444444444444444444444444444444444444444444444444"
+  },
+  "crs": {
+    "geodetic": "CRS84/WGS84",
+    "axis_order": "longitude,latitude",
+    "local_frame_id": "SYNTHETIC_NED_0_0_0_WGS84_v1",
+    "local_frame_axes": ["north", "east", "down"],
+    "anchor": {
+      "longitude_deg": 0.0,
+      "latitude_deg": 0.0,
+      "ellipsoid_height_m": 0.0
+    }
+  },
+  "bounds": [-0.01, -0.01, 0.01, 0.01],
+  "notices": [
+    "Synthetic fixture only; contains no private or real map bytes.",
+    "© OpenStreetMap contributors; source database subject to ODbL 1.0."
+  ],
+  "route_status": "FIELD_VALIDATION_PENDING"
+}

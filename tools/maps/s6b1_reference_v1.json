@@ -1,0 +1,67 @@
+{
+  "schema_version": 1,
+  "map_version": "mgit-pbf-0711df3ca31f3d83-v1",
+  "source_pbf_sha256": "0711df3ca31f3d83a4d2b608adaa0cd1e8e37b1f5a4bf6aece6543d843681790",
+  "region_sha256": "be851dc0ad6a191175ebf7055884b1b08ada1fb428eab795c79b0088a25eed30",
+  "graph_sha256": "8c2c6e8e8e7bde66507a09b2d42a341df76a5a93662e79ebe94094ace61c5305",
+  "display_sha256": null,
+  "toolchain": {
+    "build_version": "S6B1-v1",
+    "python_version": "3.12",
+    "osmium_version": "4.3.1",
+    "requirements_lock_sha256": "89f00bfc484450ea57adb9bc221eed6dce968fb3d3457560479d99363a50bcf5"
+  },
+  "crs": {
+    "geodetic": "CRS84/WGS84",
+    "axis_order": "longitude,latitude",
+    "local_frame_id": "MGIT_NED_78.3219500_17.3901000_0.0_WGS84_v1",
+    "local_frame_axes": ["north", "east", "down"],
+    "anchor": {
+      "longitude_deg": 78.32195,
+      "latitude_deg": 17.3901,
+      "ellipsoid_height_m": 0.0
+    }
+  },
+  "bounds": [78.3127, 17.384, 78.3312, 17.3962],
+  "notices": [
+    "© OpenStreetMap contributors; source database subject to ODbL 1.0. Project-level compliance review remains required.",
+    "The frozen PBF, SQLite graph, exact routes and delivery archive are private external artifacts and are not authorized for Git or CI redistribution.",
+    "Map tags and geometry do not prove access, permission, safety or current drivability."
+  ],
+  "route_status": "FIELD_VALIDATION_PENDING",
+  "gate_decision": "S6B1-CONDITIONAL",
+  "graph_logical_sha256": "f6ae2f2ab327942dda61b01d650d771befc856e6b491c6ff398860c268c0b115",
+  "delivery": {
+    "artifact": "S6B1_MGIT_Road_Graph_Foundation_v1",
+    "archive_root": "S6B1_MGIT_Road_Graph_Foundation",
+    "manifest": {
+      "filename": "S6B1_ARTIFACT_MANIFEST_v1.json",
+      "size_bytes": 5483,
+      "sha256": "f64def82f05c54f61a0fd8594730acdbb047771389f43a64f0a601f246228291"
+    },
+    "archive": {
+      "filename": "S6B1_MGIT_Road_Graph_Foundation_v1.zip",
+      "size_bytes": 2319830,
+      "sha256": "a9c1e309469e658d8afd4e8b5e6be4c6f392e10558101a2bec8fc171a02cb815"
+    }
+  },
+  "verification": {
+    "graph_schema_sha256": "62977acef0d28951608bcf332e17b25fb3e5a022353576dedfce46ebc6899106",
+    "node_count": 1158,
+    "edge_count": 2188,
+    "way_count": 298,
+    "tests_passed": 19,
+    "tests_failed": 0,
+    "tests_skipped": 0,
+    "byte_identical_rebuild": true,
+    "logical_identical_rebuild": true
+  },
+  "source_pbf_redistribution_authorized": false,
+  "limitations": [
+    "This reference verifies immutable artifact identity and recorded evidence; it does not implement SQLite graph-store access or map matching.",
+    "The frozen external manifest declares a map-version hash token that does not match source_pbf_sha256; the delivery is rejected until its producer issues a corrected immutable replacement.",
+    "No PMTiles display artifact is present, so display_sha256 remains null.",
+    "Both candidate routes remain FIELD_VALIDATION_PENDING; no final route is selected.",
+    "S6B1 acceptance is conditional and does not establish Android rendering, matcher validity, field safety or navigation accuracy."
+  ]
+}
