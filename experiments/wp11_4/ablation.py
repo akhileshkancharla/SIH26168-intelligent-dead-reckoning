@@ -68,9 +68,21 @@ def summarize(errors_m: list[float]) -> dict[str, float]:
     }
 
 
+def encode_report(report: dict[str, Any]) -> bytes:
+    """Return the canonical UTF-8/LF byte representation of a report."""
+    return (
+        json.dumps(report, indent=2, sort_keys=True, allow_nan=False) + "\n"
+    ).encode("utf-8")
+
+
 def evaluate(document: dict[str, Any]) -> dict[str, Any]:
     """Validate matched evidence and produce a deterministic ablation report."""
-    if document.get("schema_version") != SCHEMA_VERSION:
+    schema_version = document.get("schema_version")
+    if (
+        isinstance(schema_version, bool)
+        or not isinstance(schema_version, int)
+        or schema_version != SCHEMA_VERSION
+    ):
         raise AblationError(f"schema_version must be {SCHEMA_VERSION}")
 
     dataset_manifest_sha256 = _require_sha256(
@@ -195,10 +207,7 @@ def main() -> int:
     document = json.loads(args.input.read_text(encoding="utf-8"))
     report = evaluate(document)
     args.output.parent.mkdir(parents=True, exist_ok=True)
-    args.output.write_text(
-        json.dumps(report, indent=2, sort_keys=True, allow_nan=False) + "\n",
-        encoding="utf-8",
-    )
+    args.output.write_bytes(encode_report(report))
     return 0
 
 
