@@ -73,3 +73,31 @@ candidate evidence ID is consumed before its attestations are checked. A
 rejected ID cannot be re-presented with upgraded C-07/C-09 or precheck claims;
 the aid and candidate paths share one evidence ledger. Invalid clock contexts,
 terminal faults, and disallowed mode transitions fail before ledger mutation.
+
+## WP-07.3 fix rejection screen
+
+`FixRejectionScreen` composes the WP-07.1 evidence-once precheck with a bounded
+physical displacement check. Stale, duplicate, malformed and wrong-provenance
+fixes are rejected before canonical I-12 construction. A biased jump exceeding
+the distance allowed by elapsed source time, the frozen run's maximum ground
+speed, and the two reported horizontal-accuracy radii is also rejected before
+C-07. Fixes with reported uncertainty beyond the run's accuracy ceiling are
+rejected before that comparison. No empirical speed or accuracy threshold is
+chosen here: callers must provide finite positive values from a separately
+approved frozen policy. A valid first
+fix cannot establish a displacement baseline until C-07 actually accepts its
+canonical update. Rejected fixes never become that baseline.
+
+The precheck's evidence ledger advances on first presentation, including
+rejected fixes. Calls are serial: the caller must supply the matching C-07
+measurement result before another candidate can enter. An actual C-07
+`RejectedInnovationGate` result is recorded as an innovation rejection; this
+screen does not compute NIS, mutate C-07, or infer a statistically biased fix
+from source coordinates alone. It cannot authenticate a caller-forged C-07
+result, and the operational speed bound remains unapproved until a run policy
+is frozen. Displacement screening cannot detect a slowly drifting bias or
+replace C-07's innovation gate. WP-07.4 still owns reacquisition dwell and
+restoration of GNSS aiding; this work does not promote candidate return.
+
+Synthetic native coverage is registered as `gnss-rejection-native`. No live
+Android integration, device accuracy, or field safety is claimed.

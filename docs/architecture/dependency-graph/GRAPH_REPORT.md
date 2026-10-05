@@ -4,12 +4,12 @@
 
 - Snapshot classification: `generated-and-sanitized`
 - Source repository: `akhileshkancharla/SIH26168-intelligent-dead-reckoning`
-- Source branch: `issue/WP-02.1-wp-02-1-import-validated`
-- Source parent commit: `a3c997bd6da795d634a5b808a02bc28dae8b86e9`
+- Source branch: `issue/WP-07.3-wp-07-3-implement-stale`
+- Source parent commit: `a2519c3d0f099db97033ed147e22707f61a34661`
 - Graphify version: `0.9.53`
 - Graphify mode: code-only static extraction; semantic document extraction disabled
-- Counts: 4161 nodes, 6917 edges, 283 communities
-- Edge evidence: 6727 extracted, 190 inferred
+- Counts: 4041 nodes, 6682 edges, 275 communities
+- Edge evidence: 6497 extracted, 185 inferred
 - CI mode: `snapshot-validation-only`
 
 ## VERIFIED FROM CODE
@@ -22,15 +22,12 @@ The C++ core is host-buildable, while Android acquisition, JNI, training, map, a
 
 | Module | Extracted source files | Current interpretation |
 | --- | ---: | --- |
-| Android app | 20 | Launcher/UI scaffold; no sensor-to-position path |
-| Android JNI adapter | 5 | Native boundary; not connected to the imported S1 logger |
-| Standalone S1 acquisition | 18 | Imported logger and analyzer; no integrated GNSS-to-position path |
-| Other Android files | 2 | Android build/configuration files outside the app, JNI, and S1 import |
-| Portable core | 42 | Host-buildable S2 core plus contract smoke |
+| Android app | 27 | Launcher/UI scaffold; no sensor-to-position path |
+| Portable core | 45 | Host-buildable S2 core plus contract smoke |
 | Contracts | 24 | Bootstrap replay schema and enum artifacts |
 | Repository automation | 14 | Repository and GitHub governance tooling |
-| Policy CI | 16 | Repository validation and generated-file checks |
-| Training/maps and top-level analyzer | 0 | No integrated source files in these top-level modules |
+| Policy CI | 15 | Repository validation and generated-file checks |
+| Acquisition/JNI/ML/maps/analyzer | 0 | README-only or disconnected placeholders |
 
 ### Entry points
 
@@ -60,28 +57,25 @@ Current high-degree nodes are primarily repository administration tooling, not n
 | Node | Degree | Source |
 | --- | ---: | --- |
 | `ReplayNavigationViewModel` | 59 | [android/app/src/main/java/org/sih26168/app/replay/ReplayNavigationViewModel.kt:L16](../../../android/app/src/main/java/org/sih26168/app/replay/ReplayNavigationViewModel.kt) |
-| `MapLibreMapViewport.kt` | 39 | [android/app/src/main/java/org/sih26168/app/ui/map/MapLibreMapViewport.kt:L1](../../../android/app/src/main/java/org/sih26168/app/ui/map/MapLibreMapViewport.kt) |
+| `MapLibreMapViewport.kt` | 40 | [android/app/src/main/java/org/sih26168/app/ui/map/MapLibreMapViewport.kt:L1](../../../android/app/src/main/java/org/sih26168/app/ui/map/MapLibreMapViewport.kt) |
 | `configure_project.mjs` | 37 | [tools/bootstrap/configure_project.mjs:L1](../../../tools/bootstrap/configure_project.mjs) |
-| `RecordingService` | 35 | [android/acquisition/imported/S1_Android_Acquisition_Spike/app/src/main/java/org/sih26168/s1logger/RecordingService.kt:L16](../../../android/acquisition/imported/S1_Android_Acquisition_Spike/app/src/main/java/org/sih26168/s1logger/RecordingService.kt) |
+| `LocationFix` | 36 | [core/gnss/include/sih26168/gnss/fix_precheck.hpp:L16](../../../core/gnss/include/sih26168/gnss/fix_precheck.hpp) |
 | `generate_contract_bindings.py` | 35 | [ci/generate_contract_bindings.py:L1](../../../ci/generate_contract_bindings.py) |
-| `LocationFix` | 32 | [core/gnss/include/sih26168/gnss/fix_precheck.hpp:L16](../../../core/gnss/include/sih26168/gnss/fix_precheck.hpp) |
 | `ReplayNavigationViewModelTest` | 31 | [android/app/src/test/java/org/sih26168/app/replay/ReplayNavigationViewModelTest.kt:L12](../../../android/app/src/test/java/org/sih26168/app/replay/ReplayNavigationViewModelTest.kt) |
 | `reference_oracle.py` | 31 | [core/navigation/verification/python/reference_oracle.py:L1](../../../core/navigation/verification/python/reference_oracle.py) |
 | `ReplayNavigationShell.kt` | 29 | [android/app/src/main/java/org/sih26168/app/ui/ReplayNavigationShell.kt:L1](../../../android/app/src/main/java/org/sih26168/app/ui/ReplayNavigationShell.kt) |
 | `AlignmentEstimate` | 28 | [core/include/sih26168/contracts/alignment_estimate.hpp:L15](../../../core/include/sih26168/contracts/alignment_estimate.hpp) |
+| `MeasurementInput` | 28 | [core/navigation/include/sih26168/navigation_core.hpp:L141](../../../core/navigation/include/sih26168/navigation_core.hpp) |
 
 ### Weakly connected or orphan candidates
 
-The raw Graphify report identified 1348 isolated symbol nodes. This sanitizer independently found 1676 repository-backed nodes with degree at most one; the bounded sample below is diagnostic, not deletion evidence.
+The raw Graphify report identified 1360 isolated symbol nodes. This sanitizer independently found 1668 repository-backed nodes with degree at most one; the bounded sample below is diagnostic, not deletion evidence.
 
 | Node | Degree | Source |
 | --- | ---: | --- |
-| `S1_Android_Acquisition_Spike/app/build.gradle.kts` | 0 | [android/acquisition/imported/S1_Android_Acquisition_Spike/app/build.gradle.kts](../../../android/acquisition/imported/S1_Android_Acquisition_Spike/app/build.gradle.kts) |
-| `S1_Android_Acquisition_Spike/build.gradle.kts` | 0 | [android/acquisition/imported/S1_Android_Acquisition_Spike/build.gradle.kts](../../../android/acquisition/imported/S1_Android_Acquisition_Spike/build.gradle.kts) |
-| `S1_Android_Acquisition_Spike/settings.gradle.kts` | 0 | [android/acquisition/imported/S1_Android_Acquisition_Spike/settings.gradle.kts](../../../android/acquisition/imported/S1_Android_Acquisition_Spike/settings.gradle.kts) |
-| `android/app/build.gradle.kts` | 0 | [android/app/build.gradle.kts](../../../android/app/build.gradle.kts) |
+| `app/build.gradle.kts` | 0 | [android/app/build.gradle.kts](../../../android/app/build.gradle.kts) |
 | `android/build.gradle.kts` | 0 | [android/build.gradle.kts](../../../android/build.gradle.kts) |
-| `android/settings.gradle.kts` | 0 | [android/settings.gradle.kts](../../../android/settings.gradle.kts) |
+| `settings.gradle.kts` | 0 | [android/settings.gradle.kts](../../../android/settings.gradle.kts) |
 | `update_manifest.py` | 0 | [ci/update_manifest.py](../../../ci/update_manifest.py) |
 | `verify_repository.ps1` | 0 | [ci/verify_repository.ps1](../../../ci/verify_repository.ps1) |
 | `smoke.cpp` | 0 | [core/navigation/src/smoke.cpp](../../../core/navigation/src/smoke.cpp) |
@@ -89,8 +83,11 @@ The raw Graphify report identified 1348 isolated symbol nodes. This sanitizer in
 | `sih26168-bootstrap` | 0 | [pyproject.toml](../../../pyproject.toml) |
 | `sih26168_bootstrap/__init__.py` | 0 | [tools/bootstrap/src/sih26168_bootstrap/__init__.py](../../../tools/bootstrap/src/sih26168_bootstrap/__init__.py) |
 | `dataset/tests/__init__.py` | 0 | [tools/dataset/tests/__init__.py](../../../tools/dataset/tests/__init__.py) |
-| `analyzer/__init__.py` | 1 | [android/acquisition/imported/S1_Android_Acquisition_Spike/analyzer/__init__.py](../../../android/acquisition/imported/S1_Android_Acquisition_Spike/analyzer/__init__.py) |
-| `S1 Android acquisition analyzer.` | 1 | [android/acquisition/imported/S1_Android_Acquisition_Spike/analyzer/__init__.py](../../../android/acquisition/imported/S1_Android_Acquisition_Spike/analyzer/__init__.py) |
+| `DUPLICATE_EVIDENCE_ID` | 1 | [android/app/src/main/java/org/sih26168/app/ingress/SharedNavigationIngress.kt](../../../android/app/src/main/java/org/sih26168/app/ingress/SharedNavigationIngress.kt) |
+| `NEGATIVE_SEQUENCE` | 1 | [android/app/src/main/java/org/sih26168/app/ingress/SharedNavigationIngress.kt](../../../android/app/src/main/java/org/sih26168/app/ingress/SharedNavigationIngress.kt) |
+| `NON_INCREASING_STREAM_SEQUENCE` | 1 | [android/app/src/main/java/org/sih26168/app/ingress/SharedNavigationIngress.kt](../../../android/app/src/main/java/org/sih26168/app/ingress/SharedNavigationIngress.kt) |
+| `REENTRANT_SUBMISSION` | 1 | [android/app/src/main/java/org/sih26168/app/ingress/SharedNavigationIngress.kt](../../../android/app/src/main/java/org/sih26168/app/ingress/SharedNavigationIngress.kt) |
+| `SOURCE_MODE_MISMATCH` | 1 | [android/app/src/main/java/org/sih26168/app/ingress/SharedNavigationIngress.kt](../../../android/app/src/main/java/org/sih26168/app/ingress/SharedNavigationIngress.kt) |
 
 ### Cycles
 
