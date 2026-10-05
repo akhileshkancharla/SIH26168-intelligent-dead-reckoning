@@ -63,6 +63,7 @@ enum class OutageTransitionCause {
     DeclaredOutage,
     CandidateReturn,
     CandidateRejected,
+    RecoveredAid,
     CoreFault,
 };
 
@@ -115,6 +116,10 @@ public:
     [[nodiscard]] const OutageSnapshot& snapshot() const noexcept { return state_; }
 
 private:
+    friend class ReacquisitionGate;
+    [[nodiscard]] OutageResult completeRecovery(const OutageContext& context,
+                                                const std::string& first_evidence_id,
+                                                const std::string& accepted_evidence_id);
     [[nodiscard]] OutageError validate(const OutageContext& context) const;
     [[nodiscard]] bool outageOverdue(std::int64_t epoch_ns) const noexcept;
     void observeEpoch(std::int64_t epoch_ns) noexcept;

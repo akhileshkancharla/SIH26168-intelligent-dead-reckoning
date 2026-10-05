@@ -41,6 +41,14 @@ The production library exports only `core/navigation/include` and Eigen's
 header-only target to consumers. Python and NumPy remain offline verification
 tools and are not CMake or production dependencies.
 
+For WP-07.4, `NavigationCore::screen()` checks the same validated I-12 input
+and S2 innovation gate as `update()`, but changes neither scientific state nor
+the evidence ledger. A passing screen is not an accepted update; the separate
+`MeasurementScreenResult` type makes that boundary explicit. C-09 consumes the
+source fix during screening, and only the final fix after the configured dwell
+may call `update()` on the serial executor. `navigation-core-api` covers exact
+state, covariance and ledger non-mutation and final NIS parity.
+
 ## Portable public API
 
 Issue #39 defines the public C++20 contract in

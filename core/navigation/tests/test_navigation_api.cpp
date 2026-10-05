@@ -110,6 +110,45 @@ int main() {
     static_assert(!std::is_reference_v<decltype(std::declval<const api::NavigationCore&>().stateSnapshot())>);
     static_assert(!std::is_reference_v<decltype(std::declval<const api::NavigationCore&>().covarianceSnapshot())>);
 
+    run("screen_uses_authoritative_gate_without_state_or_ledger_mutation", [] {
+        api::NavigationCore core(initialState());
+        const auto input = positionMeasurement("return", 1, 1'000'000'000);
+        const auto before_state = core.stateSnapshot();
+        const auto before_covariance = core.covarianceSnapshot();
+        const auto before_count = core.consumedEvidenceCount();
+        const auto first = core.screen(input);
+        const auto repeated = core.screen(input);
+        require(first.passesGate() && repeated.passesGate()
+                    && first.dimension == 3
+                    && first.normalized_innovation_squared
+                        == repeated.normalized_innovation_squared,
+                "deterministic screening did not use the C-07 gate");
+        require(equalState(core.stateSnapshot(), before_state)
+                    && core.covarianceSnapshot().covariance_15x15
+                        == before_covariance.covariance_15x15
+                    && core.consumedEvidenceCount() == before_count,
+                "screening changed scientific state, covariance or evidence ledger");
+        const auto applied = core.update(input);
+        require(applied.accepted()
+                    && applied.normalized_innovation_squared
+                        == first.normalized_innovation_squared
+                    && core.consumedEvidenceCount() == before_count + 1,
+                "screened final fix did not enter C-07 exactly once");
+    });
+
+    run("screen_rejects_biased_fix_without_scientific_update", [] {
+        api::NavigationCore core(initialState());
+        auto input = positionMeasurement("biased-return", 1, 1'000'000'000);
+        input.z[0] = 100.0;
+        const auto before = core.stateSnapshot();
+        const auto screened = core.screen(input);
+        require(screened.status == api::MeasurementStatus::RejectedInnovationGate
+                    && !screened.passesGate()
+                    && equalState(core.stateSnapshot(), before)
+                    && core.consumedEvidenceCount() == 0,
+                "biased return influenced C-07 during screening");
+    });
+
     run("construction_and_initialization", [] {
         api::NavigationCore core(initialState());
         const auto state = core.stateSnapshot();

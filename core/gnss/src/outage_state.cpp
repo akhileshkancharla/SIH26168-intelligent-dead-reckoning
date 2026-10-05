@@ -229,6 +229,34 @@ OutageResult OutageStateTracker::candidateRejected(const OutageContext& context,
     return applied(OutageTransitionCause::CandidateRejected, true, context.epoch_ns);
 }
 
+OutageResult OutageStateTracker::completeRecovery(
+    const OutageContext& context, const std::string& first_evidence_id,
+    const std::string& accepted_evidence_id) {
+    if (const auto error = validate(context); error != OutageError::None) {
+        return rejected(error);
+    }
+    if (state_.mode != Mode::REACQUIRING || first_evidence_id.empty()
+        || first_evidence_id != state_.candidate_evidence_id
+        || accepted_evidence_id.empty()
+        || accepted_evidence_id == first_evidence_id) {
+        return rejected(OutageError::CandidateMismatch);
+    }
+    if (!consumed_evidence_ids_.insert(accepted_evidence_id).second) {
+        return rejected(OutageError::DuplicateEvidenceId);
+    }
+    observeEpoch(context.epoch_ns);
+    state_.availability = Availability::HEALTHY;
+    state_.mode = Mode::GNSS_AIDED;
+    state_.last_accepted_aid_ns = context.epoch_ns;
+    state_.outage_start_ns.reset();
+    state_.outage_kind.reset();
+    state_.outage_reason.clear();
+    state_.mask_id.clear();
+    state_.candidate_evidence_id.clear();
+    ++state_.transition_sequence;
+    return applied(OutageTransitionCause::RecoveredAid, true, context.epoch_ns);
+}
+
 OutageResult OutageStateTracker::coreFault(const OutageContext& context) {
     if (const auto error = validate(context); error != OutageError::None) {
         return rejected(error);
