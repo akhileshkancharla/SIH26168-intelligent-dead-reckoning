@@ -5,11 +5,11 @@
 - Snapshot classification: `generated-and-sanitized`
 - Source repository: `akhileshkancharla/SIH26168-intelligent-dead-reckoning`
 - Source branch: `issue/WP-02.1-wp-02-1-import-validated`
-- Source parent commit: `5c5e0b9ce5cc419735612b682a7b26bfe36eb1ee`
+- Source parent commit: `4be6bc72e888dff771ff4c2f3799f0441b263e62`
 - Graphify version: `0.9.53`
 - Graphify mode: code-only static extraction; semantic document extraction disabled
-- Counts: 4017 nodes, 6597 edges, 273 communities
-- Edge evidence: 6432 extracted, 165 inferred
+- Counts: 4067 nodes, 6725 edges, 275 communities
+- Edge evidence: 6557 extracted, 168 inferred
 - CI mode: `snapshot-validation-only`
 
 ## VERIFIED FROM CODE
@@ -72,7 +72,7 @@ Current high-degree nodes are primarily repository administration tooling, not n
 
 ### Weakly connected or orphan candidates
 
-The raw Graphify report identified 1312 isolated symbol nodes. This sanitizer independently found 1627 repository-backed nodes with degree at most one; the bounded sample below is diagnostic, not deletion evidence.
+The raw Graphify report identified 1312 isolated symbol nodes. This sanitizer independently found 1639 repository-backed nodes with degree at most one; the bounded sample below is diagnostic, not deletion evidence.
 
 | Node | Degree | Source |
 | --- | ---: | --- |
@@ -88,7 +88,7 @@ The raw Graphify report identified 1312 isolated symbol nodes. This sanitizer in
 | `run_parity.ps1` | 0 | [core/navigation/verification/run_parity.ps1](../../../core/navigation/verification/run_parity.ps1) |
 | `sih26168-bootstrap` | 0 | [pyproject.toml](../../../pyproject.toml) |
 | `sih26168_bootstrap/__init__.py` | 0 | [tools/bootstrap/src/sih26168_bootstrap/__init__.py](../../../tools/bootstrap/src/sih26168_bootstrap/__init__.py) |
-| `tests/__init__.py` | 0 | [tools/dataset/tests/__init__.py](../../../tools/dataset/tests/__init__.py) |
+| `dataset/tests/__init__.py` | 0 | [tools/dataset/tests/__init__.py](../../../tools/dataset/tests/__init__.py) |
 | `analyzer/__init__.py` | 1 | [android/acquisition/imported/S1_Android_Acquisition_Spike/analyzer/__init__.py](../../../android/acquisition/imported/S1_Android_Acquisition_Spike/analyzer/__init__.py) |
 | `S1 Android acquisition analyzer.` | 1 | [android/acquisition/imported/S1_Android_Acquisition_Spike/analyzer/__init__.py](../../../android/acquisition/imported/S1_Android_Acquisition_Spike/analyzer/__init__.py) |
 
