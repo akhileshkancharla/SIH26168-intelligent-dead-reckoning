@@ -51,13 +51,42 @@ int main() {
         require(screen.present(fix("busy", 2, 1'100'000'000), 1'120'000'000).reason
                     == RejectionReason::PendingCoreDecision,
                 "second fix entered before the first core decision");
-        require(screen.consumedCount() == 1, "busy fix consumed a source identity");
+        require(screen.consumedCount() == 2,
+                "busy fix did not consume its source identity");
+        const auto duplicate_while_pending =
+            screen.present(fix("busy", 2, 1'100'000'000), 1'120'000'000);
+        require(duplicate_while_pending.reason == RejectionReason::PrecheckRejected
+                    && duplicate_while_pending.precheck_reason == Reason::DuplicateEvidenceId,
+                "duplicate busy evidence was hidden by the pending-core gate");
+        auto malformed_while_pending = fix("malformed", 3, 1'130'000'000);
+        malformed_while_pending.provider = "other";
+        const auto malformed_result = screen.present(malformed_while_pending, 1'150'000'000);
+        require(malformed_result.reason == RejectionReason::PrecheckRejected
+                    && malformed_result.precheck_reason == Reason::ProvenanceMismatch
+                    && screen.consumedCount() == 3,
+                "malformed busy evidence was not consumed and diagnosed");
+        const auto malformed_repeat = screen.present(malformed_while_pending, 1'150'000'000);
+        require(malformed_repeat.reason == RejectionReason::PrecheckRejected
+                    && malformed_repeat.precheck_reason == Reason::DuplicateEvidenceId,
+                "malformed busy evidence was allowed a second presentation");
+        const auto empty_while_pending =
+            screen.present(fix("", 3, 1'130'000'000), 1'150'000'000);
+        require(empty_while_pending.reason == RejectionReason::PrecheckRejected
+                    && empty_while_pending.precheck_reason == Reason::EmptyEvidenceId
+                    && screen.consumedCount() == 3,
+                "empty busy identity was not rejected without ledger mutation");
         require(screen.finalize("wrong", MeasurementStatus::Accepted).reason
                     == RejectionReason::EvidenceMismatch,
                 "mismatched core evidence finalized a candidate");
         require(screen.finalize("first", MeasurementStatus::Accepted).reason
                     == RejectionReason::AcceptedByCore,
                 "valid first core update was not recorded");
+        const auto busy_repeated = screen.present(fix("busy", 2, 1'100'000'000),
+                                                   1'120'000'000);
+        require(busy_repeated.reason == RejectionReason::PrecheckRejected
+                    && busy_repeated.precheck_reason == Reason::DuplicateEvidenceId
+                    && !busy_repeated.forwardToCore(),
+                "busy source evidence was allowed a second presentation");
         const auto repeated = screen.present(fix("first", 1, 1'000'000'000),
                                              1'020'000'000);
         require(repeated.reason == RejectionReason::PrecheckRejected

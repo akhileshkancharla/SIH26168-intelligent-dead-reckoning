@@ -49,9 +49,9 @@ FixRejectionScreen::FixRejectionScreen(RejectionPolicy policy)
 
 RejectionDecision FixRejectionScreen::present(
     const LocationFix& fix, std::int64_t now_elapsed_realtime_ns) {
-    if (pending_fix_) return decision(RejectionReason::PendingCoreDecision, fix.evidence_id);
     // WP-07.1 owns the evidence-once ledger. Even an invalid screen policy
-    // must not allow the same nonempty source identity to be presented twice.
+    // or an outstanding core decision must not leave an incoming nonempty
+    // source identity available for a later presentation.
     const Decision prechecked = precheck_.present(fix, now_elapsed_realtime_ns);
     if (!policy_valid_) {
         auto result = decision(RejectionReason::InvalidPolicy, fix.evidence_id);
@@ -63,6 +63,7 @@ RejectionDecision FixRejectionScreen::present(
         result.precheck_reason = prechecked.reason;
         return result;
     }
+    if (pending_fix_) return decision(RejectionReason::PendingCoreDecision, fix.evidence_id);
     if (fix.hacc_m > policy_.max_horizontal_accuracy_m) {
         return decision(RejectionReason::UnusableAccuracy, fix.evidence_id);
     }
