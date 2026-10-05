@@ -16,7 +16,10 @@ import org.sih26168.app.ReplayDisclosure
 import org.sih26168.app.ui.OfflineMapAssets
 import org.sih26168.app.ui.ReplayGovernanceLabels
 import org.sih26168.app.ui.pinnedDisclosureLabels
+import org.sih26168.app.replay.GnssFixDimension
 import org.sih26168.contracts.enums.AlignmentStatusV1
+import org.sih26168.contracts.enums.HealthIntegrityStateV1
+import org.sih26168.contracts.enums.ModelStatusV1
 import org.sih26168.contracts.enums.NavigationModeV1
 
 /** Synthetic presentation-boundary checks; device radio isolation is verified separately. */
@@ -151,17 +154,31 @@ class AirplaneModeReplayVerificationTest {
         val viewModel = ReplayNavigationViewModel()
         viewModel.onIntent(ReplayIntent.PresentTelemetry(2_000_000_000L, 0.0, 0.0, 2.0))
         viewModel.onIntent(UpdateHealthStates(
-            gnss = GnssHealthState(GnssFixStatus.FIX_3D, 12, 0.8, 1.2, 1_000_000_000L),
+            gnss = GnssHealthState(
+                integrity = HealthIntegrityStateV1.HEALTHY,
+                fixDimension = GnssFixDimension.FIX_3D,
+                satelliteCount = 12,
+                hdop = 0.8,
+                pdop = 1.2,
+                trustedFixTimestampNs = 1_000_000_000L,
+            ),
             alignment = AlignmentHealthState(AlignmentStatusV1.UNCERTAIN, 5.0, 0.5),
-            model = ModelHealthState(ModelStatus.UNKNOWN),
+            model = ModelHealthState(ModelStatusV1.DISABLED),
         ))
+        val sourceGnssHealth = viewModel.uiState.value.gnssHealth
         viewModel.onIntent(ReplayIntent.ToggleSimulatedOutage)
         val outage = viewModel.uiState.value
 
-        assertEquals(GnssFixStatus.OUTAGE_SIMULATED, outage.displayGnssHealth.status)
+        assertTrue(outage.isOutageSimulated)
+        assertEquals(HealthIntegrityStateV1.HEALTHY, outage.gnssHealth.integrity)
+        assertEquals(sourceGnssHealth, outage.gnssHealth)
+        assertEquals(GnssFixDimension.FIX_3D, outage.gnssHealth.fixDimension)
+        assertEquals(HealthIntegrityStateV1.HEALTHY, outage.displayGnssHealth.integrity)
+        assertNull(outage.displayGnssHealth.fixDimension)
         assertNull(outage.displayGnssHealth.satelliteCount)
         assertNull(outage.displayGnssHealth.hdop)
         assertNull(outage.displayGnssHealth.pdop)
+        assertEquals(ModelStatusV1.DISABLED, outage.modelHealth.status)
         assertEquals(1_000_000_000L, outage.trustedFixAgeNs)
         assertEquals(AlignmentStatusV1.UNCERTAIN, outage.alignmentHealth.status)
         assertEquals(AlignmentStatusV1.UNINITIALIZED,
