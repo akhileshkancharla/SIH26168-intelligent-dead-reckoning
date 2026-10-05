@@ -18,6 +18,10 @@ missing/non-finite, provenance is malformed, or any required comparison class is
 mean, RMSE, p95, maximum and endpoint errors and records RMSE deltas against the
 best classical baseline and the full model.
 
+Reports use one canonical byte representation: sorted, indented UTF-8 JSON with
+a single trailing LF. This keeps the artifact SHA-256 identical across Windows,
+Linux and macOS checkouts.
+
 Run it with:
 
 ```text
