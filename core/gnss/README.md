@@ -1,4 +1,6 @@
-# WP-07.1 GNSS fix precheck
+# GNSS host components
+
+## WP-07.1 fix precheck
 
 `FixPrecheck` screens I-02 candidate fixes before C-09 constructs an I-12
 measurement or asks C-07 to consider an update. The source fix, including its
@@ -28,6 +30,46 @@ They must be supplied from the enclosing provenance/timestamp context at the
 adapter boundary; a caller must not guess them from wall time or another boot.
 This library does not change the versioned I-02 schema or generated bindings.
 
-The module deliberately does not implement WP-07.2 outage transitions,
+The precheck deliberately does not implement WP-07.2 outage transitions,
 WP-07.3 biased-fix or physical plausibility screening, WP-07.4 reacquisition
 dwell, or the C-07 innovation gate.
+
+## WP-07.2 outage-state tracker
+
+`OutageStateTracker` owns only C-09's advisory GNSS-availability and navigation-
+mode transitions. It starts at `UNAVAILABLE` / `INITIALIZING`; it enters
+`HEALTHY` / `GNSS_AIDED` only when its caller attests both a unique, accepted
+C-07 GNSS update and independent C-09 `HEALTHY` screening. A precheck-eligible
+fix is **not** an accepted or healthy update. The tracker validates the
+attestation values, but cannot itself prove an upstream C-07 decision.
+
+The frozen run policy supplies nonzero, strictly ordered degradation and
+unavailability durations. A monotonic tick first enters `DEGRADED`, then
+`UNAVAILABLE` / `BLACKOUT_DR`; a late tick records the exact threshold epoch
+as the outage onset, not the time the tick happened. An explicit natural,
+quality, or software-simulated declaration can enter blackout immediately.
+If an input arrives after a missed unavailability deadline, the timeout is
+applied first, but the late input is rejected; a caller must not mistake that
+state change for accepted aid or a valid declaration.
+The simulated path requires a nonempty mask ID from an independently validated
+and frozen C-12 scenario; this module never masks or rewrites raw GNSS data.
+
+All calls carry matching session, boot and monotonic-clock identity. A returning
+candidate must carry a successful WP-07.1 precheck decision and only enters
+`CANDIDATE_RETURN` / `REACQUIRING`. Rejection returns to the *same* open outage.
+Neither a first candidate nor a forged accepted-aid call can restore aiding
+from blackout or reacquiring. WP-07.4 must implement the later validated
+recovery gate; WP-07.3 must implement biased-fix/physical-plausibility checks.
+`FAULT` is terminal. The tracker cannot mutate C-07 state or covariance.
+
+The snapshot exposes the open outage onset, type, reason and optional mask ID
+for later I-14 writer integration, but it is not itself a finalized I-14
+manifest or a complete session log. Native tests are registered as
+`gnss-outage-native`; no field performance or integrated Android path is
+claimed.
+
+Within a valid clock context and permitted mode, the first nonempty aid or
+candidate evidence ID is consumed before its attestations are checked. A
+rejected ID cannot be re-presented with upgraded C-07/C-09 or precheck claims;
+the aid and candidate paths share one evidence ledger. Invalid clock contexts,
+terminal faults, and disallowed mode transitions fail before ledger mutation.
