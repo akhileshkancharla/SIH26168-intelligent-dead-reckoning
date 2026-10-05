@@ -1,4 +1,5 @@
 import copy
+import hashlib
 import json
 from pathlib import Path
 import sys
@@ -8,7 +9,7 @@ import unittest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from ablation import AblationError, evaluate, main
+from ablation import AblationError, encode_report, evaluate, main
 
 
 class AblationTests(unittest.TestCase):
@@ -86,6 +87,18 @@ class AblationTests(unittest.TestCase):
         with self.assertRaisesRegex(AblationError, "exactly one full model"):
             evaluate(evidence)
 
+    def test_rejects_boolean_schema_version(self):
+        evidence = self.evidence()
+        evidence["schema_version"] = True
+        with self.assertRaisesRegex(AblationError, "schema_version must be 1"):
+            evaluate(evidence)
+
+    def test_report_encoding_is_utf8_with_fixed_lf(self):
+        encoded = encode_report(evaluate(self.evidence()))
+        self.assertTrue(encoded.endswith(b"\n"))
+        self.assertNotIn(b"\r\n", encoded)
+        self.assertEqual(encoded.decode("utf-8").count("\n"), encoded.count(b"\n"))
+
     def test_cli_writes_stable_json(self):
         with tempfile.TemporaryDirectory() as temporary:
             input_path = Path(temporary) / "input.json"
@@ -99,6 +112,12 @@ class AblationTests(unittest.TestCase):
                 sys.argv = previous
             report = json.loads(output_path.read_text(encoding="utf-8"))
             self.assertEqual(report["sample_count"], 3)
+            output_bytes = output_path.read_bytes()
+            self.assertEqual(output_bytes, encode_report(report))
+            self.assertEqual(
+                hashlib.sha256(output_bytes).hexdigest(),
+                hashlib.sha256(encode_report(evaluate(self.evidence()))).hexdigest(),
+            )
 
 
 if __name__ == "__main__":
