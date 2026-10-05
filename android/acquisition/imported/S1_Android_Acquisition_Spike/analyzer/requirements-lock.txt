@@ -1,0 +1,2 @@
+# Runtime analyzer intentionally uses Python standard library only.
+python==3.12.*
