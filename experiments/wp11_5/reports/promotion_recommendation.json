@@ -1,0 +1,66 @@
+{
+  "best_baseline_variant_id": "constant_velocity",
+  "claims_permitted": [
+    "The publication pipeline deterministically summarized the supplied aggregate fixture.",
+    "The current evidence is insufficient for model promotion."
+  ],
+  "claims_prohibited": [
+    "real-world performance",
+    "production readiness",
+    "model promotion",
+    "safety or field validity"
+  ],
+  "dataset_manifest_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "evidence_class": "synthetic-fixture",
+  "full_model_variant_id": "ridge_full",
+  "gate_findings": [
+    "Input identifiers mark the evidence as a synthetic fixture.",
+    "Upstream scientific status is exploratory-not-promoted.",
+    "No S4 completion or approved promotion-threshold evidence is present.",
+    "No model-package, runtime parity, latency, or device evidence is present."
+  ],
+  "mask_id": "synthetic-frozen-blackout-v1",
+  "model_vs_best_baseline_rmse_delta_m": -0.9733565536090256,
+  "publisher_version": "wp11.5-v2",
+  "recommendation": "do-not-promote",
+  "sample_count": 3,
+  "schema_version": 1,
+  "scientific_status": "exploratory-only",
+  "split_id": "synthetic-journey-safe-test-v1",
+  "title": "WP-11.5 exploratory evaluation and promotion recommendation",
+  "upstream_input_sha256": "dc7f88ea2b75aa10bf62f4a17081a434a9f64949c0b296fde9216d61d529b41d",
+  "upstream_limitations": [
+    "This report compares supplied matched error traces; it does not validate upstream model training.",
+    "Results are exploratory and are not a model-promotion or safety claim.",
+    "Raw private data and per-sample coordinates must remain outside Git."
+  ],
+  "upstream_reference": "PR #175 commit a6c525f, experiments/wp11_4/reports/synthetic_ablation.json",
+  "upstream_report_sha256": "18b7b5c2518f8ce7ac757c673fd637278c221c38f2341e9342b80f7bcd9fd26a",
+  "upstream_runner_version": "wp11.4-v1",
+  "variants": [
+    {
+      "endpoint_m": 5.0,
+      "evidence_sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "kind": "baseline",
+      "p95_m": 5.0,
+      "rmse_m": 4.08248290463863,
+      "variant_id": "constant_velocity"
+    },
+    {
+      "endpoint_m": 4.0,
+      "evidence_sha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+      "kind": "model",
+      "p95_m": 4.0,
+      "rmse_m": 3.1091263510296048,
+      "variant_id": "ridge_full"
+    },
+    {
+      "endpoint_m": 4.5,
+      "evidence_sha256": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+      "kind": "feature_ablation",
+      "p95_m": 4.5,
+      "rmse_m": 3.593976442141304,
+      "variant_id": "ridge_without_speed"
+    }
+  ]
+}
