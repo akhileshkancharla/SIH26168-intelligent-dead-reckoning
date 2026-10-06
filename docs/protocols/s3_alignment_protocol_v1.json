@@ -1,0 +1,130 @@
+{
+  "schema_version": 1,
+  "protocol_id": "SIH26168-S3-v1",
+  "protocol_status": "FROZEN_BEFORE_EXECUTION",
+  "frozen_against": {
+    "architecture_revision": 3,
+    "base_commit": "11a8fb7519e4095f5235cda9589de9ce8b536df0",
+    "issue": 55,
+    "open_decision": "OD-04"
+  },
+  "claims_boundary": {
+    "permitted": [
+      "method-selection evidence for the named devices, mounts, vehicle and scenarios only",
+      "selection or rejection of one predeclared candidate family after independent review"
+    ],
+    "prohibited": [
+      "claim that WP-06.1 executes or passes S3",
+      "claim of universal device, vehicle, route or mounting generalization",
+      "claim that alignment overwrites C-07 state or operational biases",
+      "claim that magnetometer availability is mandatory",
+      "live-car or alignment-dependent aid claim before WP-06 completes"
+    ]
+  },
+  "design": {
+    "minimum_named_devices": 2,
+    "minimum_mounts_per_device": 3,
+    "minimum_vehicles": 1,
+    "run_order": "preassigned_and_seeded_before_collection",
+    "run_count_scope": "per_candidate_per_named_device_balanced_across_mounts",
+    "candidate_progression": "complete_M1_then_execute_preassigned_M2_only_if_M1_fails",
+    "percentile_method": "nearest_rank",
+    "reference_rotation_uncertainty_deg_max": 1.0,
+    "motion_speed_mps_min": 3.0,
+    "gnss_bearing_accuracy_deg_max": 5.0,
+    "gnss_speed_accuracy_mps_max": 0.5,
+    "motion_segment_s_min": 10.0,
+    "turn_heading_change_deg_min": 30.0,
+    "valid_sustain_s_min": 2.0,
+    "no_slip_observation_s_min": 60.0
+  },
+  "invariants": [
+    {"id": "S3-I01", "statement": "C-05 owns I-06 outside S2; C-07 remains the sole owner of navigation state, operational biases, covariance and evidence acceptance."},
+    {"id": "S3-I02", "statement": "Raw IMU axes, source clocks, arrival clocks, sequence and evidence identifiers are preserved; alignment never rewrites I-03 propagation samples."},
+    {"id": "S3-I03", "statement": "Only an evidenced VALID I-06 estimate may enable alignment-dependent learned or kinematic aids."},
+    {"id": "S3-I04", "statement": "UNINITIALIZED, UNCERTAIN and SLIP_SUSPECTED disable every alignment-dependent aid without stopping independent S2 propagation."},
+    {"id": "S3-I05", "statement": "Yaw is never fabricated when excitation is insufficient; stationary gravity is a negative control for full alignment observability."},
+    {"id": "S3-I06", "statement": "Reference orientation and GNSS or vehicle signals are evaluation or bounded alignment evidence only and never become hidden navigation truth."}
+  ],
+  "hypotheses": [
+    {"id": "S3-H0", "statement": "Stationary gravity can constrain roll and pitch but cannot make vehicle yaw observable.", "falsifier": "The implementation publishes VALID full alignment during stationary-only evidence."},
+    {"id": "S3-H1", "statement": "Gravity plus independently qualified straight and turning motion can make a bounded body-to-vehicle rotation observable.", "falsifier": "Every eligible candidate fails any mandatory accuracy, convergence, covariance or scenario gate."},
+    {"id": "S3-H2", "statement": "I-06 covariance and status can conservatively expose insufficient excitation or disagreement.", "falsifier": "Coverage is below its gate or invalid output is published as VALID."},
+    {"id": "S3-H3", "statement": "A controlled mount rotation of at least the frozen magnitude can be detected and disable dependent aids within the frozen latency.", "falsifier": "Detection rate or latency fails, or a dependent aid remains enabled during SLIP_SUSPECTED."},
+    {"id": "S3-H4", "statement": "The selected method remains safe with magnetometer unavailable.", "falsifier": "The absent-magnetometer scenario fails any mandatory gate or produces a false VALID state."}
+  ],
+  "candidate_methods": [
+    {"id": "S3-M0", "role": "negative_control", "inputs": ["stationary gravity from I-03"], "magnetometer_policy": "forbidden", "selection_eligible": false},
+    {"id": "S3-M1", "role": "candidate", "inputs": ["I-03 raw-body IMU", "I-02 qualified GNSS speed and course", "I-04 quality state"], "magnetometer_policy": "forbidden", "selection_eligible": true},
+    {"id": "S3-M2", "role": "candidate", "inputs": ["I-03 raw-body IMU", "I-07 velocity and attitude snapshots", "I-04 quality state", "optional raw magnetometer evidence"], "magnetometer_policy": "optional_non_authoritative", "selection_eligible": true}
+  ],
+  "scenarios": [
+    {"id": "S3-S01", "minimum_runs": 9, "required_conditions": ["three documented mount orientations", "stationary-only interval", "independent reference transform"], "mandatory": true},
+    {"id": "S3-S02", "minimum_runs": 6, "required_conditions": ["straight forward motion", "qualified course and speed evidence", "at least two travel directions"], "mandatory": true},
+    {"id": "S3-S03", "minimum_runs": 6, "required_conditions": ["left and right turns", "qualified course and speed evidence", "no outcome-based trimming"], "mandatory": true},
+    {"id": "S3-S04", "minimum_runs": 6, "required_conditions": ["magnetometer withheld from the candidate", "same mandatory accuracy and safety gates", "absence recorded in capability evidence"], "mandatory": true},
+    {"id": "S3-S05", "minimum_runs": 6, "required_conditions": ["secure mount with no deliberate slip", "normal road vibration", "false-positive observation interval"], "mandatory": true},
+    {"id": "S3-S06", "minimum_runs": 12, "required_conditions": ["controlled rotations of at least 15 degrees", "yaw and roll or pitch slip axes", "predeclared slip epoch", "safe stationary or supervised low-speed execution"], "mandatory": true},
+    {"id": "S3-S07", "minimum_runs": 6, "required_conditions": ["post-slip re-excitation", "no automatic reuse of pre-slip VALID estimate", "new evidence identity for recovered estimate"], "mandatory": true},
+    {"id": "S3-S08", "minimum_runs": 1, "required_conditions": ["immutable verified session", "two unchanged-input replays", "byte-identical decisions and I-06 records"], "mandatory": true}
+  ],
+  "metrics": [
+    {"id": "S3-K01", "unit": "degree", "aggregation": "median body-to-vehicle geodesic rotation error across eligible run endpoints"},
+    {"id": "S3-K02", "unit": "degree", "aggregation": "p95 body-to-vehicle geodesic rotation error across eligible run endpoints using nearest-rank percentile"},
+    {"id": "S3-K03", "unit": "degree", "aggregation": "p95 absolute roll and pitch component error using nearest-rank percentile"},
+    {"id": "S3-K04", "unit": "degree", "aggregation": "p95 wrapped absolute yaw error using nearest-rank percentile"},
+    {"id": "S3-K05", "unit": "second", "aggregation": "p95 first sustained VALID latency using nearest-rank percentile"},
+    {"id": "S3-K06", "unit": "fraction", "aggregation": "fraction of reference rotation errors inside the declared 95 percent covariance ellipsoid"},
+    {"id": "S3-K07", "unit": "count", "aggregation": "invalid or non-conformant I-06 records"},
+    {"id": "S3-K08", "unit": "fraction", "aggregation": "detected eligible controlled slips divided by all eligible controlled slips"},
+    {"id": "S3-K09", "unit": "second", "aggregation": "p95 controlled-slip detection latency using nearest-rank percentile"},
+    {"id": "S3-K10", "unit": "count", "aggregation": "SLIP_SUSPECTED transitions in no-slip controls"},
+    {"id": "S3-K11", "unit": "count", "aggregation": "alignment-dependent aid enabled outside VALID or after slip before recovery"},
+    {"id": "S3-K12", "unit": "count", "aggregation": "decision or I-06 byte mismatches across unchanged-input replays"}
+  ],
+  "thresholds": {
+    "rotation_error_median_deg_max": 5.0,
+    "rotation_error_p95_deg_max": 10.0,
+    "roll_pitch_error_p95_deg_max": 5.0,
+    "yaw_error_p95_deg_max": 10.0,
+    "time_to_valid_p95_s_max": 15.0,
+    "covariance_95_coverage_min": 0.9,
+    "invalid_i06_count_max": 0,
+    "stationary_false_valid_count_max": 0,
+    "slip_rotation_deg_min": 15.0,
+    "slip_detection_rate_min": 1.0,
+    "slip_detection_latency_p95_s_max": 1.0,
+    "no_slip_false_positive_count_max": 0,
+    "dependent_aid_unsafe_enable_count_max": 0,
+    "replay_mismatch_count_max": 0
+  },
+  "status_policy": {
+    "allowed_statuses": ["UNINITIALIZED", "VALID", "UNCERTAIN", "SLIP_SUSPECTED"],
+    "dependent_aids_enabled": {"UNINITIALIZED": false, "VALID": true, "UNCERTAIN": false, "SLIP_SUSPECTED": false},
+    "slip_transition": "atomic_disable_before_or_with_SLIP_SUSPECTED"
+  },
+  "evidence_requirements": [
+    "approved run sheet assigning scenario, candidate, device, mount, vehicle and repetition before collection",
+    "I-18 session manifest with immutable hashes and explicit completeness",
+    "raw I-01, I-02, I-03, I-04 and paired I-07 evidence with clocks and provenance preserved",
+    "independently measured body-to-vehicle reference transform with method and uncertainty",
+    "candidate configuration, software commit, protocol ID and analyzer version hashes",
+    "all I-06 records, status transitions, dependent-aid decisions and exclusion reasons",
+    "named-device capability record including magnetometer availability",
+    "reviewable per-run metrics and aggregate report with no private raw bytes committed publicly"
+  ],
+  "exclusion_policy": {
+    "allowed": ["predeclared safety abort", "cryptographic evidence-integrity failure", "reference-system failure documented before outcome inspection", "mandatory stream loss that marks the session incomplete"],
+    "prohibited": ["exclude a run because its error is large", "exclude a missed slip or false alarm", "change scenario identity after observing output", "pool scenarios or devices to conceal a failed gate", "replace missing evidence with interpolation or an inferred label"]
+  },
+  "outcome_policy": {
+    "rank_order": ["S3-M1", "S3-M2"],
+    "selection_rule": "first_ranked_candidate_passing_every_invariant_scenario_and_threshold",
+    "failure_rule": "reject_all_methods_and_keep_S3_unresolved",
+    "pooling_rule": "no_cross_scenario_pooling_may_hide_a_failed_gate"
+  },
+  "change_control": {
+    "before_first_run": "signed_reviewed_commit_required",
+    "after_first_run": "new_protocol_id_and_separate_evidence_required"
+  }
+}

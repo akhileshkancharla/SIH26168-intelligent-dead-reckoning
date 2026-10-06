@@ -1,0 +1,5 @@
+# Offline verification only; never imported by the production C++ core.
+# Locked for the provisioned Windows x64 CPython 3.12 CI runner. The digest is
+# the official PyPI numpy-2.5.3-cp312-cp312-win_amd64.whl SHA-256.
+numpy==2.5.3 \
+    --hash=sha256:0a59a421a32580a009e8a1751345bf829631b990dc1794b80514ab722b435def

@@ -103,6 +103,31 @@ jobs:
         run: cmake --build build --config Release
       - name: Test
         run: ctest --test-dir build --output-on-failure -C Release
+      - name: Create clean S2 parity environment
+        run: |
+          python -m venv "%RUNNER_TEMP%\sih26168-parity-%GITHUB_RUN_ID%-%GITHUB_RUN_ATTEMPT%"
+          "%RUNNER_TEMP%\sih26168-parity-%GITHUB_RUN_ID%-%GITHUB_RUN_ATTEMPT%\Scripts\python.exe" -m pip install --require-hashes --only-binary=:all: -r core\navigation\verification\requirements-parity.txt
+      - name: Run independent NumPy and parity-report tests
+        run: |
+          cd core\navigation\verification\python
+          "%RUNNER_TEMP%\sih26168-parity-%GITHUB_RUN_ID%-%GITHUB_RUN_ATTEMPT%\Scripts\python.exe" -m unittest -v test_check_parity.py test_parity_independence.py
+          "%RUNNER_TEMP%\sih26168-parity-%GITHUB_RUN_ID%-%GITHUB_RUN_ATTEMPT%\Scripts\python.exe" run_python_tests.py "%RUNNER_TEMP%\sih26168-python-results-%GITHUB_RUN_ID%-%GITHUB_RUN_ATTEMPT%.json"
+      - name: Reproduce S2 parity twice
+        shell: powershell -NoProfile -ExecutionPolicy Bypass -Command ". '{0}'"
+        run: |
+          $python = "$env:RUNNER_TEMP\sih26168-parity-$env:GITHUB_RUN_ID-$env:GITHUB_RUN_ATTEMPT\Scripts\python.exe"
+          $replay = "build\core\navigation\Release\sih26168_navigation_replay.exe"
+          ./core/navigation/verification/run_parity.ps1 -ReplayExecutable $replay -OutputDirectory "build\parity-run-1" -PythonExecutable $python
+          ./core/navigation/verification/run_parity.ps1 -ReplayExecutable $replay -OutputDirectory "build\parity-run-2" -PythonExecutable $python
+          & $python ./core/navigation/verification/python/compare_parity_runs.py "build\parity-run-1" "build\parity-run-2" "build\parity-determinism.json"
+      - name: Remove external S2 parity environment
+        if: always()
+        shell: powershell -NoProfile -ExecutionPolicy Bypass -Command ". '{0}'"
+        run: |
+          $parityEnvironment = "$env:RUNNER_TEMP\sih26168-parity-$env:GITHUB_RUN_ID-$env:GITHUB_RUN_ATTEMPT"
+          $pythonResult = "$env:RUNNER_TEMP\sih26168-python-results-$env:GITHUB_RUN_ID-$env:GITHUB_RUN_ATTEMPT.json"
+          if (Test-Path -LiteralPath $parityEnvironment) { Remove-Item -LiteralPath $parityEnvironment -Recurse -Force }
+          if (Test-Path -LiteralPath $pythonResult) { Remove-Item -LiteralPath $pythonResult -Force }
 
   android:
     needs: changes
@@ -134,6 +159,10 @@ jobs:
           if errorlevel 1 exit /b 1
       - name: JVM tests, lint and debug build
         run: gradle -p android --no-daemon --build-cache --continue testDebugUnitTest lintDebug assembleDebug
+      # Keep the imported logger on its own pinned wrapper and dependency-lock validation path.
+      - name: Imported S1 Gradle checks
+        working-directory: android/acquisition/imported/S1_Android_Acquisition_Spike
+        run: .\gradlew.bat --no-daemon test lint assembleDebug assembleDebugAndroidTest
 
   ci-required:
     if: ${{ always() }}
