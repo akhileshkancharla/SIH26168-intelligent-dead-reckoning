@@ -5,6 +5,9 @@ plugins {
 }
 
 android {
+    sourceSets["main"].java.srcDir("../acquisition/src/main/java")
+    sourceSets["test"].java.srcDir("../acquisition/src/test/java")
+
     namespace = "org.sih26168.app"
     compileSdk = 35
 
@@ -65,4 +68,5 @@ dependencies {
     implementation("org.maplibre.gl:android-sdk:11.8.7")
     debugImplementation("androidx.compose.ui:ui-tooling")
     testImplementation("junit:junit:4.13.2")
+    testImplementation("org.json:json:20240303")
 }
