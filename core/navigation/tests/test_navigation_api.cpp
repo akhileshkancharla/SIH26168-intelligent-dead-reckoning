@@ -110,6 +110,66 @@ int main() {
     static_assert(!std::is_reference_v<decltype(std::declval<const api::NavigationCore&>().stateSnapshot())>);
     static_assert(!std::is_reference_v<decltype(std::declval<const api::NavigationCore&>().covarianceSnapshot())>);
 
+    run("screen_consumes_identity_without_scientific_correction", [] {
+        api::NavigationCore core(initialState());
+        const auto input = positionMeasurement("return", 1, 1'000'000'000);
+        const auto before_state = core.stateSnapshot();
+        const auto before_covariance = core.covarianceSnapshot();
+        const auto before_count = core.consumedEvidenceCount();
+        const auto first = core.screen(input);
+        const auto repeated = core.screen(input);
+        require(first.passesGate() && first.dimension == 3
+                    && repeated.status
+                        == api::MeasurementStatus::RejectedDuplicateEvidenceIdentifier,
+                "screened evidence was not consumed by C-07");
+        require(equalState(core.stateSnapshot(), before_state)
+                    && core.covarianceSnapshot().covariance_15x15
+                        == before_covariance.covariance_15x15
+                    && core.consumedEvidenceCount() == before_count + 1,
+                "screening changed scientific state/covariance or missed the evidence ledger");
+        const auto bypass = core.update(input);
+        require(bypass.status == api::MeasurementStatus::RejectedDuplicateEvidenceIdentifier
+                    && equalState(core.stateSnapshot(), before_state),
+                "screened ID was accepted through the direct C-07 update API");
+        auto later = input;
+        later.measurement_id.value = "independent-return";
+        later.sequence.value = 2;
+        const auto applied = core.update(later);
+        require(applied.accepted()
+                    && applied.normalized_innovation_squared
+                        == first.normalized_innovation_squared
+                    && core.consumedEvidenceCount() == before_count + 2,
+                "independent final fix did not enter C-07 exactly once");
+    });
+
+    run("screen_rejects_biased_fix_without_scientific_update", [] {
+        api::NavigationCore core(initialState());
+        auto input = positionMeasurement("biased-return", 1, 1'000'000'000);
+        input.z[0] = 100.0;
+        const auto before = core.stateSnapshot();
+        const auto screened = core.screen(input);
+        require(screened.status == api::MeasurementStatus::RejectedInnovationGate
+                    && !screened.passesGate()
+                    && equalState(core.stateSnapshot(), before)
+                    && core.consumedEvidenceCount() == 1
+                    && core.update(input).status
+                        == api::MeasurementStatus::RejectedDuplicateEvidenceIdentifier,
+                "biased return influenced C-07 during screening");
+    });
+
+    run("malformed_screen_cannot_be_upgraded_on_representation", [] {
+        api::NavigationCore core(initialState());
+        auto input = positionMeasurement("malformed", 1, 1'000'000'000);
+        input.precheck.status = api::MeasurementPrecheckStatus::Rejected;
+        require(core.screen(input).status == api::MeasurementStatus::RejectedPrecheck
+                    && core.consumedEvidenceCount() == 1,
+                "malformed canonical evidence was not consumed on presentation");
+        input.precheck.status = api::MeasurementPrecheckStatus::Passed;
+        require(core.update(input).status
+                    == api::MeasurementStatus::RejectedDuplicateEvidenceIdentifier,
+                "malformed screened evidence was upgraded and accepted");
+    });
+
     run("construction_and_initialization", [] {
         api::NavigationCore core(initialState());
         const auto state = core.stateSnapshot();

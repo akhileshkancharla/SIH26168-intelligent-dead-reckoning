@@ -101,3 +101,34 @@ restoration of GNSS aiding; this work does not promote candidate return.
 
 Synthetic native coverage is registered as `gnss-rejection-native`. No live
 Android integration, device accuracy, or field safety is claimed.
+
+## WP-07.4 reacquisition gate
+
+`ReacquisitionGate` runs on the serial native executor with the WP-07.2 outage
+tracker, WP-07.3 rejection screen and C-07 navigation core. Every returning
+source fix is presented to WP-07.1/07.3 exactly once. The first eligible fix
+enters `REACQUIRING`, but is only screened by C-07's **non-mutating** innovation
+gate. A screened fix that has not finished the dwell is explicitly withheld;
+it does not change C-07 state or covariance or become the WP-07.3 displacement
+baseline. C-07 consumes each canonical measurement ID on first presentation,
+including screened and rejected candidates; C-09 has no shadow canonical ledger.
+C-09 also requires an independently supplied `HEALTHY` quality screening;
+neither source freshness nor a small NIS alone is sufficient. Later fixes must
+independently pass the same C-07 innovation gate,
+arrive within the configured inter-fix gap, and satisfy both the configured
+minimum count (at least two) and positive elapsed dwell. Only the final fix is
+submitted directly to C-07's authoritative atomic `update()` without a prior
+screen of that same ID; recovery occurs only after that update actually succeeds.
+An inconsistent, biased, duplicated or intermittent
+return falls back to the same open blackout without a first-fix correction.
+
+The count, minimum/maximum dwell and gap are required frozen-run policy inputs;
+this component does not claim an empirically approved value for OD-09. The
+native result exposes source identity, C-07 NIS, typed screening/update status,
+dwell count and scientific update distance for later I-15 evidence assembly.
+It does not serialize a complete I-15 record, implement C-11 display smoothing,
+authenticate a caller's `HEALTHY` attestation or canonical source-to-measurement
+adaptation, or wire the
+standalone S1 logger into the Android app. The final C-07 update is still the
+single scientific state owner. Host synthetic tests are registered as
+`gnss-reacquisition-native`; no device or field-accuracy result is claimed.

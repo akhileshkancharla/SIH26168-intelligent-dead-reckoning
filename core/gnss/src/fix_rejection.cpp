@@ -92,7 +92,19 @@ RejectionDecision FixRejectionScreen::present(
     }
 
     pending_fix_ = fix;
-    return decision(RejectionReason::ForwardToCore, fix.evidence_id);
+    auto result = decision(RejectionReason::ForwardToCore, fix.evidence_id);
+    result.precheck_decision = prechecked;
+    return result;
+}
+
+RejectionDecision FixRejectionScreen::withholdForRecoveryDwell(
+    const std::string& evidence_id) {
+    if (!pending_fix_) return decision(RejectionReason::NoPendingFix, evidence_id);
+    if (evidence_id != pending_fix_->evidence_id) {
+        return decision(RejectionReason::EvidenceMismatch, evidence_id);
+    }
+    pending_fix_.reset();
+    return decision(RejectionReason::WithheldForRecoveryDwell, evidence_id);
 }
 
 RejectionDecision FixRejectionScreen::finalize(

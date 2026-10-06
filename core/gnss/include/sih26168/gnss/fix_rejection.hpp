@@ -27,6 +27,7 @@ enum class RejectionReason {
     InvalidGeometry,
     CoreInnovationRejected,
     CoreRejected,
+    WithheldForRecoveryDwell,
     PendingCoreDecision,
     NoPendingFix,
     EvidenceMismatch,
@@ -36,6 +37,7 @@ struct RejectionDecision {
     RejectionReason reason{RejectionReason::InvalidPolicy};
     std::string evidence_id;
     std::optional<Reason> precheck_reason;
+    std::optional<Decision> precheck_decision;
     std::optional<navigation::MeasurementStatus> core_status;
     std::optional<double> displacement_m;
     std::optional<double> displacement_bound_m;
@@ -59,6 +61,10 @@ public:
     [[nodiscard]] RejectionDecision finalize(
         const std::string& evidence_id,
         navigation::MeasurementStatus core_status);
+    // Release a screened candidate without claiming a C-07 update or changing
+    // the accepted displacement baseline. Its WP-07.1 identity stays consumed.
+    [[nodiscard]] RejectionDecision withholdForRecoveryDwell(
+        const std::string& evidence_id);
 
     [[nodiscard]] std::size_t consumedCount() const noexcept {
         return precheck_.consumedCount();

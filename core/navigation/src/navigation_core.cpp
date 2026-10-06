@@ -180,8 +180,28 @@ MeasurementResult NavigationCore::update(const GnssMeasurement& measurement) {
     return updateFixed<3>(measurement);
 }
 
+MeasurementResult NavigationCore::screen(const GnssMeasurement& measurement) const {
+    MeasurementResult result;
+    if (measurement.id.empty()) {
+        result.status = "invalid_empty_measurement_id";
+        return result;
+    }
+    if (consumed_measurement_ids_.contains(measurement.id)) {
+        result.duplicate = true;
+        result.status = "duplicate_measurement_id";
+        return result;
+    }
+    if (measurement.timestamp_ns != state_.timestamp_ns) {
+        result.status = "measurement_timestamp_mismatch";
+        return result;
+    }
+    return measurement.kind == MeasurementKind::PositionVelocity
+        ? screenFixed<6>(measurement)
+        : screenFixed<3>(measurement);
+}
+
 template<int M>
-MeasurementResult NavigationCore::updateFixed(const GnssMeasurement& measurement) {
+MeasurementResult NavigationCore::screenFixed(const GnssMeasurement& measurement) const {
     MeasurementResult result;
     result.dimension = M;
 
@@ -220,6 +240,23 @@ MeasurementResult NavigationCore::updateFixed(const GnssMeasurement& measurement
         result.status = "rejected_nis_gate";
         return result;
     }
+    result.status = "screen_passed";
+    return result;
+}
+
+template<int M>
+MeasurementResult NavigationCore::updateFixed(const GnssMeasurement& measurement) {
+    MeasurementResult result = screenFixed<M>(measurement);
+    if (result.status != "screen_passed") return result;
+
+    const auto H = measurementJacobian<M>(measurement.kind);
+    const Eigen::Matrix<double, M, 1> innovation =
+        result.innovation.template head<M>();
+    const Eigen::Matrix<double, M, M> measurement_covariance =
+        measurement.covariance.template topLeftCorner<M, M>();
+    const Eigen::Matrix<double, M, M> innovation_covariance =
+        H * state_.covariance * H.transpose() + measurement_covariance;
+    const Eigen::LDLT<Eigen::Matrix<double, M, M>> decomposition(innovation_covariance);
 
     const Eigen::Matrix<double, M, M> inverse_innovation_covariance =
         decomposition.solve(Eigen::Matrix<double, M, M>::Identity());
@@ -247,6 +284,8 @@ MeasurementResult NavigationCore::updateFixed(const GnssMeasurement& measurement
     return result;
 }
 
+template MeasurementResult NavigationCore::screenFixed<3>(const GnssMeasurement&) const;
+template MeasurementResult NavigationCore::screenFixed<6>(const GnssMeasurement&) const;
 template MeasurementResult NavigationCore::updateFixed<3>(const GnssMeasurement&);
 template MeasurementResult NavigationCore::updateFixed<6>(const GnssMeasurement&);
 
