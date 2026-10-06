@@ -368,13 +368,15 @@ MeasurementResult NavigationCore::evaluateMeasurement(const MeasurementInput& in
         output.status = MeasurementStatus::RejectedDuplicateEvidenceIdentifier;
         return output;
     }
-    if (apply_update) impl_->consumed_evidence_ids.insert(input.measurement_id.value);
+    // Screening is a presentation of canonical I-12 evidence, not a preview
+    // that grants a second opportunity to apply the same measurement.
+    impl_->consumed_evidence_ids.insert(input.measurement_id.value);
     if (impl_->last_measurement_sequence
         && input.sequence.value <= *impl_->last_measurement_sequence) {
         output.status = MeasurementStatus::RejectedInvalidSequence;
         return output;
     }
-    if (apply_update) impl_->last_measurement_sequence = input.sequence.value;
+    impl_->last_measurement_sequence = input.sequence.value;
 
     if (input.precheck.status != MeasurementPrecheckStatus::Passed) {
         output.status = MeasurementStatus::RejectedPrecheck;

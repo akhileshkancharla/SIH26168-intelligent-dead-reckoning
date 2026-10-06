@@ -144,8 +144,11 @@ int main() {
                     && s.core.stateSnapshot().sequence.value == before.sequence.value
                     && s.core.covarianceSnapshot().covariance_15x15
                         == covariance.covariance_15x15
-                    && s.core.consumedEvidenceCount() == used,
-                "screening mutated C-07 state, covariance or ledger");
+                    && s.core.consumedEvidenceCount() == used + 1,
+                "screening changed state/covariance or failed to consume C-07 identity");
+        require(s.core.update(measurement("first", 1, kFirst)).status
+                    == nav::MeasurementStatus::RejectedDuplicateEvidenceIdentifier,
+                "withheld first fix bypassed recovery through direct C-07 update");
         advance(s.core, 2, kSecond);
         const auto before_update = s.core.consumedEvidenceCount();
         const auto second = s.gate.present(at(kSecond), fix("second", 2, kSecond),
@@ -171,7 +174,7 @@ int main() {
         require(bad.reason == gnss::ReacquisitionReason::InnovationRejected
                     && !bad.scientific_update_accepted
                     && s.outage.snapshot().mode == contracts::NavigationModeV1::BLACKOUT_DR
-                    && s.core.consumedEvidenceCount() == used,
+                    && s.core.consumedEvidenceCount() == used + 1,
                 "biased return escaped the innovation screen");
     });
 
@@ -185,7 +188,7 @@ int main() {
             measurement("biased-first", 1, kFirst, 100.0), kHealthy);
         require(result.reason == gnss::ReacquisitionReason::InnovationRejected
                     && s.outage.snapshot().mode == contracts::NavigationModeV1::BLACKOUT_DR
-                    && s.core.consumedEvidenceCount() == count
+                    && s.core.consumedEvidenceCount() == count + 1
                     && s.core.stateSnapshot().position_n_m == before.position_n_m,
                 "first biased return gained scientific influence");
     });
@@ -258,7 +261,7 @@ int main() {
             contracts::HealthIntegrityStateV1::DEGRADED);
         require(result.reason == gnss::ReacquisitionReason::QualityRejected
                     && s.rejection.consumedCount() == 1
-                    && s.core.consumedEvidenceCount() == 1
+                    && s.core.consumedEvidenceCount() == 2
                     && s.outage.snapshot().mode == contracts::NavigationModeV1::BLACKOUT_DR,
                 "degraded candidate bypassed independent C-09 quality screening");
     });
@@ -277,7 +280,33 @@ int main() {
             at(kSecond), fix("second", 2, kSecond), repeated_id, kHealthy);
         require(result.reason == gnss::ReacquisitionReason::DuplicateMeasurementId
                     && s.outage.snapshot().mode == contracts::NavigationModeV1::BLACKOUT_DR,
-                "repeated canonical evidence identity bypassed C-09 ledger");
+                "repeated canonical evidence identity bypassed C-07 ledger");
+    });
+
+    run("reconstructed_gate_cannot_reuse_screened_core_evidence", [] {
+        Scenario s;
+        advance(s.core, 1, kFirst);
+        require(s.gate.present(at(kFirst), fix("first", 1, kFirst),
+                               measurement("first", 1, kFirst), kHealthy).reason
+                    == gnss::ReacquisitionReason::Dwell,
+                "first measurement was not withheld");
+        require(s.outage.candidateRejected(at(kFirst), "first").applied(),
+                "could not end the first recovery attempt");
+        gnss::FixRejectionScreen replacement_rejection(rejectionPolicy());
+        gnss::ReacquisitionGate replacement_gate(
+            recoveryPolicy(), s.outage, replacement_rejection, s.core);
+        advance(s.core, 2, kSecond);
+        auto repeated = measurement("new-source", 2, kSecond);
+        repeated.measurement_id.value = "measurement-first";
+        const auto before = s.core.consumedEvidenceCount();
+        const auto result = replacement_gate.present(
+            at(kSecond), fix("new-source", 2, kSecond), repeated, kHealthy);
+        require(result.reason == gnss::ReacquisitionReason::DuplicateMeasurementId
+                    && result.screen_status
+                        == nav::MeasurementStatus::RejectedDuplicateEvidenceIdentifier
+                    && s.core.consumedEvidenceCount() == before
+                    && s.outage.snapshot().mode == contracts::NavigationModeV1::BLACKOUT_DR,
+                "reconstructed C-09 gate bypassed C-07 evidence ownership");
     });
 
     run("malformed_measurement_lineage_consumes_source_and_rejects", [] {
@@ -289,6 +318,7 @@ int main() {
                     == gnss::ReacquisitionReason::InvalidMeasurementLineage,
                 "wrong source lineage reached the core");
         require(s.rejection.consumedCount() == 1
+                    && s.core.consumedEvidenceCount() == 2
                     && s.outage.snapshot().mode == contracts::NavigationModeV1::BLACKOUT_DR,
                 "malformed first presentation was not consumed or contained");
         require(s.gate.present(at(kFirst), fix("first", 1, kFirst),
@@ -319,7 +349,7 @@ int main() {
                                          measurement("second", 2, kSecond), kHealthy);
         require(second.reason == gnss::ReacquisitionReason::Dwell
                     && second.dwell_count == 2 && !second.scientific_update_accepted
-                    && core.consumedEvidenceCount() == before
+                    && core.consumedEvidenceCount() == before + 1
                     && outage.snapshot().mode == contracts::NavigationModeV1::REACQUIRING,
                 "two fixes bypassed the configured three-fix dwell");
     });

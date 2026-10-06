@@ -6,7 +6,6 @@
 #include <cstdint>
 #include <optional>
 #include <string>
-#include <unordered_set>
 
 namespace sih26168::gnss {
 
@@ -82,7 +81,6 @@ private:
     std::optional<std::int64_t> first_epoch_ns_;
     std::optional<std::int64_t> last_epoch_ns_;
     std::uint32_t dwell_count_{0};
-    std::unordered_set<std::string> consumed_measurement_ids_;
 };
 
 }  // namespace sih26168::gnss

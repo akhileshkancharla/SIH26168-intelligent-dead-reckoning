@@ -109,15 +109,17 @@ tracker, WP-07.3 rejection screen and C-07 navigation core. Every returning
 source fix is presented to WP-07.1/07.3 exactly once. The first eligible fix
 enters `REACQUIRING`, but is only screened by C-07's **non-mutating** innovation
 gate. A screened fix that has not finished the dwell is explicitly withheld;
-it does not enter C-07's update ledger or become the WP-07.3 displacement
-baseline. C-09 consumes each canonical measurement ID on first presentation
-and also requires an independently supplied `HEALTHY` quality screening;
+it does not change C-07 state or covariance or become the WP-07.3 displacement
+baseline. C-07 consumes each canonical measurement ID on first presentation,
+including screened and rejected candidates; C-09 has no shadow canonical ledger.
+C-09 also requires an independently supplied `HEALTHY` quality screening;
 neither source freshness nor a small NIS alone is sufficient. Later fixes must
 independently pass the same C-07 innovation gate,
 arrive within the configured inter-fix gap, and satisfy both the configured
 minimum count (at least two) and positive elapsed dwell. Only the final fix is
-submitted to C-07's authoritative `update()`; recovery occurs only after that
-update actually succeeds. An inconsistent, biased, duplicated or intermittent
+submitted directly to C-07's authoritative atomic `update()` without a prior
+screen of that same ID; recovery occurs only after that update actually succeeds.
+An inconsistent, biased, duplicated or intermittent
 return falls back to the same open blackout without a first-fix correction.
 
 The count, minimum/maximum dwell and gap are required frozen-run policy inputs;

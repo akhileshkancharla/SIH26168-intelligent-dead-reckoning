@@ -214,8 +214,9 @@ struct MeasurementResult {
     [[nodiscard]] bool accepted() const;
 };
 
-// A passing screen is only permission to consider an update later. It neither
-// consumes the measurement ID nor changes C-07 state or covariance.
+// A passing screen is only a non-correcting decision. C-07 consumes the
+// measurement ID and sequence on first presentation, including rejected
+// screens, so this same canonical evidence cannot later be updated.
 struct MeasurementScreenResult {
     MeasurementStatus status{MeasurementStatus::NumericalFailure};
     int dimension{0};

@@ -41,13 +41,16 @@ The production library exports only `core/navigation/include` and Eigen's
 header-only target to consumers. Python and NumPy remain offline verification
 tools and are not CMake or production dependencies.
 
-For WP-07.4, `NavigationCore::screen()` checks the same validated I-12 input
-and S2 innovation gate as `update()`, but changes neither scientific state nor
-the evidence ledger. A passing screen is not an accepted update; the separate
-`MeasurementScreenResult` type makes that boundary explicit. C-09 consumes the
-source fix during screening, and only the final fix after the configured dwell
-may call `update()` on the serial executor. `navigation-core-api` covers exact
-state, covariance and ledger non-mutation and final NIS parity.
+For WP-07.4, `NavigationCore::screen()` uses the same validated I-12 input
+and S2 innovation gate as `update()`. It leaves scientific state and covariance
+unchanged, but C-07 consumes the canonical measurement ID and sequence on first
+presentation, even when screening rejects the input. A passing screen is not
+an accepted update and that ID cannot later be upgraded through `update()` or
+a reconstructed C-09 gate. Earlier return candidates are screened and withheld;
+the independent final candidate goes directly to C-07's atomic innovation gate
+and update after the configured dwell. `navigation-core-api` covers state and
+covariance non-mutation, evidence-once ownership, direct-update bypass rejection,
+and a separate final-candidate NIS comparison.
 
 ## Portable public API
 
