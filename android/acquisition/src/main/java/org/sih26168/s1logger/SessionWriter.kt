@@ -63,7 +63,7 @@ class SessionWriter(
             })
             require(sessionsRoot.isDirectory || sessionsRoot.mkdirs())
             require(!Files.isSymbolicLink(sessionsRoot.toPath()))
-            require(sessionsRoot.canonicalFile == sessionsRoot.absoluteFile)
+            require(Files.isSameFile(sessionsRoot.toPath(), sessionsRoot.canonicalFile.toPath()))
             check(sessionDir.mkdir()) { "Session already exists or cannot be created" }
             io {
                 // Written before any data: recovery never invents boot/build/device metadata.
@@ -401,7 +401,7 @@ class SessionWriter(
         }
         private fun safeFile(file: File): File {
             require(file.isFile && !Files.isSymbolicLink(file.toPath()))
-            require(file.canonicalFile == file.absoluteFile) { "Symlink path is not evidence" }
+            require(Files.isSameFile(file.toPath(), file.canonicalFile.toPath())) { "Symlink path is not evidence" }
             return file
         }
         private fun chunkEntry(file: File) = JSONObject().put("path", file.name)
