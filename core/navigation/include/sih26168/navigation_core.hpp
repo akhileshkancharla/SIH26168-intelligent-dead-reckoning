@@ -214,6 +214,20 @@ struct MeasurementResult {
     [[nodiscard]] bool accepted() const;
 };
 
+// A passing screen is only a non-correcting decision. C-07 consumes the
+// measurement ID and sequence on first presentation, including rejected
+// screens, so this same canonical evidence cannot later be updated.
+struct MeasurementScreenResult {
+    MeasurementStatus status{MeasurementStatus::NumericalFailure};
+    int dimension{0};
+    double normalized_innovation_squared{0.0};
+    SequenceIdentifier state_sequence{};
+
+    [[nodiscard]] bool passesGate() const noexcept {
+        return status == MeasurementStatus::Accepted;
+    }
+};
+
 struct StateSnapshot {
     SequenceIdentifier sequence{};
     SourceTimestamp epoch_ns{};
@@ -252,6 +266,7 @@ public:
     NavigationCore& operator=(const NavigationCore&) = delete;
 
     PropagationResult propagate(const ImuBatch& input);
+    MeasurementScreenResult screen(const MeasurementInput& input);
     MeasurementResult update(const MeasurementInput& input);
 
     [[nodiscard]] StateSnapshot stateSnapshot() const;
@@ -259,6 +274,8 @@ public:
     [[nodiscard]] std::size_t consumedEvidenceCount() const;
 
 private:
+    MeasurementResult evaluateMeasurement(const MeasurementInput& input,
+                                          bool apply_update);
     class Impl;
     std::unique_ptr<Impl> impl_;
 };
