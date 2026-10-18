@@ -346,6 +346,17 @@ PropagationResult NavigationCore::propagate(const ImuBatch& input) {
 }
 
 MeasurementResult NavigationCore::update(const MeasurementInput& input) {
+    return evaluateMeasurement(input, true);
+}
+
+MeasurementScreenResult NavigationCore::screen(const MeasurementInput& input) {
+    const MeasurementResult result = evaluateMeasurement(input, false);
+    return {result.status, result.dimension,
+            result.normalized_innovation_squared, result.state_sequence};
+}
+
+MeasurementResult NavigationCore::evaluateMeasurement(const MeasurementInput& input,
+                                                       bool apply_update) {
     MeasurementResult output;
     output.state_sequence = impl_->state_sequence;
 
@@ -353,10 +364,13 @@ MeasurementResult NavigationCore::update(const MeasurementInput& input) {
         output.status = MeasurementStatus::RejectedEmptyEvidenceIdentifier;
         return output;
     }
-    if (!impl_->consumed_evidence_ids.insert(input.measurement_id.value).second) {
+    if (impl_->consumed_evidence_ids.contains(input.measurement_id.value)) {
         output.status = MeasurementStatus::RejectedDuplicateEvidenceIdentifier;
         return output;
     }
+    // Screening is a presentation of canonical I-12 evidence, not a preview
+    // that grants a second opportunity to apply the same measurement.
+    impl_->consumed_evidence_ids.insert(input.measurement_id.value);
     if (impl_->last_measurement_sequence
         && input.sequence.value <= *impl_->last_measurement_sequence) {
         output.status = MeasurementStatus::RejectedInvalidSequence;
@@ -427,16 +441,18 @@ MeasurementResult NavigationCore::update(const MeasurementInput& input) {
     measurement.covariance = covariance;
 
     try {
-        const s2::MeasurementResult result = impl_->core.update(measurement);
-        output.status = mapMeasurementStatus(result);
+        const s2::MeasurementResult result = apply_update
+            ? impl_->core.update(measurement) : impl_->core.screen(measurement);
+        output.status = result.status == "screen_passed"
+            ? MeasurementStatus::Accepted : mapMeasurementStatus(result);
         output.dimension = result.dimension;
         output.normalized_innovation_squared = result.nis;
     } catch (const std::runtime_error&) {
         output.status = MeasurementStatus::NumericalFailure;
-        impl_->markFault();
+        if (apply_update) impl_->markFault();
         return output;
     }
-    if (output.accepted()) {
+    if (apply_update && output.accepted()) {
         ++impl_->state_sequence.value;
         output.state_sequence = impl_->state_sequence;
     }
