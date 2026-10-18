@@ -8,9 +8,11 @@ Relates to #16 and #116. Attempt date: 2026-10-18 IST. **Result: `STOPPED_PREFLI
 | --- | --- | --- |
 | [Approved presentation](../../submission/presentation/README.md) | PDF SHA-256 `00ff40f898136944ff2abadb1fda72b07e664bf32c4b7d4547cfdf5820b1df5f` | File bytes match the approved presentation record; content remains unchanged. |
 | [Video script and shot list](https://github.com/akhileshkancharla/SIH26168-intelligent-dead-reckoning/blob/39a31ce03c43db5d1a7b15733a67f3c5ec4ba5e8/submission/video/SIH26168_Demo_Video_Script_and_Shot_List_v1.md) | Commit `39a31ce03c43db5d1a7b15733a67f3c5ec4ba5e8`; UTF-8 SHA-256 `14c796025179a0854b410c3aa6573dbded379b7879493c6df9ca914362b927ab` | Fourteen shots and exact Event 1–10 order checked. The script is prepared for review; no reviewer approval is inferred. |
-| [Frozen synthetic plan](https://github.com/akhileshkancharla/SIH26168-intelligent-dead-reckoning/blob/3c7ec31b2877185e0dd9fdac84f52d7358980f19/demo/scenarios/ten_event_synthetic_evidence_plan_v1.json) | Plan SHA-256 `f64d74f67ab9460264f4ed65dcf30c563f3df557b890cf9e5a55bb4c5c43f6eb` | Normal replay eligibility is false and every event remains NOT_EXECUTED. |
+| [Frozen synthetic plan](https://github.com/akhileshkancharla/SIH26168-intelligent-dead-reckoning/blob/c38d33b6e92391057cb1989149a2c15d319e21e7/demo/scenarios/ten_event_synthetic_evidence_plan_v1.json) | Plan SHA-256 `4171cad6d3ed983aa8028ba3c56e22867926f6c7971c42f62aea7ce65a4f294b` | Normal replay eligibility is false and every event remains NOT_EXECUTED. |
 | [Canonical S1 fixture](../../contracts/fixtures/s1_acquisition_round_trip_v1_fixture.json) | File SHA-256 `44068a9b5beeade2581a7914707596e5b88b6d85cdcec5f9016752908728f2bb` | Synthetic contract example only; six observations do not supply the full demo run. |
 | [Approved storyboard](../architecture/SIH26168_WP15_7_Demo_Narrative_Storyboard_v1.md) | SHA-256 `fe5042fece38d3197b3927042f91aae24f5aaeac7e6b7584edca256f80137a49` | Expected narrative, UI/evidence and truthful fallback source. |
+
+The plan and WP-15.6 report are corrected review candidates awaiting designated approval; no approval is inferred from their immutable identities. In this repeat, the Event 3 I-07/I-08/I-16 guard and recovery-only I-15 guard passed, all frozen source hashes matched, and the refreshed WP-15.6 report pins that exact corrected plan. Its STOPPED_PREFLIGHT finding is unchanged.
 
 ## Executed desk/timing checks
 
@@ -18,7 +20,7 @@ The script's shots S00–S13 form contiguous positive-duration intervals from 00
 
 For the current synthetic/unavailable path, select each shot's alternative narration, using S13's shared credits wording. Tokenize English words/numbers with internal apostrophe/hyphen preservation. Observed word count: 272. A planning calculation at 120 words/min gives 136.0 seconds; at 150 words/min it gives 108.8 seconds. These are explicit estimates, not a measured read, an accessibility/readability result, a required speaking speed or proof that actual footage fits. Actual pauses, evidence holds, pronunciation and transitions must be timed during rehearsal; captions must match the finally selected wording. Do not shorten by hiding required disclosures or removing evidence holds.
 
-The frozen presentation byte hash matched. Existing fixture round-trip and 21 focused tests passed separately. The [WP-15.6 preflight record](https://github.com/akhileshkancharla/SIH26168-intelligent-dead-reckoning/blob/fab1b6fc1b0d854319529f0f9d30c998b8106bfd/docs/operations/WP15_6_SYNTHETIC_REHEARSAL_PREFLIGHT_v1.md) documents why normal playback stopped: missing COMPLETE I-18 metadata, a source-time regression and missing integrated scientific event outputs. Source/contract tests are not a substitute for a presentation/video run.
+The frozen presentation byte hash matched. Existing fixture round-trip and 21 focused tests passed separately. The [WP-15.6 preflight record](https://github.com/akhileshkancharla/SIH26168-intelligent-dead-reckoning/blob/65eb576d3273f0fb52db259f2b75b80547851bde/docs/operations/WP15_6_SYNTHETIC_REHEARSAL_PREFLIGHT_v1.md) documents why normal playback stopped: missing COMPLETE I-18 metadata, a source-time regression and missing integrated scientific event outputs. Source/contract tests are not a substitute for a presentation/video run.
 
 ## Incident and readiness review
 
