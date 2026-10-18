@@ -19,3 +19,19 @@ Verify every input file hash and Event 1–10 order before reuse. The existing S
 WP-15.2 must reject this input as normal playback rather than silently repair it. WP-15.3–WP-15.5 require real integrated outputs for their event evidence, and WP-15.6/WP-15.11 must stop an executed-rehearsal claim at the preflight gate. A synthetic desk review may use this frozen plan while recording every unavailable capability and blocker. WP-15.10 recording and Issue #77 device/airplane-mode proof remain separate. Any future executable scenario/input replaces nothing silently: version it, record new hashes/provenance/configuration, and obtain designated review. This freeze is prepared for review and does not close the parent or child issue.
 
 Attribution: canonical fixture and existing approved storyboard/Demo Architecture; plan prepared with Codex assistance. Retain MapLibre/content credits and full OpenStreetMap attribution in map-bearing footage.
+
+## Interface consistency check
+
+Event 3 output continuity uses I-07 NavigationState paired with I-08 NavigationUncertainty and the displayed I-16 UiNavigationSnapshot. I-15 ReacquisitionEvent belongs only to returning-fix/recovery Events 8–10, not periodic output-rate evidence. Reproduce this guard against the frozen plan before a handoff:
+
+```python
+import json
+from pathlib import Path
+plan = json.loads(Path("demo/scenarios/ten_event_synthetic_evidence_plan_v1.json").read_text(encoding="utf-8"))
+events = {event["event"]: event for event in plan["semantic_events"]}
+assert set(events) == set(range(1, 11))
+assert set(events[3]["required_interfaces"]) == {"I-07", "I-08", "I-16"}
+assert all(event["event"] in {8, 9, 10} for event in events.values() if "I-15" in event["required_interfaces"])
+```
+
+The authoritative names/roles are in the interface inventory. This check guards the requested mapping correction; it does not convert NOT_EXECUTED events or ineligible inputs into a successful run.

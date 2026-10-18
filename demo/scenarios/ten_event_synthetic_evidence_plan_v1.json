@@ -91,7 +91,8 @@
       "name": "Approximately 10 Hz output continues",
       "required_interfaces": [
         "I-07",
-        "I-15"
+        "I-08",
+        "I-16"
       ],
       "required_evidence": [
         "actual output interval distribution and gaps",
