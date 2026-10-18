@@ -59,6 +59,23 @@ class LocationContractAdapterTest {
         assertEquals("network", retained[1].envelope.payload["provider"])
     }
 
+    @Test fun nullAndLiteralMissingProviderHaveDistinctRecordedStreamIdentities() {
+        val adapter = adapter()
+        assertNull(adapter.accept(sample(time = 500L, provider = null)))
+        assertTrue(adapter.accept(sample(time = 100L, provider = "<missing>"))
+            is NavigationIngressResult.Accepted)
+        assertNull(adapter.accept(sample(time = 501L, provider = null)))
+        assertTrue(adapter.accept(sample(time = 101L, provider = "<missing>"))
+            is NavigationIngressResult.Accepted)
+        assertEquals(listOf(0L, 0L, 1L, 1L), retained.map { it.sequence })
+        assertEquals(2, retained.map { it.envelope.provenance.streamId }.toSet().size)
+        assertEquals(4, retained.map { Triple(it.envelope.provenance.sessionId,
+            it.envelope.provenance.streamId, it.sequence) }.toSet().size)
+        assertNull(retained[0].envelope.payload["provider"])
+        assertEquals("<missing>", retained[1].envelope.payload["provider"])
+        assertEquals(2, delivered.size)
+    }
+
     @Test fun schemaInvalidMeasurementsAndMissingAccuracyAreDiagnosticOnly() {
         val cases = listOf(sample(provider = null), sample(provider = ""),
             sample().copy(latitudeDegrees = 91.0), sample().copy(longitudeDegrees = Double.NaN),

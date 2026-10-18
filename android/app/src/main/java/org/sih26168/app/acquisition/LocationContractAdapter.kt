@@ -45,8 +45,8 @@ class LocationContractAdapter(
     private val recorder: LocationEvidenceRecorder,
     private val ingress: NavigationIngress,
 ) {
-    private val sequences = mutableMapOf<String?, Long>()
-    private val latestSourceNs = mutableMapOf<String?, Long>()
+    private val sequences = mutableMapOf<String, Long>()
+    private val latestSourceNs = mutableMapOf<String, Long>()
     private var publishing = false
 
     init {
@@ -57,10 +57,12 @@ class LocationContractAdapter(
     @Synchronized
     fun accept(snapshot: LocationCallbackSnapshot): NavigationIngressResult? {
         check(!publishing) { "Reentrant acquisition publication" }
-        val sequence = sequences[snapshot.provider] ?: 0L
+        // Missing provider has its own namespace; no literal provider can alias it.
+        val stream = snapshot.provider?.let { "location:provider:${it.length}:$it" }
+            ?: "location:null"
+        val sequence = sequences[stream] ?: 0L
         check(sequence < Long.MAX_VALUE) { "Location sequence exhausted; stop the session" }
-        sequences[snapshot.provider] = sequence + 1L
-        val stream = "location:${snapshot.provider ?: "<missing>"}"
+        sequences[stream] = sequence + 1L
         val evidenceId = UUID.randomUUID().toString()
         val measurements = linkedMapOf(
             "alt_m" to snapshot.altitudeMeters,
@@ -74,7 +76,7 @@ class LocationContractAdapter(
             snapshot.longitudeDegrees, snapshot.horizontalAccuracyMeters)).all {
             it == null || it.isFinite()
         }
-        val previousNs = latestSourceNs[snapshot.provider]
+        val previousNs = latestSourceNs[stream]
         val reason = when {
             snapshot.provider.isNullOrBlank() -> "MISSING_LOCATION_PROVIDER"
             snapshot.sourceTimestampNs < 0L || snapshot.arrivalTimestampNs < snapshot.sourceTimestampNs ->
@@ -96,7 +98,7 @@ class LocationContractAdapter(
         }
         if (snapshot.sourceTimestampNs >= 0L &&
             (previousNs == null || snapshot.sourceTimestampNs > previousNs)) {
-            latestSourceNs[snapshot.provider] = snapshot.sourceTimestampNs
+            latestSourceNs[stream] = snapshot.sourceTimestampNs
         }
         val fields = linkedMapOf<String, Any?>(
             "schema_version" to 1,
