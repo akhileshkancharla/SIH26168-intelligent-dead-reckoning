@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">SIH26168 S1 Logger</string>
+    <string name="screen_title">SIH26168 — S1 Acquisition Spike</string>
+    <string name="privacy_intro">No data is collected until Start Recording is pressed. Logs stay local until you export a session.</string>
+    <string name="status_idle">Idle</string>
+    <string name="start_recording">Start Recording</string>
+    <string name="stop_recording">Stop Recording</string>
+    <string name="stop_requested">Stop requested; finalizing manifest</string>
+    <string name="export_latest">Export Latest Complete Session</string>
+    <string name="request_explanation">Requested IMU: 100 Hz, up to 2 s batching. Location source: LocationManager GPS_PROVIDER, requested 10 Hz. Delivered rates are measured offline and are never assumed from these requests.</string>
+    <string name="recording_requested">Recording requested</string>
+    <string name="start_failed">Start failed: %1$s</string>
+    <string name="fine_location_denied">Fine location denied; recording not started</string>
+    <string name="export_complete">Export complete: %1$s</string>
+    <string name="export_failed">Export failed: %1$s</string>
+    <string name="no_finalized_session">No finalized session is available</string>
+</resources>
