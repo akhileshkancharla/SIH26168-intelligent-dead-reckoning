@@ -1,9 +1,9 @@
 {
   "architecture_authority_statement": "Architecture Revision 3 is authoritative; this static graph is supporting evidence only.",
   "ci_mode": "snapshot-validation-only",
-  "community_count": 296,
-  "edge_count": 7138,
-  "extracted_edge_count": 6940,
+  "community_count": 289,
+  "edge_count": 7215,
+  "extracted_edge_count": 7016,
   "generator_script_version": "1.0.0",
   "graph_bootstrap_commands": [
     [
@@ -36,7 +36,7 @@
   "graphify_package": "graphifyy",
   "graphify_product": "Graphify",
   "graphify_version": "0.9.53",
-  "inferred_edge_count": 198,
+  "inferred_edge_count": 199,
   "known_graphify_limitations": [
     "Code-only AST extraction does not semantically index architecture documents.",
     "The committed dependency snapshot and bootstrap repository manifest are excluded to prevent recursive generated-artifact graphs.",
@@ -44,15 +44,15 @@
     "Static relationships do not prove runtime reachability, correctness, performance, or scientific validity.",
     "Community and centrality results can change with Graphify version and extraction mode."
   ],
-  "node_count": 4292,
-  "raw_graph_built_at_commit": "7e0fbbcdd8b9c5a0760f168b3e1c2564a98c4972",
+  "node_count": 4323,
+  "raw_graph_built_at_commit": "d0f08f31348528b03dcb13c19d640c271276a90a",
   "removed_volatile_fields": [],
   "sanitizer_script_sha256": "2d8ea440a9ac8c4c0476a234ed6a20dfab7f1166c76be26d0103fb7d60d594e3",
   "schema_version": 1,
   "snapshot_classification": "generated-and-sanitized",
-  "source_branch": "issue/WP-07.4-wp-07-4-implement-reacquisition",
-  "source_includes_working_tree": true,
-  "source_parent_commit": "7e0fbbcdd8b9c5a0760f168b3e1c2564a98c4972",
+  "source_branch": "issue/WP-11.4-wp-11-4-run-baseline",
+  "source_includes_working_tree": false,
+  "source_parent_commit": "d0f08f31348528b03dcb13c19d640c271276a90a",
   "source_repository": "akhileshkancharla/SIH26168-intelligent-dead-reckoning",
   "verification_script_sha256": "836bbe62c458fb04e88b5d1c4d707d8c8f68e2066b9eeed054c6a8f2994a78a8"
 }
