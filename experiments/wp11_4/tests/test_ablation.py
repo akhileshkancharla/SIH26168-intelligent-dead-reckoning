@@ -1,6 +1,7 @@
 import copy
 import hashlib
 import json
+import math
 from pathlib import Path
 import sys
 import tempfile
@@ -92,6 +93,42 @@ class AblationTests(unittest.TestCase):
         evidence["schema_version"] = True
         with self.assertRaisesRegex(AblationError, "schema_version must be 1"):
             evaluate(evidence)
+
+    def test_overflowing_squared_inputs_remain_finite_for_evaluate_and_cli(self):
+        evidence = self.evidence()
+        errors_by_kind = {
+            "baseline": [1.0e200, 1.0e200, 1.0e200],
+            "model": [9.0e199, 9.0e199, 9.0e199],
+            "feature_ablation": [8.0e199, 8.0e199, 8.0e199],
+        }
+        for variant in evidence["variants"]:
+            variant["errors_m"] = errors_by_kind[variant["kind"]]
+
+        report = evaluate(evidence)
+        for variant in report["variants"]:
+            self.assertTrue(all(math.isfinite(value) for value in variant["metrics"].values()))
+            deltas = (
+                value
+                for name, value in variant.items()
+                if name.startswith("delta_")
+            )
+            self.assertTrue(all(math.isfinite(value) for value in deltas))
+
+        encoded = encode_report(report)
+        self.assertNotIn(b"Infinity", encoded)
+        self.assertNotIn(b"NaN", encoded)
+
+        with tempfile.TemporaryDirectory() as temporary:
+            input_path = Path(temporary) / "overflowing-input.json"
+            output_path = Path(temporary) / "overflowing-report.json"
+            input_path.write_text(json.dumps(evidence), encoding="utf-8")
+            previous = sys.argv
+            try:
+                sys.argv = ["ablation.py", str(input_path), "--output", str(output_path)]
+                self.assertEqual(main(), 0)
+            finally:
+                sys.argv = previous
+            self.assertEqual(output_path.read_bytes(), encoded)
 
     def test_report_encoding_is_utf8_with_fixed_lf(self):
         encoded = encode_report(evaluate(self.evidence()))
