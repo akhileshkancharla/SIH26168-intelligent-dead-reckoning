@@ -6,8 +6,8 @@
 | Parent | #10 — WP-09 Offline navigation UI and honest telemetry |
 | Register milestone | P3 — Classical and Evaluation |
 | Owner / reviewer | R5 / @akhileshkancharla |
-| Stack | WP-09.3 `07c636b` → WP-09.4 `a238fc9` → WP-09.5 `e369775` → WP-09.6 |
-| Status | JVM, build, static containment and repository checks verified; device airplane-mode demonstration pending |
+| Stack | WP-09.6 targets WP-09.5; refreshed parent `b2f5963` contains `main` at `3466b71`. Current-head checks and reviews are recorded in PR #170. |
+| Status | Previously verified synthetic preparation; refreshed-head build/CI pending; device airplane-mode demonstration pending |
 
 ## Verification boundary
 
@@ -23,7 +23,7 @@ All test positions are synthetic equatorial coordinates near (0°, 0°). No priv
 | --- | --- | --- |
 | Asset containment | Bundled style, GeoJSON, source manifest, runtime style URI | Style and source use `asset://`; no remote glyph/sprite/tile/URL descriptor; three inherited network permissions marked for removal; replay and attribution labels retained. |
 | Outage continuity | Initial GNSS → simulated outage → continued scientific frames → covariance and ambiguous candidates → reacquisition | Playback timestamp advances; raw GNSS stops at the last trusted fix; scientific history remains unchanged; tether says “Separation from last trusted GNSS fix”; valid ellipse is bounded and overflow fails closed; top-K is at most three with one primary; display recovery decays toward the moving live scientific coordinate without rewriting scientific history. |
-| Telemetry honesty | `FIX_3D` with satellite/DOP fields → simulated outage | Visible state is `OUTAGE_SIMULATED`; stale satellite, HDOP, and PDOP values are absent; trusted-fix age remains separately identified; alignment retains its ingested `AlignmentStatusV1` value; absent data defaults to `UNINITIALIZED`, null covariance, and no candidates. |
+| Telemetry honesty | `FIX_3D` with satellite/DOP fields → simulated outage | The I-14 `SIMULATED OUTAGE` disclosure is visible while `HealthIntegrityStateV1` remains unchanged; fix dimensionality, satellite, HDOP, and PDOP values are hidden; trusted-fix age remains separately identified; alignment retains its ingested `AlignmentStatusV1` value; absent data defaults to `UNINITIALIZED`, null covariance, and no candidates. |
 | Concurrent publication | Four worker threads append 40 synthetic scientific points while an earlier snapshot is retained | Atomic `StateFlow` updates retain all 42 points; prior snapshot and input mutations cannot alter history; published list rejects in-place mutation. This is a JVM concurrency test, not an Android main-thread rendering test. |
 | Narrow disclosure hierarchy | Normal replay and `BLACKOUT_DR` states | JVM assertion checks `REPLAY` and `SIMULATED OUTAGE` are assigned to the pinned primary banner slots. The Compose instrumentation test measures both badges inside a 320dp viewport in normal/outage states; its device execution remains pending. |
 
@@ -31,9 +31,9 @@ All test positions are synthetic equatorial coordinates near (0°, 0°). No priv
 
 `GovernanceFrame` no longer places mandatory disclosures in a horizontal-scroll row. Its first, fixed-width tier pins `REPLAY` and, during outage, `SIMULATED OUTAGE` in weighted slots. A second full-width tier retains `SOURCE: DETERMINISTIC_REPLAY`; the final tier retains `DEMO` and `REPLAY MODE`. The primary tier is rendered before secondary metadata, so the long source string cannot push the replay/outage warnings into an undiscovered scroll offset. The 320dp Compose instrumentation test checks rendered visibility and horizontal containment for both states. This test must execute on a connected device/emulator before it is marked passed.
 
-Local Gradle 8.9 execution with `--no-daemon` and build output outside OneDrive: `:app:testDebugUnitTest :app:lintDebug :app:compileDebugAndroidTestKotlin` and `:app:assembleDebug` — **BUILD SUCCESSFUL**; 51 JVM tests passed and the two Compose instrumentation assertions compiled. The merged debug manifest and `aapt dump permissions` on the packaged APK contain no `INTERNET`, `ACCESS_NETWORK_STATE`, or `ACCESS_WIFI_STATE` permission. The local debug APK SHA-256 is `c1e5c2a75e220a21a747598e486431087098d688c72c56aa5c08e9b39c6fd313` (local build evidence, not a committed binary). The MapLibre style and local road asset checks pass in the JVM suite.
+Historical pre-restack evidence (not validation of the refreshed head): local Gradle 8.9 execution with `--no-daemon` and build output outside OneDrive: `:app:testDebugUnitTest :app:lintDebug :app:compileDebugAndroidTestKotlin` and `:app:assembleDebug` — **BUILD SUCCESSFUL**; 51 JVM tests passed and the two Compose instrumentation assertions compiled. The merged debug manifest and `aapt dump permissions` on the packaged APK contain no `INTERNET`, `ACCESS_NETWORK_STATE`, or `ACCESS_WIFI_STATE` permission. The local debug APK SHA-256 is `c1e5c2a75e220a21a747598e486431087098d688c72c56aa5c08e9b39c6fd313` (local build evidence, not a committed binary). The MapLibre style and local road asset checks pass in the JVM suite.
 
-Graphify 0.9.53 sanitized snapshot verification passed (2,861 nodes, 4,823 edges, 195 communities). `python ci/verify_repository.py all` and `forbidden`, `python ci/generate_contract_bindings.py --check`, and `git diff --check` passed. The bootstrap suite completed 57 tests with one expected skip and no failures. These are local results; current-head remote CI must run after push.
+Historical pre-restack Graphify 0.9.53 sanitized snapshot verification passed (2,861 nodes, 4,823 edges, 195 communities). `python ci/verify_repository.py all` and `forbidden`, `python ci/generate_contract_bindings.py --check`, and `git diff --check` passed. The bootstrap suite completed 57 tests with one expected skip and no failures. These are historical local results. Do not reuse the APK hash or test counts as current-head evidence. Current-head graph metadata/checksums and repository manifest are committed; refreshed local and remote verification outcomes are recorded in PR #170.
 
 ## Required device airplane-mode acceptance run
 

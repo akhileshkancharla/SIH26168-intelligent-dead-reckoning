@@ -28,3 +28,14 @@ target_link_libraries(sih26168_gnss_rejection PUBLIC sih26168_gnss_precheck)
 add_executable(sih26168_gnss_rejection_tests tests/test_fix_rejection.cpp)
 target_link_libraries(sih26168_gnss_rejection_tests PRIVATE sih26168_gnss_rejection)
 add_test(NAME gnss-rejection-native COMMAND sih26168_gnss_rejection_tests)
+
+add_library(sih26168_gnss_reacquisition STATIC src/reacquisition_gate.cpp)
+target_include_directories(sih26168_gnss_reacquisition PUBLIC
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>)
+target_compile_features(sih26168_gnss_reacquisition PUBLIC cxx_std_20)
+target_link_libraries(sih26168_gnss_reacquisition PUBLIC
+    sih26168_gnss_outage sih26168_gnss_rejection sih26168_navigation_core)
+
+add_executable(sih26168_gnss_reacquisition_tests tests/test_reacquisition_gate.cpp)
+target_link_libraries(sih26168_gnss_reacquisition_tests PRIVATE sih26168_gnss_reacquisition)
+add_test(NAME gnss-reacquisition-native COMMAND sih26168_gnss_reacquisition_tests)
