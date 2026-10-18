@@ -1,0 +1,215 @@
+{
+  "document_type": "SYNTHETIC_SCENARIO_EVIDENCE_PLAN",
+  "document_version": 1,
+  "scenario_id": "wp15-ten-event-synthetic-evidence-v1",
+  "classification": "CONTRACT_AND_STORYBOARD_ONLY",
+  "relates_to": [
+    16,
+    106
+  ],
+  "input_freeze": [
+    {
+      "path": "contracts/fixtures/s1_acquisition_round_trip_v1_fixture.json",
+      "file_sha256": "44068a9b5beeade2581a7914707596e5b88b6d85cdcec5f9016752908728f2bb"
+    },
+    {
+      "path": "docs/architecture/SIH26168_WP15_7_Demo_Narrative_Storyboard_v1.md",
+      "file_sha256": "fe5042fece38d3197b3927042f91aae24f5aaeac7e6b7584edca256f80137a49"
+    },
+    {
+      "path": "docs/architecture/SIH26168_Demo_Architecture_v1.md",
+      "file_sha256": "6fba94a27371d1d1b8adc87488eac4474441d84bb71ba872a05ef54300fd4cfa"
+    }
+  ],
+  "fixture_record_count": 6,
+  "fixture_classification": "SYNTHETIC_PUBLIC_TEST_ONLY",
+  "normal_replay_eligibility": {
+    "eligible": false,
+    "blockers": [
+      "MISSING_COMPLETE_I18_MANIFEST",
+      "REGRESSIVE_GLOBAL_SOURCE_TIME",
+      "NO_I07_I08_SCIENTIFIC_OUTPUTS",
+      "NO_I11_RUNTIME_MATCHER_OUTPUT",
+      "NO_I15_REJECTION_DWELL_ACCEPTANCE_EVIDENCE"
+    ],
+    "policy": "Preserve original source evidence. No silent sorting, clock repair, fabricated metadata, state, metrics, or acceptance."
+  },
+  "runtime_schedule": {
+    "status": "NOT_DEFINED",
+    "event_epochs_ns": null,
+    "mask_interval_ns": null,
+    "reason": "The selected fixture is a contract example, not an eligible integrated session. Narrative order does not invent runtime event times."
+  },
+  "persistent_labels": [
+    "SOURCE: DETERMINISTIC_REPLAY",
+    "REPLAY",
+    "REPLAY MODE",
+    "DEMO"
+  ],
+  "conditional_labels": {
+    "software_mask_active": "SIMULATED OUTAGE",
+    "map_visible": "© OpenStreetMap contributors"
+  },
+  "invariants": [
+    "C-07 exclusively owns scientific state/covariance/evidence acceptance",
+    "Withheld GNSS remains evaluation-only during masking",
+    "Map/model proposals never overwrite core state",
+    "Display smoothing never changes scientific history or metrics",
+    "Missing capabilities stay UNAVAILABLE; missing eligible metrics stay NOT COMPUTABLE"
+  ],
+  "semantic_events": [
+    {
+      "event": 1,
+      "name": "Valid GNSS-aided start and anchor",
+      "required_interfaces": [
+        "I-02",
+        "I-07",
+        "I-08"
+      ],
+      "required_evidence": [
+        "provider/evidence identity",
+        "paired scientific state and covariance"
+      ],
+      "epoch_ns": null,
+      "execution_status": "NOT_EXECUTED"
+    },
+    {
+      "event": 2,
+      "name": "Deliberate GNSS outage begins",
+      "required_interfaces": [
+        "I-14"
+      ],
+      "required_evidence": [
+        "scenario/mask identity and interval",
+        "raw withheld evidence retained separately"
+      ],
+      "epoch_ns": null,
+      "execution_status": "NOT_EXECUTED"
+    },
+    {
+      "event": 3,
+      "name": "Approximately 10 Hz output continues",
+      "required_interfaces": [
+        "I-07",
+        "I-15"
+      ],
+      "required_evidence": [
+        "actual output interval distribution and gaps",
+        "target distinguished from measured rate"
+      ],
+      "epoch_ns": null,
+      "execution_status": "NOT_EXECUTED"
+    },
+    {
+      "event": 4,
+      "name": "Inertial estimate continues",
+      "required_interfaces": [
+        "I-03",
+        "I-07",
+        "I-08"
+      ],
+      "required_evidence": [
+        "actual C-07 propagation/state/covariance sequence"
+      ],
+      "epoch_ns": null,
+      "execution_status": "NOT_EXECUTED"
+    },
+    {
+      "event": 5,
+      "name": "Route turn occurs during outage",
+      "required_interfaces": [
+        "I-01",
+        "I-07",
+        "I-16"
+      ],
+      "required_evidence": [
+        "turn inputs",
+        "separate scientific/display/withheld traces"
+      ],
+      "epoch_ns": null,
+      "execution_status": "NOT_EXECUTED"
+    },
+    {
+      "event": 6,
+      "name": "Uncertainty grows",
+      "required_interfaces": [
+        "I-08",
+        "I-16"
+      ],
+      "required_evidence": [
+        "computed covariance identity/epoch",
+        "valid bounded visualization"
+      ],
+      "epoch_ns": null,
+      "execution_status": "NOT_EXECUTED"
+    },
+    {
+      "event": 7,
+      "name": "Top-K map candidates appear",
+      "required_interfaces": [
+        "I-11",
+        "I-21"
+      ],
+      "required_evidence": [
+        "actual matcher candidate scores/ambiguity/map version or UNAVAILABLE"
+      ],
+      "epoch_ns": null,
+      "execution_status": "NOT_EXECUTED"
+    },
+    {
+      "event": 8,
+      "name": "Deliberately biased returning fix rejected",
+      "required_interfaces": [
+        "I-02",
+        "I-15"
+      ],
+      "required_evidence": [
+        "explicit simulated fixture provenance",
+        "gate/NIS/reason",
+        "no GNSS update from rejected evidence"
+      ],
+      "epoch_ns": null,
+      "execution_status": "NOT_EXECUTED"
+    },
+    {
+      "event": 9,
+      "name": "Subsequent credible fix accepted",
+      "required_interfaces": [
+        "I-02",
+        "I-12",
+        "I-15"
+      ],
+      "required_evidence": [
+        "screening",
+        "configured dwell/consistency",
+        "accepted update identity"
+      ],
+      "epoch_ns": null,
+      "execution_status": "NOT_EXECUTED"
+    },
+    {
+      "event": 10,
+      "name": "Display recovers smoothly and after-run comparison shown",
+      "required_interfaces": [
+        "I-07",
+        "I-15",
+        "I-16"
+      ],
+      "required_evidence": [
+        "moving-target display recovery",
+        "scientific history unchanged",
+        "eligible scientific/reference metrics or NOT COMPUTABLE"
+      ],
+      "epoch_ns": null,
+      "execution_status": "NOT_EXECUTED"
+    }
+  ],
+  "required_before_executed_rehearsal": [
+    "Designated review of this input/evidence freeze",
+    "Separate eligible COMPLETE I-18 session with authenticated metadata and hash-valid ordered chunks",
+    "Versioned runtime scenario with explicit epochs/mask and I-22 identities",
+    "Actual integrated I-07/I-08/I-15 outputs and explicit I-11 capability status",
+    "Exact build/run/artifact identities",
+    "Executed device/renderer/radio evidence for an airplane-mode claim"
+  ]
+}
