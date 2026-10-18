@@ -54,6 +54,22 @@ class SensorContractAdapterTest {
         assertEquals(2, delivered.map { it.envelope.provenance.streamId }.toSet().size)
     }
 
+    @Test fun unavailableHardwareIdsDoNotMergeAccelerometerAndGyroscopeStreams() {
+        val adapter = adapter()
+        adapter.accept(sample(id = 0, time = 500L, type = 1))
+        adapter.accept(sample(id = 0, time = 100L, type = 4))
+        assertEquals(listOf(0L, 0L), delivered.map { it.sequence })
+        assertEquals(2, delivered.map { it.envelope.provenance.streamId }.toSet().size)
+    }
+
+    @Test fun fallbackIdsSeparateSameTypeSensorsByNameWithoutDelimiterCollisions() {
+        val adapter = adapter()
+        adapter.accept(sample(id = -1, time = 500L).copy(name = "a:b", vendor = "c"))
+        adapter.accept(sample(id = -1, time = 100L).copy(name = "a", vendor = "b:c"))
+        assertEquals(listOf(0L, 0L), delivered.map { it.sequence })
+        assertEquals(2, delivered.map { it.envelope.provenance.streamId }.toSet().size)
+    }
+
     @Test fun invalidShapesMetadataAndTimeNeverReachRuntime() {
         val cases = listOf(sample(type = 16), sample(values = floatArrayOf(1f)),
             sample(values = floatArrayOf(Float.NaN, 0f, 0f)), sample().copy(accuracy = -1),

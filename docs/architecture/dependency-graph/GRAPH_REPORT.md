@@ -5,11 +5,11 @@
 - Snapshot classification: `generated-and-sanitized`
 - Source repository: `akhileshkancharla/SIH26168-intelligent-dead-reckoning`
 - Source branch: `issue/WP-02.2-wp-02-2-adapt-sensormanager`
-- Source parent commit: `3466b71f0924e9a065daec7824ad98134c0e889a`
+- Source parent commit: `ffc90e5aa49c06ea20d7854ff59dc9332fbc0b36`
 - Graphify version: `0.9.53`
 - Graphify mode: code-only static extraction; semantic document extraction disabled
-- Counts: 4314 nodes, 7196 edges, 298 communities
-- Edge evidence: 6991 extracted, 205 inferred
+- Counts: 4316 nodes, 7202 edges, 276 communities
+- Edge evidence: 6997 extracted, 205 inferred
 - CI mode: `snapshot-validation-only`
 
 ## VERIFIED FROM CODE

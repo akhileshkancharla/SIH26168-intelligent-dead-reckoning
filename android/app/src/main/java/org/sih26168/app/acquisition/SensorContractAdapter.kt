@@ -44,8 +44,8 @@ class SensorContractAdapter(
     private val recorder: SensorEvidenceRecorder,
     private val ingress: NavigationIngress,
 ) {
-    private val sequences = mutableMapOf<Int, Long>()
-    private val latestSourceNs = mutableMapOf<Int, Long>()
+    private val sequences = mutableMapOf<String, Long>()
+    private val latestSourceNs = mutableMapOf<String, Long>()
     private var publishing = false
 
     init {
@@ -58,13 +58,20 @@ class SensorContractAdapter(
     fun accept(snapshot: SensorCallbackSnapshot): NavigationIngressResult? {
         check(!publishing) { "Reentrant acquisition publication" }
         val values = snapshot.values.map(Float::toDouble)
-        val sequence = sequences[snapshot.sensorId] ?: 0L
+        // Android reports 0/-1 when a globally usable sensor ID is unavailable.
+        // Type/name identify such sensors; length prefixes keep delimiters unambiguous.
+        val stream = if (snapshot.sensorId > 0) {
+            "sensor:id:${snapshot.sensorId}"
+        } else {
+            "sensor:fallback:${snapshot.androidType}:${snapshot.name.length}:${snapshot.name}:" +
+                "${snapshot.vendor.length}:${snapshot.vendor}:${snapshot.version}"
+        }
+        val sequence = sequences[stream] ?: 0L
         check(sequence < Long.MAX_VALUE) { "Sensor sequence exhausted; stop the session" }
-        sequences[snapshot.sensorId] = sequence + 1L
-        val stream = "sensor:${snapshot.sensorId}"
+        sequences[stream] = sequence + 1L
         val evidenceId = UUID.randomUUID().toString()
         val type = TYPES[snapshot.androidType]
-        val previousNs = latestSourceNs[snapshot.sensorId]
+        val previousNs = latestSourceNs[stream]
         val reason = when {
             type == null -> "UNSUPPORTED_SENSOR_TYPE"
             snapshot.sourceTimestampNs < 0L || snapshot.arrivalTimestampNs < snapshot.sourceTimestampNs ->
@@ -81,7 +88,7 @@ class SensorContractAdapter(
         // Track the source high-water mark, including retained invalid callbacks, without repair.
         if (snapshot.sourceTimestampNs >= 0L &&
             (previousNs == null || snapshot.sourceTimestampNs > previousNs)) {
-            latestSourceNs[snapshot.sensorId] = snapshot.sourceTimestampNs
+            latestSourceNs[stream] = snapshot.sourceTimestampNs
         }
         val metadata = immutableMap(mapOf(
             "android_sensor_type" to snapshot.androidType,
