@@ -55,17 +55,39 @@ def _finite_nonnegative(values: Iterable[Any], field: str) -> list[float]:
     return result
 
 
+def _finite_result(value: float, field: str) -> float:
+    if not math.isfinite(value):
+        raise AblationError(f"{field} must be finite")
+    return value
+
+
 def summarize(errors_m: list[float]) -> dict[str, float]:
-    """Return the metric set used by the matched WP-11 comparison."""
+    """Return finite metrics for the matched WP-11 comparison."""
     ordered = sorted(errors_m)
     p95_index = min(len(ordered) - 1, math.ceil(0.95 * len(ordered)) - 1)
-    return {
-        "mean_m": statistics.fmean(errors_m),
-        "rmse_m": math.sqrt(statistics.fmean(error * error for error in errors_m)),
+    scale = ordered[-1]
+    if scale == 0.0:
+        mean_m = 0.0
+        rmse_m = 0.0
+    else:
+        scaled = [error / scale for error in errors_m]
+        mean_m = scale * statistics.fmean(scaled)
+        rmse_m = scale * math.sqrt(statistics.fmean(value * value for value in scaled))
+    metrics = {
+        "mean_m": mean_m,
+        "rmse_m": rmse_m,
         "p95_m": ordered[p95_index],
-        "max_m": ordered[-1],
+        "max_m": scale,
         "endpoint_m": errors_m[-1],
     }
+    return {
+        name: _finite_result(value, f"derived metric {name}")
+        for name, value in metrics.items()
+    }
+
+
+def _finite_difference(left: float, right: float, field: str) -> float:
+    return _finite_result(left - right, field)
 
 
 def encode_report(report: dict[str, Any]) -> bytes:
@@ -172,9 +194,17 @@ def evaluate(document: dict[str, Any]) -> dict[str, Any]:
 
     for variant in evaluated:
         metrics = variant["metrics"]
-        variant["delta_vs_best_baseline_rmse_m"] = metrics["rmse_m"] - best_baseline["metrics"]["rmse_m"]
+        variant["delta_vs_best_baseline_rmse_m"] = _finite_difference(
+            metrics["rmse_m"],
+            best_baseline["metrics"]["rmse_m"],
+            f"{variant['variant_id']} delta_vs_best_baseline_rmse_m",
+        )
         if variant["kind"] == "feature_ablation":
-            variant["delta_vs_full_model_rmse_m"] = metrics["rmse_m"] - full_model["metrics"]["rmse_m"]
+            variant["delta_vs_full_model_rmse_m"] = _finite_difference(
+                metrics["rmse_m"],
+                full_model["metrics"]["rmse_m"],
+                f"{variant['variant_id']} delta_vs_full_model_rmse_m",
+            )
 
     input_digest = hashlib.sha256(
         json.dumps(document, sort_keys=True, separators=(",", ":"), allow_nan=False).encode("utf-8")
