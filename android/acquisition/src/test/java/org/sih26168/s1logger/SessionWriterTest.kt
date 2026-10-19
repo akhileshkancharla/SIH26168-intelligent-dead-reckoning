@@ -8,6 +8,7 @@ import org.junit.Test
 import org.junit.rules.TemporaryFolder
 import java.io.ByteArrayOutputStream
 import java.io.File
+import java.nio.file.Files
 import java.util.zip.ZipInputStream
 
 class SessionWriterTest {
@@ -44,6 +45,18 @@ class SessionWriterTest {
         System.getProperty("wp024.evidenceDir")?.let {
             val dir = File(it); check(dir.isDirectory || dir.mkdirs())
             File(dir, "$name.json").writeText(manifest.toString(2))
+        }
+    }
+
+    private fun directoryAlias(alias: File, target: File) {
+        if (System.getProperty("os.name").startsWith("Windows")) {
+            // A junction needs no developer-mode symlink privilege on the Windows CI runner.
+            val process = ProcessBuilder("cmd", "/c", "mklink", "/J", alias.absolutePath,
+                target.absolutePath).redirectErrorStream(true).start()
+            val output = process.inputStream.bufferedReader().readText()
+            assertEquals("Unable to create Windows junction: $output", 0, process.waitFor())
+        } else {
+            Files.createSymbolicLink(alias.toPath(), target.toPath())
         }
     }
 
@@ -191,6 +204,26 @@ class SessionWriterTest {
         m.getJSONArray("chunks").getJSONObject(0).put("path", "../secret")
         f.writeText(m.toString())
         fails { SessionWriter.exportSession(w.sessionDir, ByteArrayOutputStream()) }
+    }
+    @Test fun aliasAncestorCannotBeUsedAsEvidenceRootOrChunkPath() {
+        val realRoot = temp.newFolder("real-evidence")
+        val writer = SessionWriter(realRoot, initial(), limits())
+        writer.append(record())
+        val chunk = File(writer.sessionDir, "chunk_00001.jsonl")
+        writer.finish()
+
+        val alias = File(temp.root, "aliased-evidence")
+        directoryAlias(alias, realRoot)
+        try {
+            fails { SessionWriter(alias, initial("other"), limits()) }
+            fails { SessionWriter(File(alias, "new/root"), initial("other"), limits()) }
+            assertFalse(File(realRoot, "new").exists())
+            fails { SessionWriter.sha256(File(alias, writer.sessionId + "/" + chunk.name)) }
+            fails { SessionWriter.exportSession(File(alias, writer.sessionId), ByteArrayOutputStream()) }
+        } finally {
+            // Remove the directory entry before TemporaryFolder recursively cleans up.
+            Files.delete(alias.toPath())
+        }
     }
     @Test fun atomicManifestFailureRetainsRecoveryEvidence() {
         val w = writer(); w.append(record())

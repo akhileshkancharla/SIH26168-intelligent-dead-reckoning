@@ -5,7 +5,9 @@ import java.io.File
 import java.io.FileOutputStream
 import java.io.OutputStream
 import java.nio.file.Files
+import java.nio.file.LinkOption
 import java.nio.file.StandardCopyOption
+import java.nio.file.attribute.BasicFileAttributes
 import java.security.MessageDigest
 import java.util.Locale
 import java.util.concurrent.Executors
@@ -61,10 +63,11 @@ class SessionWriter(
             require(manifest.getJSONObject("loss_counts").let { counts ->
                 counts.keys().asSequence().all { counts.getLong(it) == 0L }
             })
+            safeDirectoryAncestors(sessionsRoot)
             require(sessionsRoot.isDirectory || sessionsRoot.mkdirs())
-            require(!Files.isSymbolicLink(sessionsRoot.toPath()))
-            require(Files.isSameFile(sessionsRoot.toPath(), sessionsRoot.canonicalFile.toPath()))
+            safeDirectory(sessionsRoot)
             check(sessionDir.mkdir()) { "Session already exists or cannot be created" }
+            safeDirectory(sessionDir)
             io {
                 // Written before any data: recovery never invents boot/build/device metadata.
                 atomicWrite(File(sessionDir, CONTEXT), manifest.toString())
@@ -282,16 +285,25 @@ class SessionWriter(
             stream.put("sample_count", Math.addExact(stream.getLong("sample_count"), 1))
         }
 
-        fun findIncomplete(root: File): List<File> = root.listFiles()?.filter {
-            it.isDirectory && !Files.isSymbolicLink(it.toPath()) && File(it, MARKER).isFile
-        }?.sortedBy { it.name } ?: emptyList()
+        fun findIncomplete(root: File): List<File> {
+            if (!root.exists()) return emptyList()
+            safeDirectory(root)
+            return root.listFiles()?.filter {
+                if (!it.isDirectory) false
+                else {
+                    safeDirectory(it)
+                    File(it, MARKER).let { marker -> marker.exists() && safeFile(marker).isFile }
+                }
+            }?.sortedBy { it.name } ?: emptyList()
+        }
 
         /** Call only for abandoned sessions after acquisition has stopped, on manual launch.
          * Torn/malformed lines are retained byte-for-byte and make evidence degraded.
          * Legacy sessions without this writer's context are rejected, never upgraded.
          */
         fun recover(sessionDir: File, limits: Limits = Limits()): JSONObject {
-            require(!Files.isSymbolicLink(sessionDir.toPath()) && File(sessionDir, MARKER).isFile)
+            safeDirectory(sessionDir)
+            require(safeFile(File(sessionDir, MARKER)).isFile)
             // A crash after publishing the manifest but before deleting the marker must
             // not downgrade a verified completed session or reorder its declared chunks.
             val published = File(sessionDir, MANIFEST)
@@ -353,7 +365,8 @@ class SessionWriter(
          * Only a COMPLETE session is eligible. Any exception means discard the output ZIP.
          */
         fun exportSession(sessionDir: File, destination: OutputStream) {
-            require(!File(sessionDir, MARKER).exists())
+            safeDirectory(sessionDir)
+            require(!Files.exists(File(sessionDir, MARKER).toPath(), LinkOption.NOFOLLOW_LINKS))
             val manifestFile = File(sessionDir, MANIFEST)
             require(safeFile(manifestFile).length() <= 16L * 1024 * 1024)
             val bytes = manifestFile.readBytes()
@@ -399,11 +412,37 @@ class SessionWriter(
             require(safeFile(file).length() <= 16L * 1024 * 1024) { "Metadata exceeds read bound" }
             return parseJson(Charsets.UTF_8.newDecoder().decode(java.nio.ByteBuffer.wrap(file.readBytes())).toString())
         }
-        private fun safeFile(file: File): File {
-            require(file.isFile && !Files.isSymbolicLink(file.toPath()))
-            require(Files.isSameFile(file.toPath(), file.canonicalFile.toPath())) { "Symlink path is not evidence" }
+        /** Check every existing component without following links. On Windows a junction
+         * is a reparse-point "other", not necessarily a symbolic link. Do not compare
+         * canonical and absolute spellings: Windows may normalize case/short names.
+         */
+        private fun safeDirectoryAncestors(file: File) {
+            val absolute = file.toPath().toAbsolutePath().normalize()
+            var cursor = absolute.root ?: error("Evidence path has no filesystem root")
+            for (part in absolute) {
+                cursor = cursor.resolve(part)
+                if (!Files.exists(cursor, LinkOption.NOFOLLOW_LINKS)) return
+                val attrs = Files.readAttributes(cursor, BasicFileAttributes::class.java, LinkOption.NOFOLLOW_LINKS)
+                require(attrs.isDirectory && !attrs.isOther && !attrs.isSymbolicLink) {
+                    "Aliased evidence directory: $cursor"
+                }
+            }
+        }
+        private fun safePath(file: File, regularFile: Boolean): File {
+            val absolute = file.toPath().toAbsolutePath().normalize()
+            var cursor = absolute.root ?: error("Evidence path has no filesystem root")
+            for (part in absolute) {
+                cursor = cursor.resolve(part)
+                val attrs = Files.readAttributes(cursor, BasicFileAttributes::class.java, LinkOption.NOFOLLOW_LINKS)
+                require(!attrs.isSymbolicLink && !attrs.isOther) { "Aliased evidence path: $cursor" }
+                require(if (cursor == absolute && regularFile) attrs.isRegularFile else attrs.isDirectory) {
+                    "Wrong evidence path type: $cursor"
+                }
+            }
             return file
         }
+        private fun safeDirectory(directory: File): File = safePath(directory, false)
+        private fun safeFile(file: File): File = safePath(file, true)
         private fun chunkEntry(file: File) = JSONObject().put("path", file.name)
             .put("size_bytes", file.length()).put("sha256", sha256(file))
         private fun verifyChunks(dir: File, m: JSONObject) {
