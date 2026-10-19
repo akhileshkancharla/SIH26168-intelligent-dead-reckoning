@@ -24,6 +24,7 @@ def main() -> None:
             "experiments/wp11_1/tests",
             "experiments/wp11_2/tests",
             "experiments/wp11_4/tests",
+            "experiments/wp11_5/tests",
             "tools/training/tests",
         )
     )
