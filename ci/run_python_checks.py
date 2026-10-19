@@ -23,6 +23,7 @@ def main() -> None:
             "tools/bootstrap/tests",
             "experiments/wp11_1/tests",
             "experiments/wp11_2/tests",
+            "experiments/wp11_4/tests",
             "tools/training/tests",
         )
     )
