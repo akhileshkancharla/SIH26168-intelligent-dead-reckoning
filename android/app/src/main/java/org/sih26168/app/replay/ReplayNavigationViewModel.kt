@@ -1,16 +1,16 @@
 package org.sih26168.app.replay
 
 import androidx.lifecycle.ViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
 import java.util.Collections
 import kotlin.math.atan2
 import kotlin.math.cos
 import kotlin.math.hypot
 import kotlin.math.sin
 import kotlin.math.sqrt
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import org.sih26168.contracts.enums.NavigationModeV1
 
 class ReplayNavigationViewModel : ViewModel() {
@@ -35,9 +35,14 @@ class ReplayNavigationViewModel : ViewModel() {
                 _uiState.update { it.copy(showCandidateBranches = intent.visible) }
             is PresentPositionCovarianceIntent -> presentPositionCovariance(intent)
             is PresentMapCandidatesIntent -> presentMapCandidates(intent.candidates)
+            is UpdateHealthStates -> updateHealthStates(intent)
             is NavigationModeChangedIntent -> updateNavigationMode(intent)
-            ReplayIntent.Play -> _uiState.update { it.copy(isReplaying = true) }
-            ReplayIntent.Pause -> _uiState.update { it.copy(isReplaying = false) }
+            ReplayIntent.Play -> _uiState.update {
+                it.copy(isReplaying = true, replayEngineStatus = ReplayEngineStatus.PLAYING)
+            }
+            ReplayIntent.Pause -> _uiState.update {
+                it.copy(isReplaying = false, replayEngineStatus = ReplayEngineStatus.PAUSED)
+            }
             ReplayIntent.Step -> stepOnce()
             ReplayIntent.Reset -> reset()
             ReplayIntent.ToggleSimulatedOutage -> toggleSimulatedOutage()
@@ -49,6 +54,51 @@ class ReplayNavigationViewModel : ViewModel() {
     private fun reset() {
         latestCandidateInputs = emptyList()
         _uiState.update { ReplayUiState(isMapReady = it.isMapReady) }
+    }
+
+    /**
+     * Null health entries mean unavailable telemetry in this update, not a claim
+     * that an earlier reading is still current. Each subsystem fails closed.
+     */
+    private fun updateHealthStates(intent: UpdateHealthStates) {
+        _uiState.update { state ->
+            val engine = intent.replayEngine ?: state.replayEngineStatus
+            state.copy(
+                gnssHealth = intent.gnss?.validatedFor(state) ?: GnssHealthState(),
+                alignmentHealth = intent.alignment?.validated() ?: AlignmentHealthState(),
+                modelHealth = intent.model?.validated() ?: ModelHealthState(),
+                replayEngineStatus = engine,
+                isReplaying = engine == ReplayEngineStatus.PLAYING,
+            )
+        }
+    }
+
+    private fun GnssHealthState.validatedFor(state: ReplayUiState): GnssHealthState {
+        val valid =
+            (satelliteCount == null || satelliteCount in 0..MAX_SATELLITES) &&
+                (hdop == null || (hdop.isFinite() && hdop > 0.0 && hdop <= MAX_DOP)) &&
+                (pdop == null || (pdop.isFinite() && pdop > 0.0 && pdop <= MAX_DOP)) &&
+                (trustedFixTimestampNs == null ||
+                    trustedFixTimestampNs in 0L..state.currentTimestampNs)
+        return if (valid) this else GnssHealthState()
+    }
+
+    private fun AlignmentHealthState.validated(): AlignmentHealthState {
+        val valid = (uncertaintyDegrees == null ||
+            (uncertaintyDegrees.isFinite() && uncertaintyDegrees in 0.0..180.0)) &&
+            (convergenceProgress == null ||
+                (convergenceProgress.isFinite() && convergenceProgress in 0.0..1.0))
+        return if (valid) this else AlignmentHealthState()
+    }
+
+    private fun ModelHealthState.validated(): ModelHealthState {
+        val valid =
+            (residual == null ||
+                (residual.isFinite() && residual in 0.0..MAX_RESIDUAL_MAGNITUDE)) &&
+                (innovationCovarianceTrace == null ||
+                    (innovationCovarianceTrace.isFinite() &&
+                        innovationCovarianceTrace in 0.0..MAX_INNOVATION_COVARIANCE_TRACE))
+        return if (valid) this else ModelHealthState()
     }
 
     private fun presentPositionCovariance(intent: PresentPositionCovarianceIntent) {
@@ -157,8 +207,8 @@ class ReplayNavigationViewModel : ViewModel() {
         _uiState.update { state ->
             val enabled = state.enabledLayers.toMutableSet().apply {
                 if (!add(layer)) remove(layer)
-            }.toSet()
-            state.copy(enabledLayers = enabled)
+            }
+            state.copy(enabledLayers = Collections.unmodifiableSet(enabled))
         }
     }
 
@@ -194,7 +244,7 @@ class ReplayNavigationViewModel : ViewModel() {
 
     private fun toggleSimulatedOutage() {
         _uiState.update { state ->
-            if (state.isOutageActive) {
+            if (state.isOutageSimulated) {
                 state.copy(isOutageActive = false)
             } else {
                 state.copy(
@@ -348,6 +398,10 @@ class ReplayNavigationViewModel : ViewModel() {
         const val STEP_INTERVAL_NS = 100_000_000L
         const val COURSE_UP_MIN_SPEED_METERS_PER_SECOND = 1.0
         const val DISPLAY_RECOVERY_DURATION_NS = 2_000_000_000L
+        const val MAX_SATELLITES = 128
+        const val MAX_DOP = 50.0
+        const val MAX_RESIDUAL_MAGNITUDE = 1_000_000.0
+        const val MAX_INNOVATION_COVARIANCE_TRACE = 1_000_000.0
         val SUPPORTED_SPEED_MULTIPLIERS = listOf(0.5f, 1f, 2f)
     }
 
@@ -384,7 +438,6 @@ internal fun calculateTwoSigmaCovarianceEllipse(
     val lambdaMajor = (trace + eigenSeparation) / 2.0
     val lambdaMinorRaw = (trace - eigenSeparation) / 2.0
     if (!lambdaMajor.isFinite() || !lambdaMinorRaw.isFinite()) return null
-
     if (lambdaMajor < 0.0 || lambdaMinorRaw < 0.0) return null
 
     val semiMajor = TWO_SIGMA_SCALE * sqrt(lambdaMajor)
@@ -441,9 +494,7 @@ internal fun calculateTwoSigmaCovarianceEllipse(
 
 /**
  * Gates map-matcher candidate paths according to matcher status.
- * In AMBIGUOUS status, enforces singular primary cardinality: exactly the highest-likelihood
- * candidate is designated primary (`isPrimary = true`), and up to 2 alternative candidates are
- * designated non-primary (`isPrimary = false`).
+ * In AMBIGUOUS status, exactly the highest-likelihood candidate is primary.
  */
 internal fun gateMapCandidates(
     status: MapMatcherStatus,
@@ -453,7 +504,10 @@ internal fun gateMapCandidates(
     MapMatcherStatus.CLEAR -> candidates
         .asSequence()
         .filter { it.isPrimary && it.isRenderableCandidate() }
-        .sortedWith(compareByDescending<MapCandidatePath> { it.likelihoodScore }.thenBy { it.candidateId })
+        .sortedWith(
+            compareByDescending<MapCandidatePath> { it.likelihoodScore }
+                .thenBy { it.candidateId },
+        )
         .firstOrNull()
         ?.safePresentationCopy(isPrimary = true, score = 1f)
         ?.let(::listOf)
@@ -465,12 +519,15 @@ internal fun gateMapCandidates(
             emptyList()
         } else {
             val topCandidates = validCandidates
-                .sortedWith(compareByDescending<MapCandidatePath> { it.likelihoodScore }.thenBy { it.candidateId })
+                .sortedWith(
+                    compareByDescending<MapCandidatePath> { it.likelihoodScore }
+                        .thenBy { it.candidateId },
+                )
                 .take(MAX_AMBIGUOUS_CANDIDATES)
             val scoreTotal = topCandidates.sumOf { it.likelihoodScore.toDouble() }
             Collections.unmodifiableList(topCandidates.mapIndexed { index, candidate ->
                 candidate.safePresentationCopy(
-                    isPrimary = (index == 0),
+                    isPrimary = index == 0,
                     score = if (scoreTotal > 0.0) {
                         (candidate.likelihoodScore / scoreTotal).toFloat()
                     } else {

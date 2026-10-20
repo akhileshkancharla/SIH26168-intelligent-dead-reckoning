@@ -14,8 +14,8 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.material3.Button
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
@@ -29,16 +29,18 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import java.util.Locale
 import org.sih26168.app.ReplayDisclosure
-import org.sih26168.app.replay.ReplayIntent
+import org.sih26168.app.replay.GnssFixDimension
 import org.sih26168.app.replay.MapMatcherStatus
+import org.sih26168.app.replay.ReplayEngineStatus
+import org.sih26168.app.replay.ReplayIntent
 import org.sih26168.app.replay.ReplayNavigationViewModel
 import org.sih26168.app.replay.ReplayUiState
 import org.sih26168.app.replay.ToggleCandidateBranches
@@ -46,13 +48,19 @@ import org.sih26168.app.replay.ToggleTrajectoryLayerIntent
 import org.sih26168.app.replay.ToggleUncertaintyEllipse
 import org.sih26168.app.replay.TrajectoryLayerType
 import org.sih26168.app.replay.TrajectoryPresentationLabels
+import org.sih26168.app.replay.displayGnssHealth
 import org.sih26168.app.replay.isSeparationTetherVisible
+import org.sih26168.app.replay.trustedFixAgeNs
+import org.sih26168.contracts.enums.AlignmentStatusV1
+import org.sih26168.contracts.enums.HealthIntegrityStateV1
+import org.sih26168.contracts.enums.ModelStatusV1
 
 object ReplayGovernanceLabels {
     const val SOURCE = "SOURCE: DETERMINISTIC_REPLAY"
     const val DEMO = "DEMO"
     const val SIMULATED_OUTAGE = "SIMULATED OUTAGE"
     const val OSM_ATTRIBUTION = "© OpenStreetMap contributors"
+    const val REPLAY_MODE = "REPLAY MODE"
 }
 
 @Composable
@@ -79,6 +87,7 @@ fun ReplayNavigationShell(
     }
 }
 
+/** Mandatory disclosures occupy non-scrolling rows above the viewport. */
 @Composable
 private fun GovernanceFrame(state: ReplayUiState) {
     Surface(modifier = Modifier.fillMaxWidth(), tonalElevation = 4.dp) {
@@ -87,29 +96,53 @@ private fun GovernanceFrame(state: ReplayUiState) {
             verticalArrangement = Arrangement.spacedBy(6.dp),
         ) {
             Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .horizontalScroll(rememberScrollState()),
+                modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                GovernanceBadge(ReplayGovernanceLabels.SOURCE)
-                GovernanceBadge(ReplayGovernanceLabels.DEMO)
-                GovernanceBadge(ReplayDisclosure.LABEL, prominent = true)
-                if (state.isOutageActive) {
+                GovernanceBadge(
+                    ReplayDisclosure.LABEL,
+                    prominent = true,
+                    modifier = Modifier.weight(1f),
+                )
+                if (state.isOutageSimulated) {
                     GovernanceBadge(
                         ReplayGovernanceLabels.SIMULATED_OUTAGE,
                         prominent = true,
+                        modifier = Modifier.weight(2f),
                     )
                 }
+            }
+            GovernanceBadge(
+                ReplayGovernanceLabels.SOURCE,
+                modifier = Modifier.fillMaxWidth(),
+            )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                GovernanceBadge(
+                    ReplayGovernanceLabels.DEMO,
+                    modifier = Modifier.weight(1f),
+                )
+                GovernanceBadge(
+                    ReplayGovernanceLabels.REPLAY_MODE,
+                    modifier = Modifier.weight(2f),
+                )
             }
         }
     }
 }
 
 @Composable
-private fun GovernanceBadge(label: String, prominent: Boolean = false) {
+private fun GovernanceBadge(
+    label: String,
+    prominent: Boolean = false,
+    modifier: Modifier = Modifier,
+) {
     Surface(
+        modifier = modifier,
         color = if (prominent) {
             MaterialTheme.colorScheme.errorContainer
         } else {
@@ -203,6 +236,7 @@ private fun TelemetryAndControlSheet(
     state: ReplayUiState,
     onIntent: (ReplayIntent) -> Unit,
 ) {
+    var healthExpanded by remember { mutableStateOf(false) }
     Surface(modifier = Modifier.fillMaxWidth(), tonalElevation = 6.dp) {
         Column(
             modifier = Modifier.padding(12.dp),
@@ -215,7 +249,7 @@ private fun TelemetryAndControlSheet(
                     .horizontalScroll(rememberScrollState()),
                 horizontalArrangement = Arrangement.spacedBy(18.dp),
             ) {
-                TelemetryValue("State", if (state.isReplaying) "PLAYING" else "PAUSED")
+                TelemetryValue("State", state.replayEngineStatus.name)
                 TelemetryValue("Time", formatTimestamp(state.currentTimestampNs))
                 TelemetryValue("North", formatDistance(state.position.northMeters))
                 TelemetryValue("East", formatDistance(state.position.eastMeters))
@@ -231,6 +265,10 @@ private fun TelemetryAndControlSheet(
             }
             TrajectoryLayerFilters(state = state, onIntent = onIntent)
             DiagnosticOverlayFilters(state = state, onIntent = onIntent)
+            TextButton(onClick = { healthExpanded = !healthExpanded }) {
+                Text(if (healthExpanded) "Hide health diagnostics" else "Show health diagnostics")
+            }
+            if (healthExpanded) HealthDiagnostics(state)
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -263,12 +301,105 @@ private fun TelemetryAndControlSheet(
                 OutlinedButton(
                     onClick = { onIntent(ReplayIntent.ToggleSimulatedOutage) },
                 ) {
-                    Text(if (state.isOutageActive) "End outage" else "Start outage")
+                    Text(if (state.isOutageSimulated) "End outage" else "Start outage")
                 }
             }
         }
     }
 }
+
+@Composable
+private fun HealthDiagnostics(state: ReplayUiState) {
+    val gnss = state.displayGnssHealth
+    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        Text("Subsystem health · presentation only", style = MaterialTheme.typography.labelLarge)
+        Row(
+            modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            HealthBadge("GNSS integrity", gnss.integrity.name, gnssHealthColor(gnss.integrity))
+            HealthBadge(
+                "Alignment",
+                state.alignmentHealth.status.name,
+                alignmentHealthColor(state.alignmentHealth.status),
+            )
+            HealthBadge(
+                "Model",
+                state.modelHealth.status.name,
+                modelHealthColor(state.modelHealth.status),
+            )
+            HealthBadge(
+                "Replay",
+                state.replayEngineStatus.name,
+                when (state.replayEngineStatus) {
+                    ReplayEngineStatus.PLAYING -> HEALTH_EMERALD
+                    ReplayEngineStatus.PAUSED,
+                    ReplayEngineStatus.BUFFERING,
+                    ReplayEngineStatus.SEEKING -> HEALTH_AMBER
+                },
+            )
+        }
+        Text(
+            "REPLAY MODE · source GNSS integrity is separate from the software outage mask",
+            style = MaterialTheme.typography.labelMedium,
+        )
+        Row(
+            modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+        ) {
+            TelemetryValue(
+                "GNSS fix",
+                when (gnss.fixDimension) {
+                    GnssFixDimension.FIX_3D -> "3D"
+                    GnssFixDimension.FIX_2D -> "2D"
+                    GnssFixDimension.NO_FIX -> "NO FIX"
+                    null -> "UNAVAILABLE"
+                },
+            )
+            TelemetryValue("Satellites", gnss.satelliteCount?.toString() ?: "UNAVAILABLE")
+            TelemetryValue("HDOP", formatHealthNumber(gnss.hdop))
+            TelemetryValue("PDOP", formatHealthNumber(gnss.pdop))
+            TelemetryValue("Last trusted age", state.trustedFixAgeNs?.let {
+                String.format(Locale.US, "%.1f s", it / 1_000_000_000.0)
+            } ?: "UNAVAILABLE")
+            TelemetryValue("Align ±", state.alignmentHealth.uncertaintyDegrees
+                ?.takeIf(Double::isFinite)?.let {
+                    String.format(Locale.US, "%.1f°", it)
+                } ?: "UNAVAILABLE")
+            TelemetryValue("Convergence", state.alignmentHealth.convergenceProgress
+                ?.takeIf(Double::isFinite)?.let {
+                    String.format(Locale.US, "%.0f%%", it * 100.0)
+                } ?: "UNAVAILABLE")
+            TelemetryValue("Residual", formatHealthNumber(state.modelHealth.residual))
+            TelemetryValue(
+                "Innovation trace",
+                formatHealthNumber(state.modelHealth.innovationCovarianceTrace),
+            )
+        }
+    }
+}
+
+@Composable
+private fun HealthBadge(label: String, status: String, background: Color) {
+    Surface(
+        color = background,
+        contentColor = if (background == HEALTH_CRIMSON) Color.White else Color.Black,
+        shape = MaterialTheme.shapes.small,
+        modifier = Modifier.semantics { contentDescription = "$label health: $status" },
+    ) {
+        Text(
+            "$label: $status",
+            modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
+            style = MaterialTheme.typography.labelLarge,
+            fontWeight = FontWeight.Bold,
+        )
+    }
+}
+
+private fun formatHealthNumber(value: Double?): String =
+    value?.takeIf(Double::isFinite)
+        ?.let { String.format(Locale.US, "%.2f", it) }
+        ?: "UNAVAILABLE"
 
 @Composable
 private fun DiagnosticOverlayFilters(
@@ -399,6 +530,34 @@ private fun formatMultiplier(value: Float): String =
 private val MATCHER_CLEAR = Color(0xFF24D18B)
 private val MATCHER_AMBIGUOUS = Color(0xFFFFB800)
 private val MATCHER_NO_CANDIDATE = Color(0xFFC7353F)
+private val HEALTH_EMERALD = Color(0xFF24D18B)
+private val HEALTH_AMBER = Color(0xFFF6B73C)
+private val HEALTH_CRIMSON = Color(0xFFC7353F)
+private val HEALTH_NEUTRAL = Color(0xFFADB5C0)
+private val HEALTH_BLUE = Color(0xFF5B8CFF)
+private val HEALTH_CYAN = Color(0xFF00D9FF)
+
+internal fun alignmentHealthColor(status: AlignmentStatusV1): Color = when (status) {
+    AlignmentStatusV1.VALID -> HEALTH_EMERALD
+    AlignmentStatusV1.UNCERTAIN -> HEALTH_AMBER
+    AlignmentStatusV1.SLIP_SUSPECTED -> HEALTH_CRIMSON
+    AlignmentStatusV1.UNINITIALIZED -> HEALTH_NEUTRAL
+}
+
+internal fun modelHealthColor(status: ModelStatusV1): Color = when (status) {
+    ModelStatusV1.ELIGIBLE -> HEALTH_EMERALD
+    ModelStatusV1.SHADOW -> HEALTH_AMBER
+    ModelStatusV1.DISABLED -> HEALTH_NEUTRAL
+    ModelStatusV1.LOADING -> HEALTH_BLUE
+    ModelStatusV1.REJECTED, ModelStatusV1.FAILED -> HEALTH_CRIMSON
+}
+
+internal fun gnssHealthColor(integrity: HealthIntegrityStateV1): Color = when (integrity) {
+    HealthIntegrityStateV1.HEALTHY -> HEALTH_EMERALD
+    HealthIntegrityStateV1.DEGRADED -> HEALTH_AMBER
+    HealthIntegrityStateV1.UNAVAILABLE -> HEALTH_CRIMSON
+    HealthIntegrityStateV1.CANDIDATE_RETURN -> HEALTH_CYAN
+}
 
 @Preview(showBackground = true, widthDp = 720, heightDp = 540)
 @Composable
