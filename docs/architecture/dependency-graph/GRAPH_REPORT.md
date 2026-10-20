@@ -4,12 +4,12 @@
 
 - Snapshot classification: `generated-and-sanitized`
 - Source repository: `akhileshkancharla/SIH26168-intelligent-dead-reckoning`
-- Source branch: `issue/WP-12.1-wp-12-1-export-candidate`
-- Source parent commit: `6a61356ecfda7dd7783bb02b20f1b2102b599240`
+- Source branch: `issue/WP-09.5-wp-09-5-display-gnss`
+- Source parent commit: `c7c8fbb511f35528f68991801d1e00f9dbf84b54`
 - Graphify version: `0.9.53`
 - Graphify mode: code-only static extraction; semantic document extraction disabled
-- Counts: 4416 nodes, 7432 edges, 293 communities
-- Edge evidence: 7216 extracted, 216 inferred
+- Counts: 4450 nodes, 7538 edges, 290 communities
+- Edge evidence: 7296 extracted, 242 inferred
 - CI mode: `snapshot-validation-only`
 
 ## VERIFIED FROM CODE
@@ -59,20 +59,20 @@ Current high-degree nodes are primarily repository administration tooling, not n
 
 | Node | Degree | Source |
 | --- | ---: | --- |
-| `ReplayNavigationViewModel` | 59 | [android/app/src/main/java/org/sih26168/app/replay/ReplayNavigationViewModel.kt:L16](../../../android/app/src/main/java/org/sih26168/app/replay/ReplayNavigationViewModel.kt) |
-| `MapLibreMapViewport.kt` | 39 | [android/app/src/main/java/org/sih26168/app/ui/map/MapLibreMapViewport.kt:L1](../../../android/app/src/main/java/org/sih26168/app/ui/map/MapLibreMapViewport.kt) |
+| `ReplayNavigationViewModel` | 68 | [android/app/src/main/java/org/sih26168/app/replay/ReplayNavigationViewModel.kt:L16](../../../android/app/src/main/java/org/sih26168/app/replay/ReplayNavigationViewModel.kt) |
+| `ReplayNavigationShell.kt` | 41 | [android/app/src/main/java/org/sih26168/app/ui/ReplayNavigationShell.kt:L1](../../../android/app/src/main/java/org/sih26168/app/ui/ReplayNavigationShell.kt) |
+| `MapLibreMapViewport.kt` | 40 | [android/app/src/main/java/org/sih26168/app/ui/map/MapLibreMapViewport.kt:L1](../../../android/app/src/main/java/org/sih26168/app/ui/map/MapLibreMapViewport.kt) |
+| `ReplayNavigationViewModelTest` | 39 | [android/app/src/test/java/org/sih26168/app/replay/ReplayNavigationViewModelTest.kt:L19](../../../android/app/src/test/java/org/sih26168/app/replay/ReplayNavigationViewModelTest.kt) |
 | `LocationFix` | 38 | [core/gnss/include/sih26168/gnss/fix_precheck.hpp:L16](../../../core/gnss/include/sih26168/gnss/fix_precheck.hpp) |
 | `configure_project.mjs` | 37 | [tools/bootstrap/configure_project.mjs:L1](../../../tools/bootstrap/configure_project.mjs) |
 | `RecordingService` | 35 | [android/acquisition/imported/S1_Android_Acquisition_Spike/app/src/main/java/org/sih26168/s1logger/RecordingService.kt:L16](../../../android/acquisition/imported/S1_Android_Acquisition_Spike/app/src/main/java/org/sih26168/s1logger/RecordingService.kt) |
 | `generate_contract_bindings.py` | 35 | [ci/generate_contract_bindings.py:L1](../../../ci/generate_contract_bindings.py) |
 | `MeasurementInput` | 33 | [core/navigation/include/sih26168/navigation_core.hpp:L141](../../../core/navigation/include/sih26168/navigation_core.hpp) |
-| `ReplayNavigationViewModelTest` | 31 | [android/app/src/test/java/org/sih26168/app/replay/ReplayNavigationViewModelTest.kt:L12](../../../android/app/src/test/java/org/sih26168/app/replay/ReplayNavigationViewModelTest.kt) |
 | `reference_oracle.py` | 31 | [core/navigation/verification/python/reference_oracle.py:L1](../../../core/navigation/verification/python/reference_oracle.py) |
-| `ReplayNavigationShell.kt` | 29 | [android/app/src/main/java/org/sih26168/app/ui/ReplayNavigationShell.kt:L1](../../../android/app/src/main/java/org/sih26168/app/ui/ReplayNavigationShell.kt) |
 
 ### Weakly connected or orphan candidates
 
-The raw Graphify report identified 1400 isolated symbol nodes. This sanitizer independently found 1751 repository-backed nodes with degree at most one; the bounded sample below is diagnostic, not deletion evidence.
+The raw Graphify report identified 1407 isolated symbol nodes. This sanitizer independently found 1758 repository-backed nodes with degree at most one; the bounded sample below is diagnostic, not deletion evidence.
 
 | Node | Degree | Source |
 | --- | ---: | --- |
