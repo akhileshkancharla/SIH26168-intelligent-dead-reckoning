@@ -69,4 +69,4 @@ The exporter refuses to overwrite an existing output directory. Keep private wei
 
 ## Verification note
 
-No tests were run for this change, per the explicit submission instruction. The pull request must not be interpreted as evidence that an actual model has been exported or validated; that remains gated on a promotion-approved real candidate.
+Focused unit tests cover descriptor validation, promotion gating, duplicate-key rejection, non-finite metrics, candidate mismatches, and the guarantee that the current blocked state writes no artifacts. The repository Python CI includes this suite. Passing these tests does not imply that an actual model has been exported; that remains gated on a promotion-approved real candidate.
