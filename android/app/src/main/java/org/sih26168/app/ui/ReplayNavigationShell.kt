@@ -139,9 +139,16 @@ private fun GovernanceFrame(state: ReplayUiState) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalAlignment = Alignment.CenterVertically,
             ) {
-                GovernanceBadge(ReplayGovernanceLabels.DEMO, modifier = Modifier.weight(1f))
-                GovernanceBadge(ReplayGovernanceLabels.REPLAY_MODE, modifier = Modifier.weight(2f))
+                GovernanceBadge(
+                    ReplayGovernanceLabels.DEMO,
+                    modifier = Modifier.weight(1f),
+                )
+                GovernanceBadge(
+                    ReplayGovernanceLabels.REPLAY_MODE,
+                    modifier = Modifier.weight(2f),
+                )
             }
         }
     }
