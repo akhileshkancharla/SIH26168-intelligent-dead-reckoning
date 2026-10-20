@@ -20,7 +20,8 @@ No model, private fixture, generated tensor, or parity claim is committed. Produ
 
 The source was reviewed for:
 
-- model-manifest and request schema/type validation;
+- complete I-19 model-manifest and request schema/type validation;
+- independent matching promotion-document hash and eligibility validation;
 - duplicate JSON key rejection;
 - model, request, and tensor identity binding;
 - exact runtime input/output contract matching;
