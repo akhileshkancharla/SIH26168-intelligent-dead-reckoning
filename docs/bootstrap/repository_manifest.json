@@ -160,7 +160,7 @@
     {
       "path": "docs/architecture/dependency-graph/GRAPH_REPORT.md",
       "size_bytes": 9794,
-      "sha256": "ba966c4364661441359a73beda821afa14349581060429da565bb735f3e0fe48"
+      "sha256": "36b7f1cd1529e33cab67cadb89e6e65a8f815d14f5e4152571fce486eac22403"
     },
     {
       "path": "docs/architecture/dependency-graph/README.md",
@@ -170,17 +170,17 @@
     {
       "path": "docs/architecture/dependency-graph/SHA256SUMS.txt",
       "size_bytes": 315,
-      "sha256": "945bd50ed30d32f1596297075667e6197ad4f794e4a752d90d85c43117c0ccee"
+      "sha256": "324d640fee40f1d21832dae5e860c04f46e9626416d0144b2ba7266d1ccf566f"
     },
     {
       "path": "docs/architecture/dependency-graph/graph.json",
-      "size_bytes": 5190877,
-      "sha256": "4a416769bf6318557088f522136804e447b1417193b99049dad924402199e364"
+      "size_bytes": 5264896,
+      "sha256": "a2552d642cd086c5cc01e8a6bfe0b8ed17c96331ab22aaf491a9a899a31761f4"
     },
     {
       "path": "docs/architecture/dependency-graph/metadata.json",
       "size_bytes": 2234,
-      "sha256": "4a8f962725eb3926ce6363819453d563922a42cfc59556cb246d10db2ea42e4a"
+      "sha256": "4917785177d8002c7a557bacde6d765e894679fe52c1487fa0647964a3ddf758"
     },
     {
       "path": "docs/architecture/imports/WP-02.1_S1_ANDROID_ACQUISITION_IMPORT.json",

@@ -5,11 +5,11 @@
 - Snapshot classification: `generated-and-sanitized`
 - Source repository: `akhileshkancharla/SIH26168-intelligent-dead-reckoning`
 - Source branch: `issue/WP-12.2-wp-12-2-generate-onnx`
-- Source parent commit: `a9dd6774b2551adeac2b0964590a13e87a7e7849`
+- Source parent commit: `73613582e81ac15c4301fe2b0987e9e341853618`
 - Graphify version: `0.9.53`
 - Graphify mode: code-only static extraction; semantic document extraction disabled
-- Counts: 4461 nodes, 7544 edges, 301 communities
-- Edge evidence: 7342 extracted, 202 inferred
+- Counts: 4495 nodes, 7650 edges, 291 communities
+- Edge evidence: 7422 extracted, 228 inferred
 - CI mode: `snapshot-validation-only`
 
 ## VERIFIED FROM CODE
@@ -59,20 +59,20 @@ Current high-degree nodes are primarily repository administration tooling, not n
 
 | Node | Degree | Source |
 | --- | ---: | --- |
-| `ReplayNavigationViewModel` | 59 | [android/app/src/main/java/org/sih26168/app/replay/ReplayNavigationViewModel.kt:L16](../../../android/app/src/main/java/org/sih26168/app/replay/ReplayNavigationViewModel.kt) |
-| `MapLibreMapViewport.kt` | 39 | [android/app/src/main/java/org/sih26168/app/ui/map/MapLibreMapViewport.kt:L1](../../../android/app/src/main/java/org/sih26168/app/ui/map/MapLibreMapViewport.kt) |
+| `ReplayNavigationViewModel` | 68 | [android/app/src/main/java/org/sih26168/app/replay/ReplayNavigationViewModel.kt:L16](../../../android/app/src/main/java/org/sih26168/app/replay/ReplayNavigationViewModel.kt) |
+| `ReplayNavigationShell.kt` | 41 | [android/app/src/main/java/org/sih26168/app/ui/ReplayNavigationShell.kt:L1](../../../android/app/src/main/java/org/sih26168/app/ui/ReplayNavigationShell.kt) |
+| `MapLibreMapViewport.kt` | 40 | [android/app/src/main/java/org/sih26168/app/ui/map/MapLibreMapViewport.kt:L1](../../../android/app/src/main/java/org/sih26168/app/ui/map/MapLibreMapViewport.kt) |
+| `ReplayNavigationViewModelTest` | 39 | [android/app/src/test/java/org/sih26168/app/replay/ReplayNavigationViewModelTest.kt:L19](../../../android/app/src/test/java/org/sih26168/app/replay/ReplayNavigationViewModelTest.kt) |
 | `LocationFix` | 38 | [core/gnss/include/sih26168/gnss/fix_precheck.hpp:L16](../../../core/gnss/include/sih26168/gnss/fix_precheck.hpp) |
 | `configure_project.mjs` | 37 | [tools/bootstrap/configure_project.mjs:L1](../../../tools/bootstrap/configure_project.mjs) |
 | `RecordingService` | 35 | [android/acquisition/imported/S1_Android_Acquisition_Spike/app/src/main/java/org/sih26168/s1logger/RecordingService.kt:L16](../../../android/acquisition/imported/S1_Android_Acquisition_Spike/app/src/main/java/org/sih26168/s1logger/RecordingService.kt) |
 | `generate_contract_bindings.py` | 35 | [ci/generate_contract_bindings.py:L1](../../../ci/generate_contract_bindings.py) |
 | `MeasurementInput` | 33 | [core/navigation/include/sih26168/navigation_core.hpp:L141](../../../core/navigation/include/sih26168/navigation_core.hpp) |
-| `ReplayNavigationViewModelTest` | 31 | [android/app/src/test/java/org/sih26168/app/replay/ReplayNavigationViewModelTest.kt:L12](../../../android/app/src/test/java/org/sih26168/app/replay/ReplayNavigationViewModelTest.kt) |
 | `reference_oracle.py` | 31 | [core/navigation/verification/python/reference_oracle.py:L1](../../../core/navigation/verification/python/reference_oracle.py) |
-| `ReplayNavigationShell.kt` | 29 | [android/app/src/main/java/org/sih26168/app/ui/ReplayNavigationShell.kt:L1](../../../android/app/src/main/java/org/sih26168/app/ui/ReplayNavigationShell.kt) |
 
 ### Weakly connected or orphan candidates
 
-The raw Graphify report identified 1400 isolated symbol nodes. This sanitizer independently found 1757 repository-backed nodes with degree at most one; the bounded sample below is diagnostic, not deletion evidence.
+The raw Graphify report identified 1407 isolated symbol nodes. This sanitizer independently found 1764 repository-backed nodes with degree at most one; the bounded sample below is diagnostic, not deletion evidence.
 
 | Node | Degree | Source |
 | --- | ---: | --- |
