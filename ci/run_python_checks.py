@@ -10,6 +10,7 @@ import tempfile
 import venv
 
 ROOT = Path(__file__).resolve().parents[1]
+PYTHON_TEST_DEPENDENCIES = ("numpy==2.5.3",)
 
 
 def main() -> None:
@@ -37,7 +38,10 @@ def main() -> None:
         venv.EnvBuilder(with_pip=True).create(location)
         python = location / ("Scripts/python.exe" if os.name == "nt" else "bin/python")
         # Pip's download cache is reusable; installed packages are always fresh.
-        subprocess.run([str(python), "-m", "pip", "install", "-e", "."], cwd=ROOT, check=True)
+        install_command = [str(python), "-m", "pip", "install", "-e", "."]
+        if args.group == "python":
+            install_command.extend(PYTHON_TEST_DEPENDENCIES)
+        subprocess.run(install_command, cwd=ROOT, check=True)
         for tests in test_directories:
             subprocess.run(
                 [str(python), "-m", "unittest", "discover", "-s", tests, "-v"],
