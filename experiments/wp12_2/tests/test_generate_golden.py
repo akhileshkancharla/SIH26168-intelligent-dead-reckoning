@@ -180,6 +180,19 @@ class ValidationTests(unittest.TestCase):
         with self.assertRaisesRegex(generator.GoldenBlocked, "lowercase SHA-256"):
             generator.validate_model_manifest(manifest)
 
+    def test_rejects_empty_manifest_metrics(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            bundle = write_bundle(root)
+            manifest_path = bundle / "model_manifest.json"
+            manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+            manifest["metrics"] = {}
+            with self.assertRaisesRegex(
+                generator.GoldenBlocked,
+                "non-empty object",
+            ):
+                generator.validate_model_manifest(manifest)
+
     def test_rejects_duplicate_request_inputs(self) -> None:
         item = {"name": "input", "file": "input.npy", "sha256": "3" * 64}
         request = {
