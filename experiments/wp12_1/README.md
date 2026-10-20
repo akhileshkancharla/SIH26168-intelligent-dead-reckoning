@@ -10,7 +10,7 @@ A real export becomes possible only when an authorized promotion document identi
 
 - `recommendation: "promote"`;
 - `scientific_status: "promotion-approved"` or `"candidate-approved"`;
-- a non-synthetic evidence class.
+- an explicitly allowlisted real-world evidence class: `held-out-real-world` or `real-world-field-validation`.
 
 ## Usage
 
@@ -65,7 +65,7 @@ A successful run creates a new output directory containing:
 - `model.onnx`;
 - `model_manifest.json`, including the ONNX SHA-256, candidate and promotion document SHA-256 values, opset, input/output contracts, metrics, provenance, and redistribution status.
 
-The exporter refuses to overwrite an existing output directory. Keep private weights, raw datasets, and unauthorized model artifacts out of Git. Distribution of the ONNX file remains subject to the recorded redistribution status.
+The exporter refuses any existing output directory. It builds and validates both files in a temporary sibling directory, then publishes the complete bundle with one directory rename; failures remove the staging directory. Keep private weights, raw datasets, and unauthorized model artifacts out of Git. Distribution of the ONNX file remains subject to the recorded redistribution status.
 
 ## Verification note
 
