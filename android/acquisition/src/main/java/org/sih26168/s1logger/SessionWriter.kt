@@ -192,6 +192,13 @@ class SessionWriter(
         private val hash = Regex("[0-9a-f]{64}")
         private val chunkPattern = Regex("chunk_[0-9]{5,}\\.jsonl(?:\\.partial)?")
         private fun chunkName(index: Int) = String.format(Locale.ROOT, "chunk_%05d.jsonl", index)
+        internal fun orderedRecoveryChunks(files: Array<File>): List<File> = files
+            .filter { chunkPattern.matches(it.name) }
+            // Five digits is a minimum width, not a maximum. Keep six-digit chunks
+            // after 99999; alphabetical order would place 100000 before 10001.
+            .sortedWith(compareBy<File> {
+                it.name.removePrefix("chunk_").substringBefore('.').toBigInteger()
+            }.thenBy { it.name })
         private fun streamObjects(m: JSONObject) = (0 until m.getJSONArray("streams").length())
             .map { m.getJSONArray("streams").getJSONObject(it) }
         private fun keys(o: JSONObject) = o.keys().asSequence().toSet()
@@ -322,7 +329,7 @@ class SessionWriter(
             streamObjects(m).forEach {
                 require(it.getLong("sample_count") == 0L && it.isNull("first_sequence") && it.isNull("last_sequence"))
             }
-            val files = sessionDir.listFiles()!!.filter { chunkPattern.matches(it.name) }.sortedBy { it.name }
+            val files = orderedRecoveryChunks(sessionDir.listFiles()!!)
             var degraded = false
             var total = 0L
             files.forEachIndexed { index, file ->

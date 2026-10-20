@@ -175,6 +175,32 @@ class SessionWriterTest {
         fails { SessionWriter.recover(w.sessionDir, limits()) }
         assertFalse(File(w.sessionDir, "session_manifest.json").exists())
     }
+    @Test fun recoveryOrdersChunksNumericallyAcrossFiveDigitBoundary() {
+        val names = listOf("chunk_100000.jsonl.partial", "chunk_10001.jsonl",
+            "chunk_99999.jsonl", "chunk_00001.jsonl", "chunk_10000.jsonl",
+            "session_context.json", "chunk_invalid.jsonl")
+        val ordered = SessionWriter.orderedRecoveryChunks(names.map { File(temp.root, it) }.toTypedArray())
+        assertEquals(listOf("chunk_00001.jsonl", "chunk_10000.jsonl", "chunk_10001.jsonl",
+            "chunk_99999.jsonl", "chunk_100000.jsonl.partial"), ordered.map { it.name })
+    }
+    @Test fun manualRecoveryPreservesMultipleChunksAndSequenceOrder() {
+        val w = writer(limits(chunk = 400))
+        for (n in 0L..2L) w.append(record(n))
+        w.close()
+        val m = SessionWriter.recover(w.sessionDir, limits(chunk = 400))
+        assertEquals("INCOMPLETE", m.getString("status"))
+        assertEquals(3, m.getJSONArray("chunks").length())
+        for (i in 0..2) {
+            val chunk = m.getJSONArray("chunks").getJSONObject(i)
+            val file = File(w.sessionDir, chunk.getString("path"))
+            assertEquals(i.toLong(), JSONObject(file.readText()).getLong("sequence"))
+            assertEquals(SessionWriter.sha256(file), chunk.getString("sha256"))
+        }
+        val stream = m.getJSONArray("streams").getJSONObject(0)
+        assertEquals(3, stream.getInt("sample_count"))
+        assertEquals(0, stream.getInt("first_sequence"))
+        assertEquals(2, stream.getInt("last_sequence"))
+    }
     @Test fun crashAfterManifestPublicationPreservesVerifiedComplete() {
         val w = writer(); w.append(record()); val before = w.finish().readText()
         File(w.sessionDir, "INCOMPLETE").writeText("stale marker")
