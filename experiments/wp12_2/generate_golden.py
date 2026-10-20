@@ -20,6 +20,9 @@ from typing import Any
 SCHEMA_VERSION = 1
 GENERATOR_VERSION = "wp12.2-v1"
 SHA256_PATTERN = re.compile(r"^[0-9a-f]{64}$")
+APPROVED_REAL_EVIDENCE_CLASSES = frozenset(
+    {"held-out-real-world", "real-world-field-validation"}
+)
 ONNX_DTYPES = {
     "tensor(bool)": "bool",
     "tensor(float)": "float32",
@@ -96,11 +99,35 @@ def _canonical_bytes(document: dict[str, Any]) -> bytes:
     ).encode("utf-8")
 
 
+def _finite_metrics(value: Any) -> dict[str, int | float]:
+    if not isinstance(value, dict):
+        raise GoldenBlocked("model manifest metrics must be an object")
+    validated: dict[str, int | float] = {}
+    for name, metric in value.items():
+        if (
+            not isinstance(name, str)
+            or not name.strip()
+            or isinstance(metric, bool)
+            or not isinstance(metric, (int, float))
+            or not math.isfinite(metric)
+        ):
+            raise GoldenBlocked(
+                "model manifest metrics must map non-empty names to finite numbers"
+            )
+        validated[name.strip()] = metric
+    if len(validated) != len(value):
+        raise GoldenBlocked("model manifest metric names collide after trimming")
+    return validated
+
+
 def validate_model_manifest(document: dict[str, Any]) -> dict[str, Any]:
     if _integer(document, "schema_version") != SCHEMA_VERSION:
         raise GoldenBlocked("model manifest schema_version must be 1")
     if _text(document, "format").lower() != "onnx":
         raise GoldenBlocked("model manifest format must be onnx")
+    opset = _integer(document, "opset")
+    if not 13 <= opset <= 21:
+        raise GoldenBlocked("model manifest opset must be between 13 and 21")
     outputs = document.get("outputs")
     if (
         not isinstance(outputs, list)
@@ -111,6 +138,19 @@ def validate_model_manifest(document: dict[str, Any]) -> dict[str, Any]:
     normalized = [value.strip() for value in outputs]
     if len(set(normalized)) != len(normalized):
         raise GoldenBlocked("model manifest outputs must be unique after trimming")
+    for field in (
+        "runtime_min",
+        "input_contract",
+        "window",
+        "normalization",
+        "bounds",
+        "training_run",
+        "dataset_manifest",
+        "redistribution_status",
+        "exporter_version",
+    ):
+        _text(document, field)
+    _finite_metrics(document.get("metrics"))
     return {
         "model_id": _text(document, "model_id"),
         "model_sha256": _expected_sha(document, "sha256"),
@@ -124,6 +164,21 @@ def validate_model_manifest(document: dict[str, Any]) -> dict[str, Any]:
         ),
     }
 
+
+def validate_promotion(document: dict[str, Any], model_id: str) -> None:
+    if _integer(document, "schema_version") != SCHEMA_VERSION:
+        raise GoldenBlocked("promotion schema_version must be 1")
+    if document.get("recommendation") != "promote":
+        raise GoldenBlocked("promotion recommendation is not 'promote'")
+    if document.get("scientific_status") not in {
+        "promotion-approved",
+        "candidate-approved",
+    }:
+        raise GoldenBlocked("promotion evidence is not candidate-approved")
+    if _text(document, "evidence_class") not in APPROVED_REAL_EVIDENCE_CLASSES:
+        raise GoldenBlocked("promotion evidence is not approved real-world evidence")
+    if _text(document, "candidate_id") != model_id:
+        raise GoldenBlocked("promotion candidate_id does not match model manifest")
 
 def validate_request(document: dict[str, Any]) -> dict[str, Any]:
     if _integer(document, "schema_version") != SCHEMA_VERSION:
@@ -189,6 +244,7 @@ def _tensor_record(path: Path, name: str, array: Any) -> dict[str, Any]:
 
 def generate_golden(
     bundle_directory: Path,
+    promotion_path: Path,
     request_path: Path,
     output_directory: Path,
 ) -> Path:
@@ -202,6 +258,11 @@ def generate_golden(
     model_manifest = validate_model_manifest(load_json(model_manifest_path))
     if _sha256(model_path) != model_manifest["model_sha256"]:
         raise GoldenBlocked("model.onnx hash does not match model_manifest.json")
+    if not promotion_path.is_file():
+        raise GoldenBlocked("matching promotion evidence is required")
+    if _sha256(promotion_path) != model_manifest["promotion_evidence_sha256"]:
+        raise GoldenBlocked("promotion evidence hash does not match model manifest")
+    validate_promotion(load_json(promotion_path), model_manifest["model_id"])
 
     request = validate_request(load_json(request_path))
     if request["model_id"] != model_manifest["model_id"]:
@@ -338,12 +399,14 @@ def generate_golden(
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--bundle", required=True, type=Path)
+    parser.add_argument("--promotion", required=True, type=Path)
     parser.add_argument("--request", required=True, type=Path)
     parser.add_argument("--output-dir", required=True, type=Path)
     args = parser.parse_args()
     try:
         manifest = generate_golden(
             args.bundle.resolve(),
+            args.promotion.resolve(),
             args.request.resolve(),
             args.output_dir.resolve(),
         )
