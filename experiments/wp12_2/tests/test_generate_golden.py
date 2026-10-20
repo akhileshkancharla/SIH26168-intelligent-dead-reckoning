@@ -171,7 +171,7 @@ class ValidationTests(unittest.TestCase):
             "bounds": "bounds",
             "training_run": "run",
             "dataset_manifest": "dataset",
-            "metrics": {},
+            "metrics": {"held_out_rmse": 1.0},
             "redistribution_status": "private",
             "exporter_version": "wp12.1-v1",
             "candidate_descriptor_sha256": "1" * 64,
