@@ -9,6 +9,7 @@ It does not train, promote, or manufacture a model. The merged WP-12.1 dependenc
 Generation is allowed only in the approved private workspace with:
 
 - a WP-12.1 bundle containing `model.onnx` and `model_manifest.json`;
+- the exact promotion evidence whose hash is recorded by the model manifest;
 - a request descriptor naming the same immutable model;
 - one hash-pinned `.npy` file for every ONNX input;
 - pinned compatible versions of NumPy and ONNX Runtime.
@@ -43,7 +44,9 @@ python experiments/wp12_2/generate_golden.py \
 
 Before inference, the generator requires:
 
+- every required I-19 field to have the expected type and bounded value;
 - the model bytes to match the I-19 manifest hash;
+- the exact promotion document to match its manifest digest and independently authorize this model with allowlisted real-world evidence;
 - the request model ID to match the manifest;
 - request input names to exactly match ONNX inputs;
 - input files to match their declared SHA-256;
