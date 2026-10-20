@@ -77,7 +77,22 @@ def fake_onnxruntime(*, fail_run: bool = False) -> types.ModuleType:
     return module
 
 
+def write_promotion(root: Path, **overrides: object) -> Path:
+    document: dict[str, object] = {
+        "schema_version": 1,
+        "recommendation": "promote",
+        "scientific_status": "promotion-approved",
+        "evidence_class": "held-out-real-world",
+        "candidate_id": "approved-model",
+    }
+    document.update(overrides)
+    path = root / "promotion.json"
+    path.write_text(json.dumps(document), encoding="utf-8")
+    return path
+
+
 def write_bundle(root: Path) -> Path:
+    promotion = write_promotion(root)
     bundle = root / "bundle"
     bundle.mkdir()
     model = bundle / "model.onnx"
@@ -87,10 +102,20 @@ def write_bundle(root: Path) -> Path:
         "model_id": "approved-model",
         "sha256": sha256(model),
         "format": "onnx",
+        "opset": 17,
+        "runtime_min": "onnxruntime-private-pin",
+        "input_contract": "two finite float32 values",
+        "window": "one fixed window",
+        "normalization": "immutable-normalization-id",
         "outputs": ["displacement"],
+        "bounds": "documented displacement bounds",
+        "training_run": "immutable-training-run",
+        "dataset_manifest": "immutable-dataset-manifest",
+        "metrics": {"held_out_rmse": 1.0},
         "redistribution_status": "private; approval required",
+        "exporter_version": "wp12.1-v1",
         "candidate_descriptor_sha256": "1" * 64,
-        "promotion_evidence_sha256": "2" * 64,
+        "promotion_evidence_sha256": sha256(promotion),
     }
     (bundle / "model_manifest.json").write_text(
         json.dumps(manifest),
@@ -137,8 +162,18 @@ class ValidationTests(unittest.TestCase):
             "model_id": "model",
             "sha256": "not-a-hash",
             "format": "onnx",
+            "opset": 17,
+            "runtime_min": "runtime",
+            "input_contract": "contract",
+            "window": "window",
+            "normalization": "normalization",
             "outputs": ["output"],
+            "bounds": "bounds",
+            "training_run": "run",
+            "dataset_manifest": "dataset",
+            "metrics": {},
             "redistribution_status": "private",
+            "exporter_version": "wp12.1-v1",
             "candidate_descriptor_sha256": "1" * 64,
             "promotion_evidence_sha256": "2" * 64,
         }
@@ -164,7 +199,7 @@ class GenerationTests(unittest.TestCase):
             request = write_request(root)
             output = root / "golden"
             with self.assertRaisesRegex(generator.GoldenBlocked, "verified WP-12.1"):
-                generator.generate_golden(root / "missing", request, output)
+                generator.generate_golden(root / "missing", root / "promotion.json", request, output)
             self.assertFalse(output.exists())
 
     def test_model_hash_mismatch_writes_nothing(self) -> None:
@@ -175,7 +210,7 @@ class GenerationTests(unittest.TestCase):
             request = write_request(root)
             output = root / "golden"
             with self.assertRaisesRegex(generator.GoldenBlocked, "hash does not match"):
-                generator.generate_golden(bundle, request, output)
+                generator.generate_golden(bundle, root / "promotion.json", request, output)
             self.assertFalse(output.exists())
 
     def test_input_hash_mismatch_writes_nothing(self) -> None:
@@ -192,7 +227,32 @@ class GenerationTests(unittest.TestCase):
                 {"onnxruntime": fake_onnxruntime()},
             ):
                 with self.assertRaisesRegex(generator.GoldenBlocked, "hash mismatch"):
-                    generator.generate_golden(bundle, request, output)
+                    generator.generate_golden(bundle, root / "promotion.json", request, output)
+            self.assertFalse(output.exists())
+
+    def test_do_not_promote_evidence_writes_nothing(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            bundle = write_bundle(root)
+            write_promotion(
+                root,
+                recommendation="do-not-promote",
+                scientific_status="exploratory-only",
+                evidence_class="synthetic-fixture",
+            )
+            manifest_path = bundle / "model_manifest.json"
+            manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+            manifest["promotion_evidence_sha256"] = sha256(root / "promotion.json")
+            manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
+            request = write_request(root)
+            output = root / "golden"
+            with self.assertRaisesRegex(generator.GoldenBlocked, "not 'promote'"):
+                generator.generate_golden(
+                    bundle,
+                    root / "promotion.json",
+                    request,
+                    output,
+                )
             self.assertFalse(output.exists())
 
     def test_refuses_existing_destination(self) -> None:
@@ -206,7 +266,7 @@ class GenerationTests(unittest.TestCase):
                 generator.GoldenBlocked,
                 "existing output directory",
             ):
-                generator.generate_golden(bundle, request, output)
+                generator.generate_golden(bundle, root / "promotion.json", request, output)
 
     def test_runtime_failure_leaves_no_bundle_or_staging(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
@@ -222,7 +282,7 @@ class GenerationTests(unittest.TestCase):
                     generator.GoldenBlocked,
                     "inference failed",
                 ):
-                    generator.generate_golden(bundle, request, output)
+                    generator.generate_golden(bundle, root / "promotion.json", request, output)
             self.assertFalse(output.exists())
             self.assertEqual(list(root.glob(".golden.staging-*")), [])
 
@@ -236,7 +296,7 @@ class GenerationTests(unittest.TestCase):
                 sys.modules,
                 {"onnxruntime": fake_onnxruntime()},
             ):
-                manifest_path = generator.generate_golden(bundle, request, output)
+                manifest_path = generator.generate_golden(bundle, root / "promotion.json", request, output)
 
             self.assertEqual(manifest_path, output / "golden_manifest.json")
             self.assertEqual(
