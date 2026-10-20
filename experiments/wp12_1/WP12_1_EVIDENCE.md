@@ -20,12 +20,14 @@ When invoked with the currently committed recommendation, the exporter rejects t
 The implementation was reviewed against these boundaries:
 
 - promotion is explicit and candidate-specific;
-- synthetic or exploratory evidence cannot authorize export;
+- only explicitly allowlisted real-world evidence classes can authorize export;
+- every I-19 manifest field is type- and content-validated before model code is imported;
 - the state dictionary is loaded in weights-only, strict mode;
 - inference export uses evaluation mode and explicit I/O names;
 - the generated ONNX graph is checked before success is reported;
 - non-finite metric values and malformed or duplicate JSON keys are rejected;
-- existing artifact directories are not overwritten;
+- output names are normalized before uniqueness is checked;
+- existing artifact directories are rejected and publication is atomic;
 - provenance and redistribution status are carried into the manifest;
 - no private weights, raw data, or fabricated results are committed.
 
