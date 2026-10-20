@@ -79,8 +79,11 @@ class NoGrad:
 
 def fake_modules(*, checker_error: Exception | None = None) -> tuple[dict[str, types.ModuleType], FakeModel]:
     model = FakeModel()
+    package_module = types.ModuleType("private_model")
+    package_module.__path__ = []
     factory_module = types.ModuleType("private_model.factory")
     factory_module.build = lambda: model
+    package_module.factory = factory_module
 
     torch = types.ModuleType("torch")
     torch.float32 = "float32"
@@ -121,6 +124,7 @@ def fake_modules(*, checker_error: Exception | None = None) -> tuple[dict[str, t
     return {
         "torch": torch,
         "onnx": onnx,
+        "private_model": package_module,
         "private_model.factory": factory_module,
     }, model
 
