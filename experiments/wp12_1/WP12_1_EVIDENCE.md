@@ -31,4 +31,4 @@ The implementation was reviewed against these boundaries:
 
 ## Verification status
 
-No test commands were run, following the explicit instruction for this submission. CI and reviewer feedback remain independent gates. This record does not claim that an actual candidate model or generated ONNX artifact has passed validation.
+The focused exporter suite is registered in the repository Python CI. It verifies the fail-closed boundary without requiring private weights, PyTorch, or ONNX. CI results and reviewer feedback remain independent gates. This record does not claim that an actual candidate model or generated ONNX artifact has passed validation.
