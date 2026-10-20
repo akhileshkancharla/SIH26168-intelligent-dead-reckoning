@@ -36,6 +36,7 @@ Run:
 ```bash
 python experiments/wp12_2/generate_golden.py \
   --bundle private/wp12_1_bundle \
+  --promotion private/promotion_recommendation.json \
   --request private/golden_request.json \
   --output-dir dist/wp12_2_golden
 ```
