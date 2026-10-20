@@ -89,7 +89,8 @@ def validate_promotion(document: dict[str, Any], candidate_id: str) -> None:
         "candidate-approved",
     }:
         raise ExportBlocked("promotion evidence is not candidate-approved")
-    if document.get("evidence_class") in {"synthetic", "synthetic-fixture"}:
+    evidence_class = _text(document, "evidence_class")
+    if evidence_class in {"synthetic", "synthetic-fixture"}:
         raise ExportBlocked("synthetic evidence cannot authorize candidate export")
     if _text(document, "candidate_id") != candidate_id:
         raise ExportBlocked("promotion candidate_id does not match the candidate")
@@ -101,9 +102,9 @@ def validate_candidate(document: dict[str, Any]) -> dict[str, Any]:
     candidate_id = _text(document, "candidate_id")
     model_factory = _text(document, "model_factory")
     state_dict = _text(document, "state_dict")
-    opset = _integer(document, "opset")
+    opset = _integer(document, "opset_version")
     if not 13 <= opset <= 21:
-        raise ExportBlocked("opset must be between 13 and 21")
+        raise ExportBlocked("opset_version must be between 13 and 21")
 
     inputs = document.get("inputs")
     if not isinstance(inputs, list) or not inputs:
@@ -129,14 +130,14 @@ def validate_candidate(document: dict[str, Any]) -> dict[str, Any]:
             raise ExportBlocked(f"input {name} shape must contain positive integers")
         validated_inputs.append({"name": name, "dtype": dtype, "shape": shape})
 
-    outputs = document.get("output_names")
+    outputs = document.get("outputs")
     if (
         not isinstance(outputs, list)
         or not outputs
         or not all(isinstance(name, str) and name.strip() for name in outputs)
         or len(set(outputs)) != len(outputs)
     ):
-        raise ExportBlocked("output_names must contain unique non-empty strings")
+        raise ExportBlocked("outputs must contain unique non-empty strings")
 
     required_manifest_fields = (
         "runtime_min",
@@ -153,6 +154,19 @@ def validate_candidate(document: dict[str, Any]) -> dict[str, Any]:
     for field in required_manifest_fields:
         if field not in document:
             raise ExportBlocked(f"candidate is missing I-19 field: {field}")
+
+    metrics = document["metrics"]
+    if not isinstance(metrics, dict) or not metrics:
+        raise ExportBlocked("metrics must be a non-empty object")
+    for name, value in metrics.items():
+        if (
+            not isinstance(name, str)
+            or not name.strip()
+            or isinstance(value, bool)
+            or not isinstance(value, (int, float))
+            or not math.isfinite(value)
+        ):
+            raise ExportBlocked("metrics must map non-empty names to finite numbers")
 
     return {
         "candidate_id": candidate_id,
@@ -265,10 +279,6 @@ def export_candidate(
         "candidate_descriptor_sha256": _sha256(candidate_path),
         "promotion_evidence_sha256": _sha256(promotion_path),
     }
-    for value in manifest["metrics"].values() if isinstance(manifest["metrics"], dict) else ():
-        if isinstance(value, float) and not math.isfinite(value):
-            model_path.unlink(missing_ok=True)
-            raise ExportBlocked("manifest metrics must be finite")
     manifest_path.write_bytes(_canonical_bytes(manifest))
     return model_path, manifest_path
 
