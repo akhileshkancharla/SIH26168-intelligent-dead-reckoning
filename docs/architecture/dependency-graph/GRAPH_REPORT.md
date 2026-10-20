@@ -5,11 +5,11 @@
 - Snapshot classification: `generated-and-sanitized`
 - Source repository: `akhileshkancharla/SIH26168-intelligent-dead-reckoning`
 - Source branch: `issue/WP-02.4-wp-02-4-integrate-chunk`
-- Source parent commit: `a3668b0985f63b95592af130b08497396976e648`
+- Source parent commit: `6dd27ca77eefeabbfe3ce7161d064cade3cbc4aa`
 - Graphify version: `0.9.53`
 - Graphify mode: code-only static extraction; semantic document extraction disabled
-- Counts: 4366 nodes, 7366 edges, 278 communities
-- Edge evidence: 7167 extracted, 199 inferred
+- Counts: 4368 nodes, 7372 edges, 290 communities
+- Edge evidence: 7173 extracted, 199 inferred
 - CI mode: `snapshot-validation-only`
 
 ## VERIFIED FROM CODE
@@ -65,14 +65,14 @@ Current high-degree nodes are primarily repository administration tooling, not n
 | `configure_project.mjs` | 37 | [tools/bootstrap/configure_project.mjs:L1](../../../tools/bootstrap/configure_project.mjs) |
 | `RecordingService` | 35 | [android/acquisition/imported/S1_Android_Acquisition_Spike/app/src/main/java/org/sih26168/s1logger/RecordingService.kt:L16](../../../android/acquisition/imported/S1_Android_Acquisition_Spike/app/src/main/java/org/sih26168/s1logger/RecordingService.kt) |
 | `generate_contract_bindings.py` | 35 | [ci/generate_contract_bindings.py:L1](../../../ci/generate_contract_bindings.py) |
+| `SessionWriterTest` | 34 | [android/acquisition/src/test/java/org/sih26168/s1logger/SessionWriterTest.kt:L14](../../../android/acquisition/src/test/java/org/sih26168/s1logger/SessionWriterTest.kt) |
 | `MeasurementInput` | 33 | [core/navigation/include/sih26168/navigation_core.hpp:L141](../../../core/navigation/include/sih26168/navigation_core.hpp) |
-| `SessionWriterTest` | 32 | [android/acquisition/src/test/java/org/sih26168/s1logger/SessionWriterTest.kt:L14](../../../android/acquisition/src/test/java/org/sih26168/s1logger/SessionWriterTest.kt) |
 | `ReplayNavigationViewModelTest` | 31 | [android/app/src/test/java/org/sih26168/app/replay/ReplayNavigationViewModelTest.kt:L12](../../../android/app/src/test/java/org/sih26168/app/replay/ReplayNavigationViewModelTest.kt) |
 | `reference_oracle.py` | 31 | [core/navigation/verification/python/reference_oracle.py:L1](../../../core/navigation/verification/python/reference_oracle.py) |
 
 ### Weakly connected or orphan candidates
 
-The raw Graphify report identified 1401 isolated symbol nodes. This sanitizer independently found 1739 repository-backed nodes with degree at most one; the bounded sample below is diagnostic, not deletion evidence.
+The raw Graphify report identified 1401 isolated symbol nodes. This sanitizer independently found 1740 repository-backed nodes with degree at most one; the bounded sample below is diagnostic, not deletion evidence.
 
 | Node | Degree | Source |
 | --- | ---: | --- |
