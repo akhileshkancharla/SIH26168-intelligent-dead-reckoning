@@ -100,8 +100,8 @@ def _canonical_bytes(document: dict[str, Any]) -> bytes:
 
 
 def _finite_metrics(value: Any) -> dict[str, int | float]:
-    if not isinstance(value, dict):
-        raise GoldenBlocked("model manifest metrics must be an object")
+    if not isinstance(value, dict) or not value:
+        raise GoldenBlocked("model manifest metrics must be a non-empty object")
     validated: dict[str, int | float] = {}
     for name, metric in value.items():
         if (
