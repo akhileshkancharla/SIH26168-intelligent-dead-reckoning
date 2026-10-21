@@ -214,14 +214,16 @@ class OnnxRuntimeMobile private constructor(
                 )
             }
 
-            val options = OrtSession.SessionOptions()
+            var openedOptions: OrtSession.SessionOptions? = null
             var openedSession: OrtSession? = null
             return try {
+                val options = OrtSession.SessionOptions()
+                openedOptions = options
                 val session = environment.createSession(modelBytes, options)
                 openedSession = session
                 validateSessionContract(session, contract)?.let { detail ->
-                    session.close()
-                    options.close()
+                    runCatching { session.close() }
+                    runCatching { options.close() }
                     return MobileModelLoadResult.ModelDisabled(
                         ModelDisabledReason.SESSION_CONTRACT_MISMATCH,
                         detail,
@@ -237,15 +239,15 @@ class OnnxRuntimeMobile private constructor(
                     ),
                 )
             } catch (exception: Exception) {
-                openedSession?.close()
-                options.close()
+                runCatching { openedSession?.close() }
+                runCatching { openedOptions?.close() }
                 MobileModelLoadResult.ModelDisabled(
                     ModelDisabledReason.RUNTIME_UNAVAILABLE,
                     "ONNX session creation failed closed: ${exception.javaClass.simpleName}",
                 )
             } catch (error: LinkageError) {
-                openedSession?.close()
-                options.close()
+                runCatching { openedSession?.close() }
+                runCatching { openedOptions?.close() }
                 MobileModelLoadResult.ModelDisabled(
                     ModelDisabledReason.RUNTIME_UNAVAILABLE,
                     "ONNX Runtime native library is unavailable",
