@@ -159,13 +159,18 @@ class OnnxRuntimeMobile private constructor(
                 "ONNX inference failed closed: ${exception.javaClass.simpleName}",
             )
         } finally {
-            tensors.values.forEach(OnnxTensor::close)
+            tensors.values.forEach { tensor ->
+                runCatching { tensor.close() }
+            }
         }
     }
 
     override fun close() {
-        session.close()
-        options.close()
+        try {
+            session.close()
+        } finally {
+            options.close()
+        }
     }
 
     companion object {
