@@ -21,12 +21,13 @@ No ONNX model, private fixture, golden tensor, or scientific result is committed
 - redistribution status is exactly `redistribution-approved` or `private-device-approved`;
 - the ONNX opset is in the WP-12 allowlist (13 through 21);
 - every input/output name is unique and every shape is fixed and positive;
-- the supplied WP-12.2 golden vector matches the model, candidate, promotion, and manifest identities;
+- the supplied WP-12.2 golden vector matches a code-pinned trusted golden-manifest digest;
+- the upstream model-manifest digest, candidate/promotion identities, tensor artifact digests, and canonical decoded tensor payload digests all match that trusted approval;
 - the installed native runtime meets the declared minimum;
 - runtime input/output names, order, shapes, and `float32` types exactly match the contract;
 - an initialization inference matches every approved golden output within an absolute tolerance of `1e-5`.
 
-A missing, malformed, mismatched, or numerically divergent golden vector rejects the bundle before it can become ready. A rejected bundle returns a typed model-disabled result and never falls back to another model.
+A missing, unpinned, malformed, mismatched, tampered, or numerically divergent golden vector rejects the bundle before it can become ready. The production trusted-approval map is deliberately empty because no approved private WP-12.2 bundle exists; enabling a model therefore requires a reviewed source change that pins its immutable evidence digests. A rejected bundle returns a typed model-disabled result and never falls back to another model.
 
 ## Inference gate
 
