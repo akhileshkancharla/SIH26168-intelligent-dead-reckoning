@@ -12,18 +12,20 @@
 ## Reviewable output
 
 - `android/app/src/main/java/org/sih26168/app/model/OnnxRuntimeMobile.kt`
-  - validates model identity, rights, runtime minimum, tensor names/order/types/shapes, and finite values;
+  - validates model identity, rights, runtime minimum, the WP-12 opset allowlist, tensor names/order/types/shapes, and finite values;
+  - requires a WP-12.2 golden vector bound to the exact model/candidate/promotion identities;
+  - runs initialization parity and rejects any output exceeding the absolute `1e-5` tolerance;
   - uses native-order direct float buffers;
   - returns typed model-disabled states on every rejected or unavailable path;
   - owns and closes ONNX sessions, options, input tensors, and output results.
 - `android/app/src/test/java/org/sih26168/app/model/OnnxRuntimeMobileTest.kt`
-  - covers the dependency-free static contract gate and semantic version comparison.
+  - covers the dependency-free static contract gate, opset allowlist, golden identity/parity checks, and semantic version comparison.
 - `android/app/build.gradle.kts`
   - pins the official Android AAR at version 1.31.0.
 
 ## Limitations
 
-No model is bundled, so this change does not claim successful session creation, device inference, latency, memory, battery, thermal behavior, golden parity, navigation accuracy, or scientific promotion. Accelerator execution providers are deliberately outside this issue.
+No model or real golden vector is bundled, so this change does not claim successful session creation, device inference, latency, memory, battery, thermal behavior, observed golden parity, navigation accuracy, or scientific promotion. Accelerator execution providers are deliberately outside this issue.
 
 ## Verification status
 
