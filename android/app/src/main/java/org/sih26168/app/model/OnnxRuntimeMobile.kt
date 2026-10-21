@@ -428,6 +428,11 @@ class OnnxRuntimeMobile private constructor(
             ) {
                 return "golden tensor artifact digests do not match the trusted approval"
             }
+            if (goldenVector.inputArtifactSha256.keys != goldenVector.inputs.keys ||
+                goldenVector.outputArtifactSha256.keys != goldenVector.outputs.keys
+            ) {
+                return "every golden tensor must have an approved artifact digest"
+            }
             if (goldenVector.inputs.keys != contract.inputs.map { it.name }.toSet() ||
                 goldenVector.inputs.keys != approval.inputTensorSha256.keys
             ) {
