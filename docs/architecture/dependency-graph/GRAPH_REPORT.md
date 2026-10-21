@@ -5,11 +5,11 @@
 - Snapshot classification: `generated-and-sanitized`
 - Source repository: `akhileshkancharla/SIH26168-intelligent-dead-reckoning`
 - Source branch: `issue/WP-12.3-wp-12-3-integrate-onnx`
-- Source parent commit: `b002eac6ec3b3032bc95b342f05a3fb723450eed`
+- Source parent commit: `13bd49819850dfc92a1d0787da245c8d75a285b0`
 - Graphify version: `0.9.53`
 - Graphify mode: code-only static extraction; semantic document extraction disabled
-- Counts: 4556 nodes, 7780 edges, 294 communities
-- Edge evidence: 7531 extracted, 249 inferred
+- Counts: 4561 nodes, 7794 edges, 286 communities
+- Edge evidence: 7545 extracted, 249 inferred
 - CI mode: `snapshot-validation-only`
 
 ## VERIFIED FROM CODE
@@ -72,7 +72,7 @@ Current high-degree nodes are primarily repository administration tooling, not n
 
 ### Weakly connected or orphan candidates
 
-The raw Graphify report identified 1414 isolated symbol nodes. This sanitizer independently found 1777 repository-backed nodes with degree at most one; the bounded sample below is diagnostic, not deletion evidence.
+The raw Graphify report identified 1416 isolated symbol nodes. This sanitizer independently found 1779 repository-backed nodes with degree at most one; the bounded sample below is diagnostic, not deletion evidence.
 
 | Node | Degree | Source |
 | --- | ---: | --- |
