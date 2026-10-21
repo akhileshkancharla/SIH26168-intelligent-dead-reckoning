@@ -67,6 +67,64 @@ class OnnxRuntimeMobileTest {
     }
 
     @Test
+    fun opsetOutsideApprovedRangeFailsClosed() {
+        val tooOld = OnnxRuntimeMobile.validateContract(
+            validContract().copy(opset = 12),
+            modelSizeBytes = MODEL_BYTES.size,
+        )
+        val tooNew = OnnxRuntimeMobile.validateContract(
+            validContract().copy(opset = 22),
+            modelSizeBytes = MODEL_BYTES.size,
+        )
+
+        assertEquals("ONNX opset must be between 13 and 21", tooOld)
+        assertEquals("ONNX opset must be between 13 and 21", tooNew)
+    }
+
+    @Test
+    fun goldenVectorIdentityMustMatchI19() {
+        val violation = OnnxRuntimeMobile.validateGoldenVector(
+            validContract(),
+            validGoldenVector().copy(modelId = "different-model"),
+        )
+
+        assertEquals("golden-vector identity does not match I-19", violation)
+    }
+
+    @Test
+    fun goldenParityUsesRequiredAbsoluteTolerance() {
+        val contract = validContract()
+        val expected = validGoldenVector().outputs
+        val withinTolerance = mapOf(
+            "displacement" to FloatTensorData(
+                listOf(1, 2),
+                floatArrayOf(2.000009f, 4.0f),
+            ),
+        )
+        val outsideTolerance = mapOf(
+            "displacement" to FloatTensorData(
+                listOf(1, 2),
+                floatArrayOf(2.00002f, 4.0f),
+            ),
+        )
+
+        assertNull(
+            OnnxRuntimeMobile.validateGoldenOutputs(
+                contract,
+                expected,
+                withinTolerance,
+            ),
+        )
+        assertTrue(
+            OnnxRuntimeMobile.validateGoldenOutputs(
+                contract,
+                expected,
+                outsideTolerance,
+            )!!.contains("exceeds 1e-5 tolerance"),
+        )
+    }
+
+    @Test
     fun semanticRuntimeComparisonIsNumeric() {
         assertTrue(OnnxRuntimeMobile.runtimeAtLeast("1.31.0", "1.9.0"))
         assertTrue(OnnxRuntimeMobile.runtimeAtLeast("1.31.0-mobile", "1.31.0"))
@@ -94,6 +152,28 @@ class OnnxRuntimeMobileTest {
         promotionEvidenceSha256 = "2".repeat(64),
         inputs = listOf(MobileTensorContract("imu_window", listOf(1, 2))),
         outputs = listOf(MobileTensorContract("displacement", listOf(1, 2))),
+    )
+
+    private fun validGoldenVector(): MobileGoldenVector = MobileGoldenVector(
+        schemaVersion = 1,
+        generatorVersion = "wp12.2-v1",
+        modelId = "approved-model",
+        modelSha256 = sha256(MODEL_BYTES),
+        candidateDescriptorSha256 = "1".repeat(64),
+        promotionEvidenceSha256 = "2".repeat(64),
+        manifestSha256 = "3".repeat(64),
+        inputs = mapOf(
+            "imu_window" to FloatTensorData(
+                listOf(1, 2),
+                floatArrayOf(1.0f, 2.0f),
+            ),
+        ),
+        outputs = mapOf(
+            "displacement" to FloatTensorData(
+                listOf(1, 2),
+                floatArrayOf(2.0f, 4.0f),
+            ),
+        ),
     )
 
     private fun sha256(bytes: ByteArray): String = MessageDigest
