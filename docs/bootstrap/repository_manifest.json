@@ -3,6 +3,156 @@
   "scope": "Bootstrap and immutable Architecture Revision 3 artifacts; manifest excludes itself.",
   "files": [
     {
+      "path": "docs/architecture/ADR_INDEX.md",
+      "size_bytes": 264,
+      "sha256": "059203f67ff9e9f58d3ecc05a5c929cede2dc6a120dc26dd4a3781bb112e5ca0"
+    },
+    {
+      "path": "docs/architecture/dependency-graph/GRAPH_REPORT.md",
+      "size_bytes": 9794,
+      "sha256": "7cf73458668e64252eb4b0b4f49dbbf694ed20664e9b38492275c9fbf71483da"
+    },
+    {
+      "path": "docs/architecture/dependency-graph/graph.json",
+      "size_bytes": 4216863,
+      "sha256": "8a0a34f6034b4f2868661e5f6dd0a587926f33e525e68a54c128f0cd6a6a523c"
+    },
+    {
+      "path": "docs/architecture/dependency-graph/metadata.json",
+      "size_bytes": 2234,
+      "sha256": "bd826e99b1610d578d85b02a5784651018272623f8776ec3cf8436678888b1fb"
+    },
+    {
+      "path": "docs/architecture/dependency-graph/README.md",
+      "size_bytes": 2071,
+      "sha256": "fabf7440df92f22104e06274ac3ecf6ade3cb58398db43a7265e5d4ea4f1fa34"
+    },
+    {
+      "path": "docs/architecture/dependency-graph/SHA256SUMS.txt",
+      "size_bytes": 315,
+      "sha256": "e3acce1c76d6f30e279bfb7d9e5a372a3873f195a5e83f2fcf89e0ad88c418a2"
+    },
+    {
+      "path": "docs/architecture/imports/WP-02.1_S1_ANDROID_ACQUISITION_IMPORT.json",
+      "size_bytes": 8722,
+      "sha256": "7aa0621f05c713553bab6fe48babc1e602a491a053d6e7c8815ff22ee432b38a"
+    },
+    {
+      "path": "docs/architecture/imports/WP-03.1_S2_NAVIGATION_CORE_IMPORT.md",
+      "size_bytes": 10010,
+      "sha256": "5c52fe8cf460613e5fb55813f10df1bf116375bdf8ad7d455048df8d82c6fa84"
+    },
+    {
+      "path": "docs/architecture/machine_readable/architecture_status.json",
+      "size_bytes": 36724,
+      "sha256": "d914ffc489ce76bc59e8155cf4426f86ce14d9bb8e9cec5ee4921ef62d39a02d"
+    },
+    {
+      "path": "docs/architecture/machine_readable/components.json",
+      "size_bytes": 22066,
+      "sha256": "30b0bb25d196fbd04d8ba58f01ce0fe72158a5a20ef4d6e29b56690d6866f3a9"
+    },
+    {
+      "path": "docs/architecture/machine_readable/interfaces.json",
+      "size_bytes": 20460,
+      "sha256": "6d723e20b6e2e26809e22848a177dea99756f6d1676a763521b53839803091ed"
+    },
+    {
+      "path": "docs/architecture/machine_readable/risks.json",
+      "size_bytes": 9633,
+      "sha256": "ccb436e9844d6495a692a5a7f48d8189f89dd60bf88f1313fdf8cfe567d3547d"
+    },
+    {
+      "path": "docs/architecture/machine_readable/work_packages.json",
+      "size_bytes": 8999,
+      "sha256": "cc8730598fe0af83e1a7eead26185c170d499a82caaf3e0232dcce993435ad48"
+    },
+    {
+      "path": "docs/architecture/README.md",
+      "size_bytes": 3426,
+      "sha256": "8992f59da93b6b724e6fa77579fa791c8060b6824bff6a6afe10b0d98a5c4316"
+    },
+    {
+      "path": "docs/architecture/SIH26168_ADR_Register_v1.md",
+      "size_bytes": 5272,
+      "sha256": "0ec4b8bed9e81d50e8fa7e9397771f311d4dbb77405539cbf909158c910d3da1"
+    },
+    {
+      "path": "docs/architecture/SIH26168_ARCHITECTURE_MANIFEST_v1.json",
+      "size_bytes": 6472,
+      "sha256": "290a8be301a1a827e2ca741d7b7994c575c1efa18cdf4160198d96dcce155995"
+    },
+    {
+      "path": "docs/architecture/SIH26168_Component_Register_v1.csv",
+      "size_bytes": 12019,
+      "sha256": "ff3ab179c462a690c7dec194d13efea84eee103bfeeb374263c954f50e491544"
+    },
+    {
+      "path": "docs/architecture/SIH26168_Demo_Architecture_v1.md",
+      "size_bytes": 3171,
+      "sha256": "6fba94a27371d1d1b8adc87488eac4474441d84bb71ba872a05ef54300fd4cfa"
+    },
+    {
+      "path": "docs/architecture/SIH26168_Development_Design_Baseline_v1.md",
+      "size_bytes": 12221,
+      "sha256": "3588408527381a7473f34dda9307e89f0a5dce86ac4f0adfb6475634e0039300"
+    },
+    {
+      "path": "docs/architecture/SIH26168_Development_Sequence_v1.md",
+      "size_bytes": 6476,
+      "sha256": "3b6130b404093f0619bc4345b88b3e7e6502730dd9c53c97e9aff88815a61aad"
+    },
+    {
+      "path": "docs/architecture/SIH26168_High_Level_Architecture_Revision3.md",
+      "size_bytes": 22389,
+      "sha256": "958b16784079a4fdc71f60b1188fc24a6da01d36a08ed46f16f68c336c11bd04"
+    },
+    {
+      "path": "docs/architecture/SIH26168_Interface_Inventory_v1.md",
+      "size_bytes": 13438,
+      "sha256": "a30e9f6ca85e230dd440e4aa23054896b1fb08f3d08ac6f9b799b5b5dcd9b4fb"
+    },
+    {
+      "path": "docs/architecture/SIH26168_Open_Decisions_v1.md",
+      "size_bytes": 3746,
+      "sha256": "6790bb4d0a3f1e78848b06e0ee19613ad54c7af1849032865e97ee1e9fcf5685"
+    },
+    {
+      "path": "docs/architecture/SIH26168_Repository_Blueprint_v1.md",
+      "size_bytes": 4462,
+      "sha256": "0bd7936c5c6fa92c295c7d0e91a3da6b0a39e2cfa2b715bd240c611e3b91aa4e"
+    },
+    {
+      "path": "docs/architecture/SIH26168_Risk_Register_v1.csv",
+      "size_bytes": 4812,
+      "sha256": "af2168dfb162450a7f3f219a8bc2a4b6d8f06b13bce8bb11977112e6031e75ab"
+    },
+    {
+      "path": "docs/architecture/SIH26168_Verification_Strategy_v1.md",
+      "size_bytes": 4503,
+      "sha256": "eb29326040fccf634df8fde82bb1115427d86599a34a687dd01c259a62072f7f"
+    },
+    {
+      "path": "docs/architecture/SIH26168_WP09_6_Airplane_Mode_Replay_Verification_v1.md",
+      "size_bytes": 9111,
+      "sha256": "c9f45168e98813c819d874e6c10df2114f18e93cc847e5788248113eb8ed47af"
+    },
+    {
+      "path": "docs/architecture/SIH26168_WP09_7_Submission_UI_Wireframes_v1.md",
+      "size_bytes": 43828,
+      "sha256": "1a6334dde254e6d2b24153289e0b050f19e75afddd8fe13624c75546bec5e0be"
+    },
+    {
+      "path": "docs/architecture/SIH26168_WP15_7_Demo_Narrative_Storyboard_v1.md",
+      "size_bytes": 43722,
+      "sha256": "fe5042fece38d3197b3927042f91aae24f5aaeac7e6b7584edca256f80137a49"
+    },
+    {
+      "path": "docs/architecture/START_HERE.md",
+      "size_bytes": 1474,
+      "sha256": "45f9abede2bb13c5dd5fbc83d0a5371228c082a6f71c09b369356d88c098d5ce"
+    },
+    {
       "path": "docs/bootstrap/CI_VALIDATION.md",
       "size_bytes": 320,
       "sha256": "6cf16f5cb6baa4e4e21a83cda815be00d0ca84aa477ff2f52156a8347c403918"
@@ -71,151 +221,6 @@
       "path": "docs/bootstrap/WORKFLOW_REGISTER.csv",
       "size_bytes": 932,
       "sha256": "d67a5b0c5c06609160b1330d296788e0a98744ef02147306c973ffaa3cd86be4"
-    },
-    {
-      "path": "docs/architecture/ADR_INDEX.md",
-      "size_bytes": 264,
-      "sha256": "059203f67ff9e9f58d3ecc05a5c929cede2dc6a120dc26dd4a3781bb112e5ca0"
-    },
-    {
-      "path": "docs/architecture/README.md",
-      "size_bytes": 3426,
-      "sha256": "8992f59da93b6b724e6fa77579fa791c8060b6824bff6a6afe10b0d98a5c4316"
-    },
-    {
-      "path": "docs/architecture/SIH26168_ADR_Register_v1.md",
-      "size_bytes": 5272,
-      "sha256": "0ec4b8bed9e81d50e8fa7e9397771f311d4dbb77405539cbf909158c910d3da1"
-    },
-    {
-      "path": "docs/architecture/SIH26168_ARCHITECTURE_MANIFEST_v1.json",
-      "size_bytes": 6472,
-      "sha256": "290a8be301a1a827e2ca741d7b7994c575c1efa18cdf4160198d96dcce155995"
-    },
-    {
-      "path": "docs/architecture/SIH26168_Component_Register_v1.csv",
-      "size_bytes": 12019,
-      "sha256": "ff3ab179c462a690c7dec194d13efea84eee103bfeeb374263c954f50e491544"
-    },
-    {
-      "path": "docs/architecture/SIH26168_Demo_Architecture_v1.md",
-      "size_bytes": 3171,
-      "sha256": "6fba94a27371d1d1b8adc87488eac4474441d84bb71ba872a05ef54300fd4cfa"
-    },
-    {
-      "path": "docs/architecture/SIH26168_Development_Design_Baseline_v1.md",
-      "size_bytes": 12221,
-      "sha256": "3588408527381a7473f34dda9307e89f0a5dce86ac4f0adfb6475634e0039300"
-    },
-    {
-      "path": "docs/architecture/SIH26168_Development_Sequence_v1.md",
-      "size_bytes": 6476,
-      "sha256": "3b6130b404093f0619bc4345b88b3e7e6502730dd9c53c97e9aff88815a61aad"
-    },
-    {
-      "path": "docs/architecture/SIH26168_High_Level_Architecture_Revision3.md",
-      "size_bytes": 22389,
-      "sha256": "958b16784079a4fdc71f60b1188fc24a6da01d36a08ed46f16f68c336c11bd04"
-    },
-    {
-      "path": "docs/architecture/SIH26168_Interface_Inventory_v1.md",
-      "size_bytes": 13438,
-      "sha256": "a30e9f6ca85e230dd440e4aa23054896b1fb08f3d08ac6f9b799b5b5dcd9b4fb"
-    },
-    {
-      "path": "docs/architecture/SIH26168_Open_Decisions_v1.md",
-      "size_bytes": 3746,
-      "sha256": "6790bb4d0a3f1e78848b06e0ee19613ad54c7af1849032865e97ee1e9fcf5685"
-    },
-    {
-      "path": "docs/architecture/SIH26168_Repository_Blueprint_v1.md",
-      "size_bytes": 4462,
-      "sha256": "0bd7936c5c6fa92c295c7d0e91a3da6b0a39e2cfa2b715bd240c611e3b91aa4e"
-    },
-    {
-      "path": "docs/architecture/SIH26168_Risk_Register_v1.csv",
-      "size_bytes": 4812,
-      "sha256": "af2168dfb162450a7f3f219a8bc2a4b6d8f06b13bce8bb11977112e6031e75ab"
-    },
-    {
-      "path": "docs/architecture/SIH26168_Verification_Strategy_v1.md",
-      "size_bytes": 4503,
-      "sha256": "eb29326040fccf634df8fde82bb1115427d86599a34a687dd01c259a62072f7f"
-    },
-    {
-      "path": "docs/architecture/SIH26168_WP09_7_Submission_UI_Wireframes_v1.md",
-      "size_bytes": 43828,
-      "sha256": "1a6334dde254e6d2b24153289e0b050f19e75afddd8fe13624c75546bec5e0be"
-    },
-    {
-      "path": "docs/architecture/SIH26168_WP15_7_Demo_Narrative_Storyboard_v1.md",
-      "size_bytes": 43722,
-      "sha256": "fe5042fece38d3197b3927042f91aae24f5aaeac7e6b7584edca256f80137a49"
-    },
-    {
-      "path": "docs/architecture/START_HERE.md",
-      "size_bytes": 1474,
-      "sha256": "45f9abede2bb13c5dd5fbc83d0a5371228c082a6f71c09b369356d88c098d5ce"
-    },
-    {
-      "path": "docs/architecture/dependency-graph/GRAPH_REPORT.md",
-      "size_bytes": 9794,
-      "sha256": "7cf73458668e64252eb4b0b4f49dbbf694ed20664e9b38492275c9fbf71483da"
-    },
-    {
-      "path": "docs/architecture/dependency-graph/README.md",
-      "size_bytes": 2071,
-      "sha256": "fabf7440df92f22104e06274ac3ecf6ade3cb58398db43a7265e5d4ea4f1fa34"
-    },
-    {
-      "path": "docs/architecture/dependency-graph/SHA256SUMS.txt",
-      "size_bytes": 315,
-      "sha256": "e3acce1c76d6f30e279bfb7d9e5a372a3873f195a5e83f2fcf89e0ad88c418a2"
-    },
-    {
-      "path": "docs/architecture/dependency-graph/graph.json",
-      "size_bytes": 4216863,
-      "sha256": "8a0a34f6034b4f2868661e5f6dd0a587926f33e525e68a54c128f0cd6a6a523c"
-    },
-    {
-      "path": "docs/architecture/dependency-graph/metadata.json",
-      "size_bytes": 2234,
-      "sha256": "bd826e99b1610d578d85b02a5784651018272623f8776ec3cf8436678888b1fb"
-    },
-    {
-      "path": "docs/architecture/imports/WP-02.1_S1_ANDROID_ACQUISITION_IMPORT.json",
-      "size_bytes": 8722,
-      "sha256": "7aa0621f05c713553bab6fe48babc1e602a491a053d6e7c8815ff22ee432b38a"
-    },
-    {
-      "path": "docs/architecture/imports/WP-03.1_S2_NAVIGATION_CORE_IMPORT.md",
-      "size_bytes": 10010,
-      "sha256": "5c52fe8cf460613e5fb55813f10df1bf116375bdf8ad7d455048df8d82c6fa84"
-    },
-    {
-      "path": "docs/architecture/machine_readable/architecture_status.json",
-      "size_bytes": 36724,
-      "sha256": "d914ffc489ce76bc59e8155cf4426f86ce14d9bb8e9cec5ee4921ef62d39a02d"
-    },
-    {
-      "path": "docs/architecture/machine_readable/components.json",
-      "size_bytes": 22066,
-      "sha256": "30b0bb25d196fbd04d8ba58f01ce0fe72158a5a20ef4d6e29b56690d6866f3a9"
-    },
-    {
-      "path": "docs/architecture/machine_readable/interfaces.json",
-      "size_bytes": 20460,
-      "sha256": "6d723e20b6e2e26809e22848a177dea99756f6d1676a763521b53839803091ed"
-    },
-    {
-      "path": "docs/architecture/machine_readable/risks.json",
-      "size_bytes": 9633,
-      "sha256": "ccb436e9844d6495a692a5a7f48d8189f89dd60bf88f1313fdf8cfe567d3547d"
-    },
-    {
-      "path": "docs/architecture/machine_readable/work_packages.json",
-      "size_bytes": 8999,
-      "sha256": "cc8730598fe0af83e1a7eead26185c170d499a82caaf3e0232dcce993435ad48"
     }
   ]
 }
