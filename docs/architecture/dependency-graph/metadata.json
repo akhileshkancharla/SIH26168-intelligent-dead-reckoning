@@ -1,9 +1,9 @@
 {
   "architecture_authority_statement": "Architecture Revision 3 is authoritative; this static graph is supporting evidence only.",
   "ci_mode": "snapshot-validation-only",
-  "community_count": 295,
-  "edge_count": 7711,
-  "extracted_edge_count": 7464,
+  "community_count": 294,
+  "edge_count": 7779,
+  "extracted_edge_count": 7530,
   "generator_script_version": "1.0.0",
   "graph_bootstrap_commands": [
     [
@@ -36,7 +36,7 @@
   "graphify_package": "graphifyy",
   "graphify_product": "Graphify",
   "graphify_version": "0.9.53",
-  "inferred_edge_count": 247,
+  "inferred_edge_count": 249,
   "known_graphify_limitations": [
     "Code-only AST extraction does not semantically index architecture documents.",
     "The committed dependency snapshot and bootstrap repository manifest are excluded to prevent recursive generated-artifact graphs.",
@@ -44,15 +44,15 @@
     "Static relationships do not prove runtime reachability, correctness, performance, or scientific validity.",
     "Community and centrality results can change with Graphify version and extraction mode."
   ],
-  "node_count": 4515,
-  "raw_graph_built_at_commit": "7f0e7d1f61adfbd2163d3511d9c088911d880836",
+  "node_count": 4556,
+  "raw_graph_built_at_commit": "75b0d36b0c5158f676451f4de2e0ef14e6cb21fb",
   "removed_volatile_fields": [],
   "sanitizer_script_sha256": "ec5a51bfe44250d58ea88c0e09f3daab47352c7013ab840e565f340acce5e397",
   "schema_version": 1,
   "snapshot_classification": "generated-and-sanitized",
-  "source_branch": "issue/WP-12.2-wp-12-2-generate-onnx",
+  "source_branch": "issue/WP-12.3-wp-12-3-integrate-onnx",
   "source_includes_working_tree": false,
-  "source_parent_commit": "7f0e7d1f61adfbd2163d3511d9c088911d880836",
+  "source_parent_commit": "75b0d36b0c5158f676451f4de2e0ef14e6cb21fb",
   "source_repository": "akhileshkancharla/SIH26168-intelligent-dead-reckoning",
   "verification_script_sha256": "3981dbfc4b91bbcf51295ac97e5aa1804043dc0f07fd0555947cc7dae77db93b"
 }
