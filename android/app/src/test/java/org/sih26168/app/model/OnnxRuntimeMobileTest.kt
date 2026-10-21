@@ -90,7 +90,25 @@ class OnnxRuntimeMobileTest {
             validApproval(golden),
         )
 
-        assertEquals("golden-vector identity does not match I-19", violation)
+        assertEquals(
+            "golden-vector identity does not match the trusted approval",
+            violation,
+        )
+    }
+
+    @Test
+    fun unpinnedGoldenManifestFailsBeforeRuntimeLoad() {
+        val result = OnnxRuntimeMobile.load(
+            MODEL_BYTES,
+            validContract(),
+            validGoldenVector(),
+        )
+
+        assertTrue(result is MobileModelLoadResult.ModelDisabled)
+        assertEquals(
+            ModelDisabledReason.GOLDEN_VECTOR_UNTRUSTED,
+            (result as MobileModelLoadResult.ModelDisabled).reason,
+        )
     }
 
     @Test
@@ -122,10 +140,16 @@ class OnnxRuntimeMobileTest {
             golden.copy(modelManifestSha256 = "8".repeat(64)),
             approval,
         )
+        val missingArtifactViolation = OnnxRuntimeMobile.validateGoldenVector(
+            contract,
+            golden.copy(inputArtifactSha256 = emptyMap()),
+            approval.copy(inputArtifactSha256 = emptyMap()),
+        )
 
         assertTrue(artifactViolation!!.contains("artifact digests"))
         assertTrue(payloadViolation!!.contains("payload digest mismatch"))
         assertTrue(manifestViolation!!.contains("trusted approval"))
+        assertTrue(missingArtifactViolation!!.contains("every golden tensor"))
     }
 
     @Test
