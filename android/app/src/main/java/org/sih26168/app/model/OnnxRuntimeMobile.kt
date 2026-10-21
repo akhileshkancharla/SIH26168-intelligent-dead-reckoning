@@ -10,6 +10,7 @@ import java.nio.ByteOrder
 import java.security.MessageDigest
 import java.util.LinkedHashMap
 import java.util.LinkedHashSet
+import kotlin.math.abs
 
 const val PINNED_ONNX_RUNTIME_MOBILE_VERSION = "1.31.0"
 
@@ -45,8 +46,22 @@ data class FloatTensorData(
     val values: FloatArray,
 )
 
+data class MobileGoldenVector(
+    val schemaVersion: Int,
+    val generatorVersion: String,
+    val modelId: String,
+    val modelSha256: String,
+    val candidateDescriptorSha256: String,
+    val promotionEvidenceSha256: String,
+    val manifestSha256: String,
+    val inputs: Map<String, FloatTensorData>,
+    val outputs: Map<String, FloatTensorData>,
+)
+
 enum class ModelDisabledReason {
     INVALID_CONTRACT,
+    GOLDEN_VECTOR_INVALID,
+    GOLDEN_VECTOR_MISMATCH,
     MODEL_HASH_MISMATCH,
     REDISTRIBUTION_NOT_APPROVED,
     RUNTIME_UNAVAILABLE,
@@ -175,6 +190,8 @@ class OnnxRuntimeMobile private constructor(
 
     companion object {
         private const val MAX_MODEL_BYTES = 32 * 1024 * 1024
+        internal const val GOLDEN_ABSOLUTE_TOLERANCE = 1e-5f
+        private val SUPPORTED_ONNX_OPSETS = 13..21
         private val APPROVED_REDISTRIBUTION = setOf(
             "redistribution-approved",
             "private-device-approved",
@@ -183,10 +200,17 @@ class OnnxRuntimeMobile private constructor(
         fun load(
             modelBytes: ByteArray,
             contract: MobileModelContract,
+            goldenVector: MobileGoldenVector,
         ): MobileModelLoadResult {
             validateContract(contract, modelBytes.size)?.let { detail ->
                 return MobileModelLoadResult.ModelDisabled(
                     ModelDisabledReason.INVALID_CONTRACT,
+                    detail,
+                )
+            }
+            validateGoldenVector(contract, goldenVector)?.let { detail ->
+                return MobileModelLoadResult.ModelDisabled(
+                    ModelDisabledReason.GOLDEN_VECTOR_INVALID,
                     detail,
                 )
             }
@@ -234,15 +258,36 @@ class OnnxRuntimeMobile private constructor(
                         detail,
                     )
                 }
-                MobileModelLoadResult.Ready(
-                    OnnxRuntimeMobile(
-                        environment = environment,
-                        options = options,
-                        session = session,
-                        contract = contract,
-                        runtimeVersion = runtimeVersion,
-                    ),
+                val runtime = OnnxRuntimeMobile(
+                    environment = environment,
+                    options = options,
+                    session = session,
+                    contract = contract,
+                    runtimeVersion = runtimeVersion,
                 )
+                when (val goldenResult = runtime.run(goldenVector.inputs)) {
+                    is MobileInferenceResult.ModelDisabled -> {
+                        runCatching { runtime.close() }
+                        return MobileModelLoadResult.ModelDisabled(
+                            ModelDisabledReason.GOLDEN_VECTOR_MISMATCH,
+                            "golden inference failed closed: ${goldenResult.detail}",
+                        )
+                    }
+                    is MobileInferenceResult.Success -> {
+                        validateGoldenOutputs(
+                            contract,
+                            goldenVector.outputs,
+                            goldenResult.outputs,
+                        )?.let { detail ->
+                            runCatching { runtime.close() }
+                            return MobileModelLoadResult.ModelDisabled(
+                                ModelDisabledReason.GOLDEN_VECTOR_MISMATCH,
+                                detail,
+                            )
+                        }
+                    }
+                }
+                MobileModelLoadResult.Ready(runtime)
             } catch (exception: Exception) {
                 runCatching { openedSession?.close() }
                 runCatching { openedOptions?.close() }
@@ -270,7 +315,9 @@ class OnnxRuntimeMobile private constructor(
                 return "model SHA-256 must be lowercase hexadecimal"
             }
             if (contract.format != "onnx") return "model format must be onnx"
-            if (contract.opset <= 0) return "ONNX opset must be positive"
+            if (contract.opset !in SUPPORTED_ONNX_OPSETS) {
+                return "ONNX opset must be between 13 and 21"
+            }
             val requiredIdentity = listOf(
                 contract.inputContract,
                 contract.window,
@@ -301,6 +348,80 @@ class OnnxRuntimeMobile private constructor(
             }
             validateTensorContracts("input", contract.inputs)?.let { return it }
             validateTensorContracts("output", contract.outputs)?.let { return it }
+            return null
+        }
+
+        internal fun validateGoldenVector(
+            contract: MobileModelContract,
+            goldenVector: MobileGoldenVector,
+        ): String? {
+            if (goldenVector.schemaVersion != 1) {
+                return "unsupported golden-vector schema version"
+            }
+            if (goldenVector.generatorVersion != "wp12.2-v1") {
+                return "unsupported golden-vector generator version"
+            }
+            if (goldenVector.modelId != contract.modelId ||
+                goldenVector.modelSha256 != contract.modelSha256 ||
+                goldenVector.candidateDescriptorSha256 !=
+                    contract.candidateDescriptorSha256 ||
+                goldenVector.promotionEvidenceSha256 !=
+                    contract.promotionEvidenceSha256
+            ) {
+                return "golden-vector identity does not match I-19"
+            }
+            if (!isSha256(goldenVector.manifestSha256)) {
+                return "golden manifest hash must be lowercase SHA-256"
+            }
+            if (goldenVector.inputs.keys != contract.inputs.map { it.name }.toSet()) {
+                return "golden input names must exactly match I-19"
+            }
+            if (goldenVector.outputs.keys != contract.outputs.map { it.name }.toSet()) {
+                return "golden output names must exactly match I-19"
+            }
+            for (specification in contract.inputs) {
+                validateTensorData(
+                    specification,
+                    goldenVector.inputs.getValue(specification.name),
+                    "golden input",
+                )?.let { return it }
+            }
+            for (specification in contract.outputs) {
+                validateTensorData(
+                    specification,
+                    goldenVector.outputs.getValue(specification.name),
+                    "golden output",
+                )?.let { return it }
+            }
+            return null
+        }
+
+        internal fun validateGoldenOutputs(
+            contract: MobileModelContract,
+            expected: Map<String, FloatTensorData>,
+            actual: Map<String, FloatTensorData>,
+        ): String? {
+            if (actual.keys != expected.keys) {
+                return "runtime golden output names do not match the approved vector"
+            }
+            for (specification in contract.outputs) {
+                val expectedTensor = expected.getValue(specification.name)
+                val actualTensor = actual[specification.name]
+                    ?: return "runtime omitted golden output ${specification.name}"
+                if (actualTensor.shape != expectedTensor.shape ||
+                    actualTensor.values.size != expectedTensor.values.size
+                ) {
+                    return "runtime golden output shape mismatch for ${specification.name}"
+                }
+                for (index in expectedTensor.values.indices) {
+                    if (abs(actualTensor.values[index] - expectedTensor.values[index]) >
+                        GOLDEN_ABSOLUTE_TOLERANCE
+                    ) {
+                        return "runtime golden output exceeds 1e-5 tolerance for " +
+                            specification.name
+                    }
+                }
+            }
             return null
         }
 
@@ -366,16 +487,17 @@ class OnnxRuntimeMobile private constructor(
         private fun validateTensorData(
             contract: MobileTensorContract,
             tensor: FloatTensorData,
+            label: String = "input",
         ): String? {
             if (tensor.shape != contract.shape) {
-                return "input ${contract.name} shape does not match I-19"
+                return "$label ${contract.name} shape does not match I-19"
             }
             val expectedElements = contract.shape.fold(1L, Long::times)
             if (expectedElements != tensor.values.size.toLong()) {
-                return "input ${contract.name} element count does not match its shape"
+                return "$label ${contract.name} element count does not match its shape"
             }
             if (tensor.values.any { !it.isFinite() }) {
-                return "input ${contract.name} contains non-finite values"
+                return "$label ${contract.name} contains non-finite values"
             }
             return null
         }
