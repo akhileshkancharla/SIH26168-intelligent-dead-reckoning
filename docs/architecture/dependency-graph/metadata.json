@@ -2,8 +2,8 @@
   "architecture_authority_statement": "Architecture Revision 3 is authoritative; this static graph is supporting evidence only.",
   "ci_mode": "snapshot-validation-only",
   "community_count": 294,
-  "edge_count": 7779,
-  "extracted_edge_count": 7530,
+  "edge_count": 7780,
+  "extracted_edge_count": 7531,
   "generator_script_version": "1.0.0",
   "graph_bootstrap_commands": [
     [
@@ -45,14 +45,14 @@
     "Community and centrality results can change with Graphify version and extraction mode."
   ],
   "node_count": 4556,
-  "raw_graph_built_at_commit": "c7b62f1c0c078476b832f616c9c7257fe04147af",
+  "raw_graph_built_at_commit": "b002eac6ec3b3032bc95b342f05a3fb723450eed",
   "removed_volatile_fields": [],
   "sanitizer_script_sha256": "ec5a51bfe44250d58ea88c0e09f3daab47352c7013ab840e565f340acce5e397",
   "schema_version": 1,
   "snapshot_classification": "generated-and-sanitized",
   "source_branch": "issue/WP-12.3-wp-12-3-integrate-onnx",
   "source_includes_working_tree": false,
-  "source_parent_commit": "c7b62f1c0c078476b832f616c9c7257fe04147af",
+  "source_parent_commit": "b002eac6ec3b3032bc95b342f05a3fb723450eed",
   "source_repository": "akhileshkancharla/SIH26168-intelligent-dead-reckoning",
   "verification_script_sha256": "3981dbfc4b91bbcf51295ac97e5aa1804043dc0f07fd0555947cc7dae77db93b"
 }
