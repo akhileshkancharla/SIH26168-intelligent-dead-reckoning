@@ -51,17 +51,34 @@ data class MobileGoldenVector(
     val generatorVersion: String,
     val modelId: String,
     val modelSha256: String,
+    val modelManifestSha256: String,
     val candidateDescriptorSha256: String,
     val promotionEvidenceSha256: String,
     val manifestSha256: String,
+    val inputArtifactSha256: Map<String, String>,
+    val outputArtifactSha256: Map<String, String>,
     val inputs: Map<String, FloatTensorData>,
     val outputs: Map<String, FloatTensorData>,
+)
+
+internal data class MobileGoldenApproval(
+    val goldenManifestSha256: String,
+    val modelManifestSha256: String,
+    val modelId: String,
+    val modelSha256: String,
+    val candidateDescriptorSha256: String,
+    val promotionEvidenceSha256: String,
+    val inputArtifactSha256: Map<String, String>,
+    val outputArtifactSha256: Map<String, String>,
+    val inputTensorSha256: Map<String, String>,
+    val outputTensorSha256: Map<String, String>,
 )
 
 enum class ModelDisabledReason {
     INVALID_CONTRACT,
     GOLDEN_VECTOR_INVALID,
     GOLDEN_VECTOR_MISMATCH,
+    GOLDEN_VECTOR_UNTRUSTED,
     MODEL_HASH_MISMATCH,
     REDISTRIBUTION_NOT_APPROVED,
     RUNTIME_UNAVAILABLE,
@@ -192,6 +209,12 @@ class OnnxRuntimeMobile private constructor(
         private const val MAX_MODEL_BYTES = 32 * 1024 * 1024
         internal const val GOLDEN_ABSOLUTE_TOLERANCE = 1e-5f
         private val SUPPORTED_ONNX_OPSETS = 13..21
+
+        // Deliberately empty until a reviewed private WP-12.2 bundle digest is approved.
+        // Adding an entry is a security-sensitive code change, never runtime configuration.
+        private val TRUSTED_GOLDEN_APPROVALS: Map<String, MobileGoldenApproval> =
+            emptyMap()
+
         private val APPROVED_REDISTRIBUTION = setOf(
             "redistribution-approved",
             "private-device-approved",
@@ -208,7 +231,12 @@ class OnnxRuntimeMobile private constructor(
                     detail,
                 )
             }
-            validateGoldenVector(contract, goldenVector)?.let { detail ->
+            val approval = TRUSTED_GOLDEN_APPROVALS[goldenVector.manifestSha256]
+                ?: return MobileModelLoadResult.ModelDisabled(
+                    ModelDisabledReason.GOLDEN_VECTOR_UNTRUSTED,
+                    "golden manifest digest is not pinned by this app build",
+                )
+            validateGoldenVector(contract, goldenVector, approval)?.let { detail ->
                 return MobileModelLoadResult.ModelDisabled(
                     ModelDisabledReason.GOLDEN_VECTOR_INVALID,
                     detail,
@@ -354,6 +382,7 @@ class OnnxRuntimeMobile private constructor(
         internal fun validateGoldenVector(
             contract: MobileModelContract,
             goldenVector: MobileGoldenVector,
+            approval: MobileGoldenApproval,
         ): String? {
             if (goldenVector.schemaVersion != 1) {
                 return "unsupported golden-vector schema version"
@@ -361,37 +390,79 @@ class OnnxRuntimeMobile private constructor(
             if (goldenVector.generatorVersion != "wp12.2-v1") {
                 return "unsupported golden-vector generator version"
             }
-            if (goldenVector.modelId != contract.modelId ||
-                goldenVector.modelSha256 != contract.modelSha256 ||
+            val approvalHashes = listOf(
+                approval.goldenManifestSha256,
+                approval.modelManifestSha256,
+                approval.modelSha256,
+                approval.candidateDescriptorSha256,
+                approval.promotionEvidenceSha256,
+            ) + approval.inputArtifactSha256.values +
+                approval.outputArtifactSha256.values +
+                approval.inputTensorSha256.values +
+                approval.outputTensorSha256.values
+            if (approvalHashes.any { !isSha256(it) }) {
+                return "trusted golden approval contains a malformed digest"
+            }
+            if (goldenVector.manifestSha256 != approval.goldenManifestSha256 ||
+                goldenVector.modelManifestSha256 != approval.modelManifestSha256 ||
+                goldenVector.modelId != approval.modelId ||
+                goldenVector.modelSha256 != approval.modelSha256 ||
                 goldenVector.candidateDescriptorSha256 !=
-                    contract.candidateDescriptorSha256 ||
+                    approval.candidateDescriptorSha256 ||
                 goldenVector.promotionEvidenceSha256 !=
-                    contract.promotionEvidenceSha256
+                    approval.promotionEvidenceSha256
             ) {
-                return "golden-vector identity does not match I-19"
+                return "golden-vector identity does not match the trusted approval"
             }
-            if (!isSha256(goldenVector.manifestSha256)) {
-                return "golden manifest hash must be lowercase SHA-256"
+            if (contract.modelId != approval.modelId ||
+                contract.modelSha256 != approval.modelSha256 ||
+                contract.candidateDescriptorSha256 !=
+                    approval.candidateDescriptorSha256 ||
+                contract.promotionEvidenceSha256 !=
+                    approval.promotionEvidenceSha256
+            ) {
+                return "I-19 identity does not match the trusted golden approval"
             }
-            if (goldenVector.inputs.keys != contract.inputs.map { it.name }.toSet()) {
-                return "golden input names must exactly match I-19"
+            if (goldenVector.inputArtifactSha256 != approval.inputArtifactSha256 ||
+                goldenVector.outputArtifactSha256 != approval.outputArtifactSha256
+            ) {
+                return "golden tensor artifact digests do not match the trusted approval"
             }
-            if (goldenVector.outputs.keys != contract.outputs.map { it.name }.toSet()) {
-                return "golden output names must exactly match I-19"
+            if (goldenVector.inputs.keys != contract.inputs.map { it.name }.toSet() ||
+                goldenVector.inputs.keys != approval.inputTensorSha256.keys
+            ) {
+                return "golden input names must exactly match I-19 and the approval"
+            }
+            if (goldenVector.outputs.keys != contract.outputs.map { it.name }.toSet() ||
+                goldenVector.outputs.keys != approval.outputTensorSha256.keys
+            ) {
+                return "golden output names must exactly match I-19 and the approval"
             }
             for (specification in contract.inputs) {
+                val tensor = goldenVector.inputs.getValue(specification.name)
                 validateTensorData(
                     specification,
-                    goldenVector.inputs.getValue(specification.name),
+                    tensor,
                     "golden input",
                 )?.let { return it }
+                if (tensorPayloadSha256(tensor) !=
+                    approval.inputTensorSha256.getValue(specification.name)
+                ) {
+                    return "golden input payload digest mismatch for ${specification.name}"
+                }
             }
             for (specification in contract.outputs) {
+                val tensor = goldenVector.outputs.getValue(specification.name)
                 validateTensorData(
                     specification,
-                    goldenVector.outputs.getValue(specification.name),
+                    tensor,
                     "golden output",
                 )?.let { return it }
+                if (tensorPayloadSha256(tensor) !=
+                    approval.outputTensorSha256.getValue(specification.name)
+                ) {
+                    return "golden output payload digest mismatch for ${specification.name}"
+                }
             }
             return null
         }
@@ -518,13 +589,39 @@ class OnnxRuntimeMobile private constructor(
             )
         }
 
+        internal fun tensorPayloadSha256(tensor: FloatTensorData): String {
+            val digest = MessageDigest.getInstance("SHA-256")
+            digest.update("sih26168-float32-v1\u0000".toByteArray(Charsets.UTF_8))
+            val scratch = ByteBuffer.allocate(Long.SIZE_BYTES).order(ByteOrder.BIG_ENDIAN)
+            scratch.putLong(tensor.shape.size.toLong())
+            digest.update(scratch.array())
+            for (dimension in tensor.shape) {
+                scratch.clear()
+                scratch.putLong(dimension)
+                digest.update(scratch.array())
+            }
+            scratch.clear()
+            scratch.putLong(tensor.values.size.toLong())
+            digest.update(scratch.array())
+            val floatBytes = ByteBuffer.allocate(Int.SIZE_BYTES).order(ByteOrder.BIG_ENDIAN)
+            for (value in tensor.values) {
+                floatBytes.clear()
+                floatBytes.putInt(java.lang.Float.floatToRawIntBits(value))
+                digest.update(floatBytes.array())
+            }
+            return digest.digest().toHex()
+        }
+
         private fun isSha256(value: String): Boolean =
             value.matches(Regex("[0-9a-f]{64}"))
 
         private fun sha256(bytes: ByteArray): String = MessageDigest
             .getInstance("SHA-256")
             .digest(bytes)
-            .joinToString("") { "%02x".format(it) }
+            .toHex()
+
+        private fun ByteArray.toHex(): String =
+            joinToString("") { "%02x".format(it) }
     }
 }
 
