@@ -62,6 +62,13 @@ def canonical_json_bytes(value: Any) -> bytes:
     )
 
 
+def canonical_graph_bytes(value: Any) -> bytes:
+    """Encode the large graph deterministically without indentation overhead."""
+    return (
+        json.dumps(value, ensure_ascii=False, sort_keys=True, separators=(",", ":")) + "\n"
+    ).encode("utf-8")
+
+
 def sha256_bytes(value: bytes) -> str:
     return hashlib.sha256(value).hexdigest()
 
@@ -615,7 +622,7 @@ def generate_snapshot(
     raw_report = raw_report_path.read_text(encoding="utf-8")
 
     output_dir.mkdir(parents=True, exist_ok=True)
-    (output_dir / "graph.json").write_bytes(canonical_json_bytes(graph))
+    (output_dir / "graph.json").write_bytes(canonical_graph_bytes(graph))
     (output_dir / "metadata.json").write_bytes(canonical_json_bytes(metadata))
     (output_dir / "GRAPH_REPORT.md").write_text(
         render_report(graph, metadata, raw_report), encoding="utf-8", newline="\n"

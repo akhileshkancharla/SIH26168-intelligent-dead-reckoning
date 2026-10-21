@@ -79,18 +79,18 @@
     },
     {
       "path": "docs/architecture/dependency-graph/graph.json",
-      "size_bytes": 4999761,
-      "sha256": "43b641c6c231d654116ec3d984704373a17f8b1ed9d2d991b2e0c5af1b6e5b8b"
+      "size_bytes": 4294929,
+      "sha256": "e9c1f582df9cace05ba5edc4ad11510793371b64118be6d7114faac100fb14d0"
     },
     {
       "path": "docs/architecture/dependency-graph/GRAPH_REPORT.md",
-      "size_bytes": 10064,
-      "sha256": "b22b57483b4085b33ed653751c2eccbd5b5ca9e6b0137917239e4063f6e6e676"
+      "size_bytes": 9817,
+      "sha256": "d92c4c31dafb77c8e63bc8a98c9b28ab2e6a5a53f85eb3b4d1555d46e44c1316"
     },
     {
       "path": "docs/architecture/dependency-graph/metadata.json",
       "size_bytes": 2239,
-      "sha256": "5ec798da7c7efa569f51e86bbd2d45d7c59cd44acff2f332887546bf42bbb35a"
+      "sha256": "8d63d4d1bb64edb90202a29a8ee4b7fd72989d17d0271cf1cb21e20b9f586280"
     },
     {
       "path": "docs/architecture/dependency-graph/README.md",
@@ -100,7 +100,7 @@
     {
       "path": "docs/architecture/dependency-graph/SHA256SUMS.txt",
       "size_bytes": 315,
-      "sha256": "48f1fa896c35b64d4b6a968ab9856a6915dae9dd7b947222af34455a64da663a"
+      "sha256": "1308000708d6e430fbf04f4895a8c6f4df8152c51941877b82fe145296a5ada1"
     },
     {
       "path": "docs/architecture/imports/WP-02.1_S1_ANDROID_ACQUISITION_IMPORT.json",
@@ -206,6 +206,11 @@
       "path": "docs/architecture/SIH26168_WP02_2_Sensor_Contract_Adapter_v1.md",
       "size_bytes": 3482,
       "sha256": "cc4a1729d3bfe91284cd0abd0afbb3c1314e9ab0547e525dc10d51429bac79d0"
+    },
+    {
+      "path": "docs/architecture/SIH26168_WP09_6_Airplane_Mode_Replay_Verification_v1.md",
+      "size_bytes": 9111,
+      "sha256": "c9f45168e98813c819d874e6c10df2114f18e93cc847e5788248113eb8ed47af"
     },
     {
       "path": "docs/architecture/SIH26168_WP09_7_Submission_UI_Wireframes_v1.md",
