@@ -46,6 +46,16 @@ class OnnxRuntimeMobileTest {
     }
 
     @Test
+    fun incompleteI19IdentityFailsClosed() {
+        val violation = OnnxRuntimeMobile.validateContract(
+            validContract().copy(metrics = emptyMap()),
+            modelSizeBytes = MODEL_BYTES.size,
+        )
+
+        assertEquals("I-19 metrics must be a non-empty finite map", violation)
+    }
+
+    @Test
     fun duplicateNamesFailClosed() {
         val duplicate = MobileTensorContract("imu_window", listOf(1, 2))
         val violation = OnnxRuntimeMobile.validateContract(
@@ -69,8 +79,19 @@ class OnnxRuntimeMobileTest {
         modelId = "approved-model",
         modelSha256 = sha256(MODEL_BYTES),
         format = "onnx",
+        opset = 17,
         runtimeMinimum = PINNED_ONNX_RUNTIME_MOBILE_VERSION,
+        inputContract = "fixed float32 IMU window",
+        window = "one immutable window",
+        normalization = "approved-normalization-id",
+        bounds = "bounded displacement",
+        trainingRun = "immutable-training-run",
+        datasetManifest = "immutable-dataset-manifest",
+        metrics = mapOf("held_out_rmse" to 1.0),
         redistributionStatus = "private-device-approved",
+        exporterVersion = "wp12.1-v1",
+        candidateDescriptorSha256 = "1".repeat(64),
+        promotionEvidenceSha256 = "2".repeat(64),
         inputs = listOf(MobileTensorContract("imu_window", listOf(1, 2))),
         outputs = listOf(MobileTensorContract("displacement", listOf(1, 2))),
     )

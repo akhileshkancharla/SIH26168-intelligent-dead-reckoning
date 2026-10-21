@@ -23,8 +23,19 @@ data class MobileModelContract(
     val modelId: String,
     val modelSha256: String,
     val format: String,
+    val opset: Int,
     val runtimeMinimum: String,
+    val inputContract: String,
+    val window: String,
+    val normalization: String,
+    val bounds: String,
+    val trainingRun: String,
+    val datasetManifest: String,
+    val metrics: Map<String, Double>,
     val redistributionStatus: String,
+    val exporterVersion: String,
+    val candidateDescriptorSha256: String,
+    val promotionEvidenceSha256: String,
     val inputs: List<MobileTensorContract>,
     val outputs: List<MobileTensorContract>,
 )
@@ -204,8 +215,10 @@ class OnnxRuntimeMobile private constructor(
             }
 
             val options = OrtSession.SessionOptions()
+            var openedSession: OrtSession? = null
             return try {
                 val session = environment.createSession(modelBytes, options)
+                openedSession = session
                 validateSessionContract(session, contract)?.let { detail ->
                     session.close()
                     options.close()
@@ -224,12 +237,14 @@ class OnnxRuntimeMobile private constructor(
                     ),
                 )
             } catch (exception: Exception) {
+                openedSession?.close()
                 options.close()
                 MobileModelLoadResult.ModelDisabled(
                     ModelDisabledReason.RUNTIME_UNAVAILABLE,
                     "ONNX session creation failed closed: ${exception.javaClass.simpleName}",
                 )
             } catch (error: LinkageError) {
+                openedSession?.close()
                 options.close()
                 MobileModelLoadResult.ModelDisabled(
                     ModelDisabledReason.RUNTIME_UNAVAILABLE,
@@ -244,10 +259,33 @@ class OnnxRuntimeMobile private constructor(
         ): String? {
             if (contract.schemaVersion != 1) return "unsupported I-19 schema version"
             if (contract.modelId.isBlank()) return "model ID must not be blank"
-            if (!contract.modelSha256.matches(Regex("[0-9a-f]{64}"))) {
+            if (!isSha256(contract.modelSha256)) {
                 return "model SHA-256 must be lowercase hexadecimal"
             }
             if (contract.format != "onnx") return "model format must be onnx"
+            if (contract.opset <= 0) return "ONNX opset must be positive"
+            val requiredIdentity = listOf(
+                contract.inputContract,
+                contract.window,
+                contract.normalization,
+                contract.bounds,
+                contract.trainingRun,
+                contract.datasetManifest,
+                contract.exporterVersion,
+            )
+            if (requiredIdentity.any(String::isBlank)) {
+                return "I-19 identity fields must not be blank"
+            }
+            if (contract.metrics.isEmpty() ||
+                contract.metrics.any { (name, value) -> name.isBlank() || !value.isFinite() }
+            ) {
+                return "I-19 metrics must be a non-empty finite map"
+            }
+            if (!isSha256(contract.candidateDescriptorSha256) ||
+                !isSha256(contract.promotionEvidenceSha256)
+            ) {
+                return "I-19 evidence hashes must be lowercase SHA-256"
+            }
             if (parseVersion(contract.runtimeMinimum) == null) {
                 return "runtime minimum must be a semantic version"
             }
@@ -350,6 +388,9 @@ class OnnxRuntimeMobile private constructor(
                 match.groupValues[3].toIntOrNull() ?: return null,
             )
         }
+
+        private fun isSha256(value: String): Boolean =
+            value.matches(Regex("[0-9a-f]{64}"))
 
         private fun sha256(bytes: ByteArray): String = MessageDigest
             .getInstance("SHA-256")
