@@ -64,5 +64,8 @@ dependencies {
     // MapLibre 13.x publishes Kotlin 2.2 metadata; keep this aligned with Kotlin 2.0.21.
     implementation("org.maplibre.gl:android-sdk:11.8.7")
     debugImplementation("androidx.compose.ui:ui-tooling")
+    debugImplementation("androidx.compose.ui:ui-test-manifest")
     testImplementation("junit:junit:4.13.2")
+    androidTestImplementation("androidx.compose.ui:ui-test-junit4")
+    androidTestImplementation("androidx.test.ext:junit:1.2.1")
 }
