@@ -13,7 +13,8 @@
 
 - `android/app/src/main/java/org/sih26168/app/model/OnnxRuntimeMobile.kt`
   - validates model identity, rights, runtime minimum, the WP-12 opset allowlist, tensor names/order/types/shapes, and finite values;
-  - requires a WP-12.2 golden vector bound to the exact model/candidate/promotion identities;
+  - requires a WP-12.2 golden vector bound to a code-pinned golden-manifest approval;
+  - cross-checks the upstream model-manifest, candidate/promotion, tensor-artifact, and canonical decoded-payload digests;
   - runs initialization parity and rejects any output exceeding the absolute `1e-5` tolerance;
   - uses native-order direct float buffers;
   - returns typed model-disabled states on every rejected or unavailable path;
@@ -25,7 +26,7 @@
 
 ## Limitations
 
-No model or real golden vector is bundled, so this change does not claim successful session creation, device inference, latency, memory, battery, thermal behavior, observed golden parity, navigation accuracy, or scientific promotion. Accelerator execution providers are deliberately outside this issue.
+The production trusted-approval map is deliberately empty because no approved private bundle exists, so the runtime remains model-disabled until immutable bundle digests are pinned by review. No model or real golden vector is bundled, so this change does not claim successful session creation, device inference, latency, memory, battery, thermal behavior, observed golden parity, navigation accuracy, or scientific promotion. Accelerator execution providers are deliberately outside this issue.
 
 ## Verification status
 
