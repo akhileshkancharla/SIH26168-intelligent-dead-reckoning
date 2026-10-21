@@ -19,11 +19,14 @@ No ONNX model, private fixture, golden tensor, or scientific result is committed
 - I-19 schema version, model ID, ONNX format, lowercase SHA-256, and semantic minimum runtime are valid;
 - the exact model bytes match the approved SHA-256;
 - redistribution status is exactly `redistribution-approved` or `private-device-approved`;
+- the ONNX opset is in the WP-12 allowlist (13 through 21);
 - every input/output name is unique and every shape is fixed and positive;
+- the supplied WP-12.2 golden vector matches the model, candidate, promotion, and manifest identities;
 - the installed native runtime meets the declared minimum;
-- runtime input/output names, order, shapes, and `float32` types exactly match the contract.
+- runtime input/output names, order, shapes, and `float32` types exactly match the contract;
+- an initialization inference matches every approved golden output within an absolute tolerance of `1e-5`.
 
-A rejected bundle returns a typed model-disabled result. It never falls back to another model.
+A missing, malformed, mismatched, or numerically divergent golden vector rejects the bundle before it can become ready. A rejected bundle returns a typed model-disabled result and never falls back to another model.
 
 ## Inference gate
 
