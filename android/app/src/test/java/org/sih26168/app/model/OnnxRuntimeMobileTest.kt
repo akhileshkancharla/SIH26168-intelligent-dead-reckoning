@@ -83,12 +83,49 @@ class OnnxRuntimeMobileTest {
 
     @Test
     fun goldenVectorIdentityMustMatchI19() {
+        val golden = validGoldenVector()
         val violation = OnnxRuntimeMobile.validateGoldenVector(
             validContract(),
-            validGoldenVector().copy(modelId = "different-model"),
+            golden.copy(modelId = "different-model"),
+            validApproval(golden),
         )
 
         assertEquals("golden-vector identity does not match I-19", violation)
+    }
+
+    @Test
+    fun tamperedGoldenArtifactOrPayloadFailsClosed() {
+        val contract = validContract()
+        val golden = validGoldenVector()
+        val approval = validApproval(golden)
+        val artifactViolation = OnnxRuntimeMobile.validateGoldenVector(
+            contract,
+            golden.copy(
+                inputArtifactSha256 = mapOf("imu_window" to "9".repeat(64)),
+            ),
+            approval,
+        )
+        val payloadViolation = OnnxRuntimeMobile.validateGoldenVector(
+            contract,
+            golden.copy(
+                inputs = mapOf(
+                    "imu_window" to FloatTensorData(
+                        listOf(1, 2),
+                        floatArrayOf(1.0f, 99.0f),
+                    ),
+                ),
+            ),
+            approval,
+        )
+        val manifestViolation = OnnxRuntimeMobile.validateGoldenVector(
+            contract,
+            golden.copy(modelManifestSha256 = "8".repeat(64)),
+            approval,
+        )
+
+        assertTrue(artifactViolation!!.contains("artifact digests"))
+        assertTrue(payloadViolation!!.contains("payload digest mismatch"))
+        assertTrue(manifestViolation!!.contains("trusted approval"))
     }
 
     @Test
@@ -159,9 +196,12 @@ class OnnxRuntimeMobileTest {
         generatorVersion = "wp12.2-v1",
         modelId = "approved-model",
         modelSha256 = sha256(MODEL_BYTES),
+        modelManifestSha256 = "4".repeat(64),
         candidateDescriptorSha256 = "1".repeat(64),
         promotionEvidenceSha256 = "2".repeat(64),
         manifestSha256 = "3".repeat(64),
+        inputArtifactSha256 = mapOf("imu_window" to "5".repeat(64)),
+        outputArtifactSha256 = mapOf("displacement" to "6".repeat(64)),
         inputs = mapOf(
             "imu_window" to FloatTensorData(
                 listOf(1, 2),
@@ -174,6 +214,25 @@ class OnnxRuntimeMobileTest {
                 floatArrayOf(2.0f, 4.0f),
             ),
         ),
+    )
+
+    private fun validApproval(
+        golden: MobileGoldenVector,
+    ): MobileGoldenApproval = MobileGoldenApproval(
+        goldenManifestSha256 = golden.manifestSha256,
+        modelManifestSha256 = golden.modelManifestSha256,
+        modelId = golden.modelId,
+        modelSha256 = golden.modelSha256,
+        candidateDescriptorSha256 = golden.candidateDescriptorSha256,
+        promotionEvidenceSha256 = golden.promotionEvidenceSha256,
+        inputArtifactSha256 = golden.inputArtifactSha256,
+        outputArtifactSha256 = golden.outputArtifactSha256,
+        inputTensorSha256 = golden.inputs.mapValues { (_, tensor) ->
+            OnnxRuntimeMobile.tensorPayloadSha256(tensor)
+        },
+        outputTensorSha256 = golden.outputs.mapValues { (_, tensor) ->
+            OnnxRuntimeMobile.tensorPayloadSha256(tensor)
+        },
     )
 
     private fun sha256(bytes: ByteArray): String = MessageDigest
