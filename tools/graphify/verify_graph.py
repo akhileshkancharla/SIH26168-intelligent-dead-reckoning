@@ -75,6 +75,13 @@ def canonical_json_bytes(value: Any) -> bytes:
     )
 
 
+def canonical_graph_bytes(value: Any) -> bytes:
+    """Encode the large graph deterministically without indentation overhead."""
+    return (
+        json.dumps(value, ensure_ascii=False, sort_keys=True, separators=(",", ":")) + "\n"
+    ).encode("utf-8")
+
+
 def sha256_file(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
@@ -287,7 +294,7 @@ def validate_snapshot(snapshot_dir: Path, repo_root: Path) -> list[str]:
 
     if graph:
         errors.extend(validate_graph_document(graph))
-        if (snapshot_dir / "graph.json").read_bytes() != canonical_json_bytes(graph):
+        if (snapshot_dir / "graph.json").read_bytes() != canonical_graph_bytes(graph):
             errors.append("graph.json is not canonical deterministic JSON")
     if metadata:
         if (snapshot_dir / "metadata.json").read_bytes() != canonical_json_bytes(metadata):
