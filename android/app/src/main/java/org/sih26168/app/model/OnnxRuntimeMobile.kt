@@ -64,6 +64,7 @@ data class MobileGoldenVector(
 internal data class MobileGoldenApproval(
     val goldenManifestSha256: String,
     val modelManifestSha256: String,
+    val modelContractSha256: String,
     val modelId: String,
     val modelSha256: String,
     val candidateDescriptorSha256: String,
@@ -393,6 +394,7 @@ class OnnxRuntimeMobile private constructor(
             val approvalHashes = listOf(
                 approval.goldenManifestSha256,
                 approval.modelManifestSha256,
+                approval.modelContractSha256,
                 approval.modelSha256,
                 approval.candidateDescriptorSha256,
                 approval.promotionEvidenceSha256,
@@ -413,6 +415,9 @@ class OnnxRuntimeMobile private constructor(
                     approval.promotionEvidenceSha256
             ) {
                 return "golden-vector identity does not match the trusted approval"
+            }
+            if (modelContractSha256(contract) != approval.modelContractSha256) {
+                return "complete I-19 contract digest does not match the trusted approval"
             }
             if (contract.modelId != approval.modelId ||
                 contract.modelSha256 != approval.modelSha256 ||
@@ -592,6 +597,59 @@ class OnnxRuntimeMobile private constructor(
                 match.groupValues[2].toIntOrNull() ?: return null,
                 match.groupValues[3].toIntOrNull() ?: return null,
             )
+        }
+
+        internal fun modelContractSha256(contract: MobileModelContract): String {
+            val digest = MessageDigest.getInstance("SHA-256")
+            digest.update("sih26168-i19-mobile-v1\u0000".toByteArray(Charsets.UTF_8))
+
+            fun putLong(value: Long) {
+                val bytes = ByteBuffer.allocate(Long.SIZE_BYTES)
+                    .order(ByteOrder.BIG_ENDIAN)
+                    .putLong(value)
+                    .array()
+                digest.update(bytes)
+            }
+
+            fun putString(value: String) {
+                val bytes = value.toByteArray(Charsets.UTF_8)
+                putLong(bytes.size.toLong())
+                digest.update(bytes)
+            }
+
+            fun putTensorContracts(contracts: List<MobileTensorContract>) {
+                putLong(contracts.size.toLong())
+                for (tensor in contracts) {
+                    putString(tensor.name)
+                    putLong(tensor.shape.size.toLong())
+                    tensor.shape.forEach(::putLong)
+                }
+            }
+
+            putLong(contract.schemaVersion.toLong())
+            putString(contract.modelId)
+            putString(contract.modelSha256)
+            putString(contract.format)
+            putLong(contract.opset.toLong())
+            putString(contract.runtimeMinimum)
+            putString(contract.inputContract)
+            putString(contract.window)
+            putString(contract.normalization)
+            putString(contract.bounds)
+            putString(contract.trainingRun)
+            putString(contract.datasetManifest)
+            putLong(contract.metrics.size.toLong())
+            for ((name, value) in contract.metrics.toSortedMap()) {
+                putString(name)
+                putLong(java.lang.Double.doubleToRawLongBits(value))
+            }
+            putString(contract.redistributionStatus)
+            putString(contract.exporterVersion)
+            putString(contract.candidateDescriptorSha256)
+            putString(contract.promotionEvidenceSha256)
+            putTensorContracts(contract.inputs)
+            putTensorContracts(contract.outputs)
+            return digest.digest().toHex()
         }
 
         internal fun tensorPayloadSha256(tensor: FloatTensorData): String {
