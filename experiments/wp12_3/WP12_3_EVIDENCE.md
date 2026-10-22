@@ -14,13 +14,14 @@
 - `android/app/src/main/java/org/sih26168/app/model/OnnxRuntimeMobile.kt`
   - validates model identity, rights, runtime minimum, the WP-12 opset allowlist, tensor names/order/types/shapes, and finite values;
   - requires a WP-12.2 golden vector bound to a code-pinned golden-manifest approval;
-  - cross-checks the upstream model-manifest, candidate/promotion, tensor-artifact, and canonical decoded-payload digests;
+  - cross-checks the upstream model-manifest, complete deterministic I-19 contract, candidate/promotion, tensor-artifact, and canonical decoded-payload digests;
+  - rejects independent mutations to rights, opset, runtime minimum, normalization, bounds, provenance, metrics, or ordered tensor contracts;
   - runs initialization parity and rejects any output exceeding the absolute `1e-5` tolerance;
   - uses native-order direct float buffers;
   - returns typed model-disabled states on every rejected or unavailable path;
   - owns and closes ONNX sessions, options, input tensors, and output results.
 - `android/app/src/test/java/org/sih26168/app/model/OnnxRuntimeMobileTest.kt`
-  - covers the dependency-free static contract gate, opset allowlist, golden identity/parity checks, and semantic version comparison.
+  - covers the dependency-free static contract gate, opset allowlist, golden identity/parity checks, complete-contract mutations, and semantic version comparison.
 - `android/app/build.gradle.kts`
   - pins the official Android AAR at version 1.31.0.
 
