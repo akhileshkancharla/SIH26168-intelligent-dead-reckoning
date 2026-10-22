@@ -153,6 +153,43 @@ class OnnxRuntimeMobileTest {
     }
 
     @Test
+    fun everySecurityRelevantI19MutationFailsTrustedDigest() {
+        val contract = validContract()
+        val golden = validGoldenVector()
+        val approval = validApproval(golden, contract)
+        val mutations = listOf(
+            contract.copy(redistributionStatus = "redistribution-approved"),
+            contract.copy(opset = 18),
+            contract.copy(runtimeMinimum = "1.30.0"),
+            contract.copy(normalization = "changed-normalization"),
+            contract.copy(bounds = "changed-bounds"),
+            contract.copy(inputContract = "changed-input-contract"),
+            contract.copy(window = "changed-window"),
+            contract.copy(trainingRun = "changed-training-run"),
+            contract.copy(datasetManifest = "changed-dataset"),
+            contract.copy(metrics = mapOf("held_out_rmse" to 2.0)),
+            contract.copy(exporterVersion = "changed-exporter"),
+            contract.copy(
+                inputs = listOf(MobileTensorContract("imu_window", listOf(1, 3))),
+            ),
+            contract.copy(
+                outputs = listOf(MobileTensorContract("displacement", listOf(1, 3))),
+            ),
+        )
+
+        for (mutation in mutations) {
+            assertEquals(
+                "complete I-19 contract digest does not match the trusted approval",
+                OnnxRuntimeMobile.validateGoldenVector(
+                    mutation,
+                    golden,
+                    approval,
+                ),
+            )
+        }
+    }
+
+    @Test
     fun goldenParityUsesRequiredAbsoluteTolerance() {
         val contract = validContract()
         val expected = validGoldenVector().outputs
@@ -242,9 +279,11 @@ class OnnxRuntimeMobileTest {
 
     private fun validApproval(
         golden: MobileGoldenVector,
+        contract: MobileModelContract = validContract(),
     ): MobileGoldenApproval = MobileGoldenApproval(
         goldenManifestSha256 = golden.manifestSha256,
         modelManifestSha256 = golden.modelManifestSha256,
+        modelContractSha256 = OnnxRuntimeMobile.modelContractSha256(contract),
         modelId = golden.modelId,
         modelSha256 = golden.modelSha256,
         candidateDescriptorSha256 = golden.candidateDescriptorSha256,
