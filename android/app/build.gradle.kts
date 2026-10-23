@@ -63,6 +63,8 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.7")
     // MapLibre 13.x publishes Kotlin 2.2 metadata; keep this aligned with Kotlin 2.0.21.
     implementation("org.maplibre.gl:android-sdk:11.8.7")
+    // Pinned mobile inference runtime; model bytes remain private and are never bundled here.
+    implementation("com.microsoft.onnxruntime:onnxruntime-android:1.31.0")
     debugImplementation("androidx.compose.ui:ui-tooling")
     debugImplementation("androidx.compose.ui:ui-test-manifest")
     testImplementation("junit:junit:4.13.2")
