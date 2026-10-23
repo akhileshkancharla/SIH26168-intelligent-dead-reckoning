@@ -4,12 +4,12 @@
 
 - Snapshot classification: `generated-and-sanitized`
 - Source repository: `akhileshkancharla/SIH26168-intelligent-dead-reckoning`
-- Source branch: `issue/WP-12.3-wp-12-3-integrate-onnx`
-- Source parent commit: `b953a7c2a25032798bdf6f243692fded98adde29`
+- Source branch: `codex/pr202-conflict-resolution`
+- Source parent commit: `9fea318cc489869be217411c840ff8b82c24a95f`
 - Graphify version: `0.9.53`
 - Graphify mode: code-only static extraction; semantic document extraction disabled
-- Counts: 4566 nodes, 7808 edges, 284 communities
-- Edge evidence: 7559 extracted, 249 inferred
+- Counts: 4596 nodes, 7875 edges, 291 communities
+- Edge evidence: 7620 extracted, 255 inferred
 - CI mode: `snapshot-validation-only`
 
 ## VERIFIED FROM CODE
@@ -22,7 +22,7 @@ The C++ core is host-buildable, while Android acquisition, JNI, training, map, a
 
 | Module | Extracted source files | Current interpretation |
 | --- | ---: | --- |
-| Android app | 24 | Launcher/UI scaffold; no sensor-to-position path |
+| Android app | 26 | Launcher/UI scaffold; no sensor-to-position path |
 | Android JNI adapter | 5 | Native boundary; not connected to the imported S1 logger |
 | Standalone S1 acquisition | 18 | Imported logger and analyzer; no integrated GNSS-to-position path |
 | Other Android files | 2 | Android build/configuration files outside the app, JNI, and S1 import |
@@ -72,7 +72,7 @@ Current high-degree nodes are primarily repository administration tooling, not n
 
 ### Weakly connected or orphan candidates
 
-The raw Graphify report identified 1417 isolated symbol nodes. This sanitizer independently found 1780 repository-backed nodes with degree at most one; the bounded sample below is diagnostic, not deletion evidence.
+The raw Graphify report identified 1417 isolated symbol nodes. This sanitizer independently found 1784 repository-backed nodes with degree at most one; the bounded sample below is diagnostic, not deletion evidence.
 
 | Node | Degree | Source |
 | --- | ---: | --- |
@@ -89,8 +89,8 @@ The raw Graphify report identified 1417 isolated symbol nodes. This sanitizer in
 | `sih26168-bootstrap` | 0 | [pyproject.toml](../../../pyproject.toml) |
 | `sih26168_bootstrap/__init__.py` | 0 | [tools/bootstrap/src/sih26168_bootstrap/__init__.py](../../../tools/bootstrap/src/sih26168_bootstrap/__init__.py) |
 | `dataset/tests/__init__.py` | 0 | [tools/dataset/tests/__init__.py](../../../tools/dataset/tests/__init__.py) |
-| `analyzer/__init__.py` | 1 | [android/acquisition/imported/S1_Android_Acquisition_Spike/analyzer/__init__.py](../../../android/acquisition/imported/S1_Android_Acquisition_Spike/analyzer/__init__.py) |
-| `S1 Android acquisition analyzer.` | 1 | [android/acquisition/imported/S1_Android_Acquisition_Spike/analyzer/__init__.py](../../../android/acquisition/imported/S1_Android_Acquisition_Spike/analyzer/__init__.py) |
+| `Get-PyVenvConfig()` | 1 | [.graphify-venv/Scripts/Activate.ps1](../../../.graphify-venv/Scripts/Activate.ps1) |
+| `global:deactivate()` | 1 | [.graphify-venv/Scripts/Activate.ps1](../../../.graphify-venv/Scripts/Activate.ps1) |
 
 ### Cycles
 
