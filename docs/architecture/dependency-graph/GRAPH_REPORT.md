@@ -4,12 +4,12 @@
 
 - Snapshot classification: `generated-and-sanitized`
 - Source repository: `akhileshkancharla/SIH26168-intelligent-dead-reckoning`
-- Source branch: `codex/pr202-conflict-resolution`
-- Source parent commit: `9fea318cc489869be217411c840ff8b82c24a95f`
+- Source branch: `codex/pr202-source-only`
+- Source parent commit: `74f87c732e5aa4d3b010072e1ed13106118a0a51`
 - Graphify version: `0.9.53`
 - Graphify mode: code-only static extraction; semantic document extraction disabled
-- Counts: 4596 nodes, 7875 edges, 291 communities
-- Edge evidence: 7620 extracted, 255 inferred
+- Counts: 4591 nodes, 7871 edges, 287 communities
+- Edge evidence: 7616 extracted, 255 inferred
 - CI mode: `snapshot-validation-only`
 
 ## VERIFIED FROM CODE
@@ -72,7 +72,7 @@ Current high-degree nodes are primarily repository administration tooling, not n
 
 ### Weakly connected or orphan candidates
 
-The raw Graphify report identified 1417 isolated symbol nodes. This sanitizer independently found 1784 repository-backed nodes with degree at most one; the bounded sample below is diagnostic, not deletion evidence.
+The raw Graphify report identified 1417 isolated symbol nodes. This sanitizer independently found 1780 repository-backed nodes with degree at most one; the bounded sample below is diagnostic, not deletion evidence.
 
 | Node | Degree | Source |
 | --- | ---: | --- |
@@ -89,8 +89,8 @@ The raw Graphify report identified 1417 isolated symbol nodes. This sanitizer in
 | `sih26168-bootstrap` | 0 | [pyproject.toml](../../../pyproject.toml) |
 | `sih26168_bootstrap/__init__.py` | 0 | [tools/bootstrap/src/sih26168_bootstrap/__init__.py](../../../tools/bootstrap/src/sih26168_bootstrap/__init__.py) |
 | `dataset/tests/__init__.py` | 0 | [tools/dataset/tests/__init__.py](../../../tools/dataset/tests/__init__.py) |
-| `Get-PyVenvConfig()` | 1 | [.graphify-venv/Scripts/Activate.ps1](../../../.graphify-venv/Scripts/Activate.ps1) |
-| `global:deactivate()` | 1 | [.graphify-venv/Scripts/Activate.ps1](../../../.graphify-venv/Scripts/Activate.ps1) |
+| `analyzer/__init__.py` | 1 | [android/acquisition/imported/S1_Android_Acquisition_Spike/analyzer/__init__.py](../../../android/acquisition/imported/S1_Android_Acquisition_Spike/analyzer/__init__.py) |
+| `S1 Android acquisition analyzer.` | 1 | [android/acquisition/imported/S1_Android_Acquisition_Spike/analyzer/__init__.py](../../../android/acquisition/imported/S1_Android_Acquisition_Spike/analyzer/__init__.py) |
 
 ### Cycles
 
