@@ -85,6 +85,11 @@ import org.sih26168.app.replay.ToggleCameraModeIntent
 import org.sih26168.app.replay.TrajectoryLayerType
 import org.sih26168.app.replay.isTrajectoryLayerVisible
 
+/** The only base-style entry point; every reference in the bundled style must remain local. */
+internal object OfflineMapAssets {
+    const val STYLE_URI = "asset://map/style.json"
+}
+
 @Composable
 fun BoxScope.MapLibreMapViewport(
     state: ReplayUiState,
@@ -188,7 +193,7 @@ private class MapLibreViewportController(private val mapView: MapView) {
             if (destroyed) return@getMapAsync
             map = readyMap
             configureGestures(readyMap)
-            readyMap.setStyle(Style.Builder().fromUri(LOCAL_STYLE_URI)) { readyStyle ->
+            readyMap.setStyle(Style.Builder().fromUri(OfflineMapAssets.STYLE_URI)) { readyStyle ->
                 if (destroyed) return@setStyle
                 style = readyStyle
                 installNavigationLayers(readyStyle)
@@ -559,7 +564,6 @@ private class MapLibreViewportController(private val mapView: MapView) {
     private fun emptySource(id: String) = GeoJsonSource(id, emptyFeatureCollection())
 
     companion object {
-        private const val LOCAL_STYLE_URI = "asset://map/style.json"
         private const val CYAN = "#00D9FF"
         private const val AMBER = "#F6B73C"
         private const val PLANNED_ROUTE_BLUE = "#5B8CFF"
