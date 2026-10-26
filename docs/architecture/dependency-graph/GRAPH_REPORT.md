@@ -4,12 +4,12 @@
 
 - Snapshot classification: `generated-and-sanitized`
 - Source repository: `akhileshkancharla/SIH26168-intelligent-dead-reckoning`
-- Source branch: `issue/WP-02.2-wp-02-2-adapt-sensormanager`
-- Source parent commit: `5548d67a1d8165a7e942169ec77c1b07600c3795`
+- Source branch: `issue/WP-02.4-wp-02-4-integrate-chunk`
+- Source parent commit: `8d989553cdc3406eec713600fccee078d2e35016`
 - Graphify version: `0.9.53`
 - Graphify mode: code-only static extraction; semantic document extraction disabled
-- Counts: 4540 nodes, 7775 edges, 300 communities
-- Edge evidence: 7521 extracted, 254 inferred
+- Counts: 4585 nodes, 7932 edges, 297 communities
+- Edge evidence: 7678 extracted, 254 inferred
 - CI mode: `snapshot-validation-only`
 
 ## VERIFIED FROM CODE
@@ -25,7 +25,7 @@ The C++ core is host-buildable, while Android acquisition, JNI, training, map, a
 | Android app | 24 | Launcher/UI scaffold; no sensor-to-position path |
 | Android JNI adapter | 5 | Native boundary; not connected to the imported S1 logger |
 | Standalone S1 acquisition | 18 | Imported logger and analyzer; no integrated GNSS-to-position path |
-| Other Android files | 2 | Android build/configuration files outside the app, JNI, and S1 import |
+| Other Android files | 4 | Android build/configuration files outside the app, JNI, and S1 import |
 | Portable core | 48 | Host-buildable S2 core plus contract smoke |
 | Contracts | 24 | Bootstrap replay schema and enum artifacts |
 | Repository automation | 14 | Repository and GitHub governance tooling |
@@ -67,12 +67,12 @@ Current high-degree nodes are primarily repository administration tooling, not n
 | `configure_project.mjs` | 37 | [tools/bootstrap/configure_project.mjs:L1](../../../tools/bootstrap/configure_project.mjs) |
 | `RecordingService` | 35 | [android/acquisition/imported/S1_Android_Acquisition_Spike/app/src/main/java/org/sih26168/s1logger/RecordingService.kt:L16](../../../android/acquisition/imported/S1_Android_Acquisition_Spike/app/src/main/java/org/sih26168/s1logger/RecordingService.kt) |
 | `generate_contract_bindings.py` | 35 | [ci/generate_contract_bindings.py:L1](../../../ci/generate_contract_bindings.py) |
+| `SessionWriterTest` | 34 | [android/acquisition/src/test/java/org/sih26168/s1logger/SessionWriterTest.kt:L14](../../../android/acquisition/src/test/java/org/sih26168/s1logger/SessionWriterTest.kt) |
 | `ReplayUiState` | 33 | [android/app/src/main/java/org/sih26168/app/replay/ReplayUiState.kt:L85](../../../android/app/src/main/java/org/sih26168/app/replay/ReplayUiState.kt) |
-| `MeasurementInput` | 33 | [core/navigation/include/sih26168/navigation_core.hpp:L141](../../../core/navigation/include/sih26168/navigation_core.hpp) |
 
 ### Weakly connected or orphan candidates
 
-The raw Graphify report identified 1407 isolated symbol nodes. This sanitizer independently found 1766 repository-backed nodes with degree at most one; the bounded sample below is diagnostic, not deletion evidence.
+The raw Graphify report identified 1408 isolated symbol nodes. This sanitizer independently found 1768 repository-backed nodes with degree at most one; the bounded sample below is diagnostic, not deletion evidence.
 
 | Node | Degree | Source |
 | --- | ---: | --- |
