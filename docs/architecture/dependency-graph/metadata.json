@@ -1,9 +1,9 @@
 {
   "architecture_authority_statement": "Architecture Revision 3 is authoritative; this static graph is supporting evidence only.",
   "ci_mode": "snapshot-validation-only",
-  "community_count": 300,
-  "edge_count": 7775,
-  "extracted_edge_count": 7521,
+  "community_count": 297,
+  "edge_count": 7932,
+  "extracted_edge_count": 7678,
   "generator_script_version": "1.0.0",
   "graph_bootstrap_commands": [
     [
@@ -44,15 +44,15 @@
     "Static relationships do not prove runtime reachability, correctness, performance, or scientific validity.",
     "Community and centrality results can change with Graphify version and extraction mode."
   ],
-  "node_count": 4540,
-  "raw_graph_built_at_commit": "5548d67a1d8165a7e942169ec77c1b07600c3795",
+  "node_count": 4585,
+  "raw_graph_built_at_commit": "8d989553cdc3406eec713600fccee078d2e35016",
   "removed_volatile_fields": [],
   "sanitizer_script_sha256": "ec5a51bfe44250d58ea88c0e09f3daab47352c7013ab840e565f340acce5e397",
   "schema_version": 1,
   "snapshot_classification": "generated-and-sanitized",
-  "source_branch": "issue/WP-02.2-wp-02-2-adapt-sensormanager",
-  "source_includes_working_tree": true,
-  "source_parent_commit": "5548d67a1d8165a7e942169ec77c1b07600c3795",
+  "source_branch": "issue/WP-02.4-wp-02-4-integrate-chunk",
+  "source_includes_working_tree": false,
+  "source_parent_commit": "8d989553cdc3406eec713600fccee078d2e35016",
   "source_repository": "akhileshkancharla/SIH26168-intelligent-dead-reckoning",
   "verification_script_sha256": "3981dbfc4b91bbcf51295ac97e5aa1804043dc0f07fd0555947cc7dae77db93b"
 }
