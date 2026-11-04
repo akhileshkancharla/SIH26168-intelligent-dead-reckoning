@@ -27,5 +27,11 @@ jobs:
             const approvals = new Set([...latest.values()]
               .filter(r => r.state === 'APPROVED' && r.commit_id === pr.head.sha && r.user.login.toLowerCase() !== author)
               .map(r => r.user.login.toLowerCase()));
+            if (author !== lead && author !== ciOwner) {
+              if (![...approvals].some(login => requiredApprovers.includes(login))) {
+                core.setFailed(`Approval policy for @${pr.user.login} requires current-head approval from either @${lead} or @${ciOwner}.`);
+              }
+              return;
+            }
             const missing = requiredApprovers.filter(login => !approvals.has(login));
             if (missing.length) core.setFailed(`Approval policy for @${pr.user.login} requires current-head approval from: ${missing.map(login => `@${login}`).join(', ')}.`);

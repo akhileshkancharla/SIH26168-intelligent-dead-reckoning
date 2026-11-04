@@ -1,9 +1,9 @@
 {
   "architecture_authority_statement": "Architecture Revision 3 is authoritative; this static graph is supporting evidence only.",
   "ci_mode": "snapshot-validation-only",
-  "community_count": 300,
-  "edge_count": 7775,
-  "extracted_edge_count": 7521,
+  "community_count": 287,
+  "edge_count": 7871,
+  "extracted_edge_count": 7616,
   "generator_script_version": "1.0.0",
   "graph_bootstrap_commands": [
     [
@@ -32,11 +32,11 @@
     ".",
     "--code-only"
   ],
-  "graphify_configuration_sha256": "ec23b2f8cc8c90b494d115784d2ca81fd73abf422a37c1973a9f9ce94a7ba9f2",
+  "graphify_configuration_sha256": "96a15d0fb691a801578bea5afb13200e94332f9eef8ae45bc9377a1e13c1fc9e",
   "graphify_package": "graphifyy",
   "graphify_product": "Graphify",
   "graphify_version": "0.9.53",
-  "inferred_edge_count": 254,
+  "inferred_edge_count": 255,
   "known_graphify_limitations": [
     "Code-only AST extraction does not semantically index architecture documents.",
     "The committed dependency snapshot and bootstrap repository manifest are excluded to prevent recursive generated-artifact graphs.",
@@ -44,15 +44,15 @@
     "Static relationships do not prove runtime reachability, correctness, performance, or scientific validity.",
     "Community and centrality results can change with Graphify version and extraction mode."
   ],
-  "node_count": 4540,
-  "raw_graph_built_at_commit": "5548d67a1d8165a7e942169ec77c1b07600c3795",
+  "node_count": 4591,
+  "raw_graph_built_at_commit": "74f87c732e5aa4d3b010072e1ed13106118a0a51",
   "removed_volatile_fields": [],
   "sanitizer_script_sha256": "ec5a51bfe44250d58ea88c0e09f3daab47352c7013ab840e565f340acce5e397",
   "schema_version": 1,
   "snapshot_classification": "generated-and-sanitized",
-  "source_branch": "issue/WP-02.2-wp-02-2-adapt-sensormanager",
-  "source_includes_working_tree": true,
-  "source_parent_commit": "5548d67a1d8165a7e942169ec77c1b07600c3795",
+  "source_branch": "codex/pr202-source-only",
+  "source_includes_working_tree": false,
+  "source_parent_commit": "74f87c732e5aa4d3b010072e1ed13106118a0a51",
   "source_repository": "akhileshkancharla/SIH26168-intelligent-dead-reckoning",
   "verification_script_sha256": "3981dbfc4b91bbcf51295ac97e5aa1804043dc0f07fd0555947cc7dae77db93b"
 }

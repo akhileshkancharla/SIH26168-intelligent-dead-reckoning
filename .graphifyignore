@@ -11,3 +11,8 @@ build/
 .gradle/
 .cxx/
 .git/
+
+# Local Python environments are tooling, never repository source.
+.graphify-venv/
+.venv/
+venv/
