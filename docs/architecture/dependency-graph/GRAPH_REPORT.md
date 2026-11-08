@@ -4,12 +4,12 @@
 
 - Snapshot classification: `generated-and-sanitized`
 - Source repository: `akhileshkancharla/SIH26168-intelligent-dead-reckoning`
-- Source branch: `issue/WP-02.2-wp-02-2-adapt-sensormanager`
-- Source parent commit: `5548d67a1d8165a7e942169ec77c1b07600c3795`
+- Source branch: `codex/pr202-source-only`
+- Source parent commit: `74f87c732e5aa4d3b010072e1ed13106118a0a51`
 - Graphify version: `0.9.53`
 - Graphify mode: code-only static extraction; semantic document extraction disabled
-- Counts: 4540 nodes, 7775 edges, 300 communities
-- Edge evidence: 7521 extracted, 254 inferred
+- Counts: 4591 nodes, 7871 edges, 287 communities
+- Edge evidence: 7616 extracted, 255 inferred
 - CI mode: `snapshot-validation-only`
 
 ## VERIFIED FROM CODE
@@ -22,7 +22,7 @@ The C++ core is host-buildable, while Android acquisition, JNI, training, map, a
 
 | Module | Extracted source files | Current interpretation |
 | --- | ---: | --- |
-| Android app | 24 | Launcher/UI scaffold; no sensor-to-position path |
+| Android app | 26 | Launcher/UI scaffold; no sensor-to-position path |
 | Android JNI adapter | 5 | Native boundary; not connected to the imported S1 logger |
 | Standalone S1 acquisition | 18 | Imported logger and analyzer; no integrated GNSS-to-position path |
 | Other Android files | 2 | Android build/configuration files outside the app, JNI, and S1 import |
@@ -72,7 +72,7 @@ Current high-degree nodes are primarily repository administration tooling, not n
 
 ### Weakly connected or orphan candidates
 
-The raw Graphify report identified 1407 isolated symbol nodes. This sanitizer independently found 1766 repository-backed nodes with degree at most one; the bounded sample below is diagnostic, not deletion evidence.
+The raw Graphify report identified 1417 isolated symbol nodes. This sanitizer independently found 1780 repository-backed nodes with degree at most one; the bounded sample below is diagnostic, not deletion evidence.
 
 | Node | Degree | Source |
 | --- | ---: | --- |
