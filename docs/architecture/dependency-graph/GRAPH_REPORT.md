@@ -4,12 +4,12 @@
 
 - Snapshot classification: `generated-and-sanitized`
 - Source repository: `akhileshkancharla/SIH26168-intelligent-dead-reckoning`
-- Source branch: `issue/WP-02.2-wp-02-2-adapt-sensormanager`
-- Source parent commit: `5548d67a1d8165a7e942169ec77c1b07600c3795`
+- Source branch: `issue/WP-08.1-wp-08-1-import-and`
+- Source parent commit: `2b35877f2209688bda3ee1280d2884c150c3d161`
 - Graphify version: `0.9.53`
 - Graphify mode: code-only static extraction; semantic document extraction disabled
-- Counts: 4540 nodes, 7775 edges, 300 communities
-- Edge evidence: 7521 extracted, 254 inferred
+- Counts: 4788 nodes, 8096 edges, 321 communities
+- Edge evidence: 7841 extracted, 255 inferred
 - CI mode: `snapshot-validation-only`
 
 ## VERIFIED FROM CODE
@@ -27,7 +27,7 @@ The C++ core is host-buildable, while Android acquisition, JNI, training, map, a
 | Standalone S1 acquisition | 18 | Imported logger and analyzer; no integrated GNSS-to-position path |
 | Other Android files | 2 | Android build/configuration files outside the app, JNI, and S1 import |
 | Portable core | 48 | Host-buildable S2 core plus contract smoke |
-| Contracts | 24 | Bootstrap replay schema and enum artifacts |
+| Contracts | 25 | Bootstrap replay schema and enum artifacts |
 | Repository automation | 14 | Repository and GitHub governance tooling |
 | Policy CI | 16 | Repository validation and generated-file checks |
 | Training/maps and top-level analyzer | 0 | No integrated source files in these top-level modules |
@@ -72,7 +72,7 @@ Current high-degree nodes are primarily repository administration tooling, not n
 
 ### Weakly connected or orphan candidates
 
-The raw Graphify report identified 1407 isolated symbol nodes. This sanitizer independently found 1766 repository-backed nodes with degree at most one; the bounded sample below is diagnostic, not deletion evidence.
+The raw Graphify report identified 1541 isolated symbol nodes. This sanitizer independently found 1903 repository-backed nodes with degree at most one; the bounded sample below is diagnostic, not deletion evidence.
 
 | Node | Degree | Source |
 | --- | ---: | --- |
