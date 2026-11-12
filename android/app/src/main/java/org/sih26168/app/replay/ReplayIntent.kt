@@ -43,6 +43,14 @@ data class PresentMapCandidatesIntent(
     val candidates: List<MapCandidatePath>,
 ) : ReplayIntent
 
+/** Read-only health telemetry; absent subsystem readings fail closed to unavailable defaults. */
+data class UpdateHealthStates(
+    val gnss: GnssHealthState? = null,
+    val alignment: AlignmentHealthState? = null,
+    val model: ModelHealthState? = null,
+    val replayEngine: ReplayEngineStatus? = null,
+) : ReplayIntent
+
 data class NavigationModeChangedIntent(
     val mode: NavigationModeV1,
     val acceptedFix: GeoCoordinate? = null,

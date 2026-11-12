@@ -10,6 +10,7 @@ import tempfile
 import venv
 
 ROOT = Path(__file__).resolve().parents[1]
+PYTHON_TEST_DEPENDENCIES = ("numpy==2.5.3",)
 
 
 def main() -> None:
@@ -21,8 +22,14 @@ def main() -> None:
         if args.group == "dataset"
         else (
             "tools/bootstrap/tests",
+            "experiments/wp11_1/tests",
             "experiments/wp11_2/tests",
+            "experiments/wp11_4/tests",
+            "experiments/wp11_5/tests",
+            "experiments/wp12_1/tests",
+            "experiments/wp12_2/tests",
             "tools/maps/tests",
+            "tools/training/tests",
         )
     )
     with tempfile.TemporaryDirectory(prefix=f"sih-ci-{args.group}-") as directory:
@@ -32,13 +39,23 @@ def main() -> None:
         venv.EnvBuilder(with_pip=True).create(location)
         python = location / ("Scripts/python.exe" if os.name == "nt" else "bin/python")
         # Pip's download cache is reusable; installed packages are always fresh.
-        subprocess.run([str(python), "-m", "pip", "install", "-e", "."], cwd=ROOT, check=True)
+        install_command = [str(python), "-m", "pip", "install", "-e", "."]
+        if args.group == "python":
+            install_command.extend(PYTHON_TEST_DEPENDENCIES)
+        subprocess.run(install_command, cwd=ROOT, check=True)
         for tests in test_directories:
             subprocess.run(
                 [str(python), "-m", "unittest", "discover", "-s", tests, "-v"],
                 cwd=ROOT,
                 check=True,
             )
+        if args.group == "python":
+            subprocess.run(
+                [str(python), "-m", "unittest", "discover", "-s", "tests", "-v"],
+                cwd=ROOT / "android" / "acquisition" / "imported" / "S1_Android_Acquisition_Spike",
+                check=True,
+            )
+
 
 
 if __name__ == "__main__":

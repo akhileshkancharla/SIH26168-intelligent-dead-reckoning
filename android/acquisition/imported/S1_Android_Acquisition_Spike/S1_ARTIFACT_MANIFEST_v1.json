@@ -1,0 +1,365 @@
+{
+  "schema_version": "s1.artifact_manifest.v1",
+  "artifact_root": "S1_Android_Acquisition_Spike",
+  "hash_algorithm": "SHA-256",
+  "self_exclusion": "S1_ARTIFACT_MANIFEST_v1.json",
+  "files": [
+    {
+      "path": "README.md",
+      "size_bytes": 3464,
+      "sha256": "4a74d4092e0c4963ae160ec9e7c3f43335701e69f088090d9b95ba1b42afdc83",
+      "artifact_role": "documentation",
+      "classification": "source"
+    },
+    {
+      "path": "analyzer/__init__.py",
+      "size_bytes": 39,
+      "sha256": "1d16cb9e0c3e796cad3adeb5d2a86e7129aeb45a3f547b9ab09cbf373fdb8dec",
+      "artifact_role": "source_code",
+      "classification": "source"
+    },
+    {
+      "path": "analyzer/requirements-lock.txt",
+      "size_bytes": 83,
+      "sha256": "0a70b1c3ae5758cce33483f0cbd8a2089a80022242892565ce1f5fd0ad917588",
+      "artifact_role": "source_code",
+      "classification": "source"
+    },
+    {
+      "path": "analyzer/s1_analyzer.py",
+      "size_bytes": 17438,
+      "sha256": "731f473e7a48d8b311d611fff14e68ead270ace5a1ac6a1d4ebbf8ba00b7b405",
+      "artifact_role": "source_code",
+      "classification": "source"
+    },
+    {
+      "path": "app/build.gradle.kts",
+      "size_bytes": 1465,
+      "sha256": "6be9e01515c4888c2fe0834007ccb831d6979fa0af7502d81c1290d9a08785d1",
+      "artifact_role": "build_system",
+      "classification": "source"
+    },
+    {
+      "path": "app/gradle.lockfile",
+      "size_bytes": 5356,
+      "sha256": "6c4fe9e20173548aac9e4a53ebd609daf7473c6ee1576355ccbe3c4c3fe55540",
+      "artifact_role": "build_system",
+      "classification": "source"
+    },
+    {
+      "path": "app/src/androidTest/java/org/sih26168/s1logger/RecordingInstrumentationTest.kt",
+      "size_bytes": 3638,
+      "sha256": "e69ef2ff0cab12871360fa1633742ee60fc530df7660fac272254f01b3838c9d",
+      "artifact_role": "automated_test",
+      "classification": "source"
+    },
+    {
+      "path": "app/src/main/AndroidManifest.xml",
+      "size_bytes": 1854,
+      "sha256": "23ab298eee66d7f2ff84c55791f4dcd8153998bc1843bc25e657036b0822331d",
+      "artifact_role": "source_code",
+      "classification": "source"
+    },
+    {
+      "path": "app/src/main/java/org/sih26168/s1logger/JsonUtil.kt",
+      "size_bytes": 435,
+      "sha256": "c4d0d9ff0326a8d9ab861a807dce58ee6b7517e6a12a710a6de9831f46b9628f",
+      "artifact_role": "source_code",
+      "classification": "source"
+    },
+    {
+      "path": "app/src/main/java/org/sih26168/s1logger/MainActivity.kt",
+      "size_bytes": 7280,
+      "sha256": "fffc36b2a46c89d5d0873cc51b3c691c7641778169e098426c7e9614dceef042",
+      "artifact_role": "source_code",
+      "classification": "source"
+    },
+    {
+      "path": "app/src/main/java/org/sih26168/s1logger/RecordingContract.kt",
+      "size_bytes": 1380,
+      "sha256": "4c0d448100f45ab600045951818e3bbac9b49d269f299039d1973d6100e74d77",
+      "artifact_role": "source_code",
+      "classification": "source"
+    },
+    {
+      "path": "app/src/main/java/org/sih26168/s1logger/RecordingService.kt",
+      "size_bytes": 22868,
+      "sha256": "0434149d230fa23f656b8ad5c18146f43ac68ea9f76320d74fc7f8895f7243dd",
+      "artifact_role": "source_code",
+      "classification": "source"
+    },
+    {
+      "path": "app/src/main/java/org/sih26168/s1logger/SessionWriter.kt",
+      "size_bytes": 5815,
+      "sha256": "64e12d27d2362650c8f0a4e1a3d99f73ad60c94d96a04be9b182f04e3d823caa",
+      "artifact_role": "source_code",
+      "classification": "source"
+    },
+    {
+      "path": "app/src/main/res/drawable/ic_stat_recording.xml",
+      "size_bytes": 358,
+      "sha256": "fc4368abb8804beb5bdb894e2859c0c2cd9ebe2150b40c36e4f021aee458fb0d",
+      "artifact_role": "source_code",
+      "classification": "source"
+    },
+    {
+      "path": "app/src/main/res/values/strings.xml",
+      "size_bytes": 1318,
+      "sha256": "51e567d77fbfd673e2951325a60661e5cf93eb752deb95253f9b814111f21eac",
+      "artifact_role": "source_code",
+      "classification": "source"
+    },
+    {
+      "path": "app/src/main/res/values/styles.xml",
+      "size_bytes": 332,
+      "sha256": "72f254f65bd26ed170fca81f40d8912a6dd47cf5ce325b71db5596d539850d0d",
+      "artifact_role": "source_code",
+      "classification": "source"
+    },
+    {
+      "path": "app/src/main/res/xml/data_extraction_rules.xml",
+      "size_bytes": 671,
+      "sha256": "8b55ff5489071bb19a4e89967b604a16c0e4d1e87a2df3c73c64417314a59f22",
+      "artifact_role": "source_code",
+      "classification": "source"
+    },
+    {
+      "path": "app/src/test/java/org/sih26168/s1logger/RecordingContractTest.kt",
+      "size_bytes": 1016,
+      "sha256": "73156072a764c40a79ce8e7912ba1ea7fd7bd0fbbfe334ad03ee98a790ede7d5",
+      "artifact_role": "automated_test",
+      "classification": "source"
+    },
+    {
+      "path": "build.gradle.kts",
+      "size_bytes": 143,
+      "sha256": "e81a95f31c9f6fe156a8ee858fa3d1b3b87e366585415224e8fbc090a7af6a06",
+      "artifact_role": "build_system",
+      "classification": "source"
+    },
+    {
+      "path": "docs/S1_Android_Acquisition_Report.md",
+      "size_bytes": 15513,
+      "sha256": "68a883e0124f1d0c37df3b29ddae207656a359e01c9c950cb742b922977484cc",
+      "artifact_role": "documentation",
+      "classification": "source"
+    },
+    {
+      "path": "docs/S1_Data_Contract.md",
+      "size_bytes": 6961,
+      "sha256": "46279e7f9f9ca433a13e8ae8a232001bfe01e069f9ff49b97473dbd9d50207e1",
+      "artifact_role": "documentation",
+      "classification": "source"
+    },
+    {
+      "path": "docs/S1_Device_Test_Protocol.md",
+      "size_bytes": 9808,
+      "sha256": "aa9ad20a9465848ebc733873988379603d8b4d4286ce2f260b7e2379e5489c60",
+      "artifact_role": "documentation",
+      "classification": "source"
+    },
+    {
+      "path": "docs/S1_Privacy_and_Safety.md",
+      "size_bytes": 4240,
+      "sha256": "0429939113d809f8fcbcd47d5a122d069dda88a252bd0c68494b4f2fd9fd860f",
+      "artifact_role": "documentation",
+      "classification": "source"
+    },
+    {
+      "path": "fixtures/README.md",
+      "size_bytes": 330,
+      "sha256": "a26f98d05bc7dc446655196a5925b7479e2610ebcfe76ebb500a24ca3900e717",
+      "artifact_role": "synthetic_fixture",
+      "classification": "source"
+    },
+    {
+      "path": "fixtures/deterministic_session/chunk_00001.jsonl",
+      "size_bytes": 4895,
+      "sha256": "8cd785a19e3c472f8b13d3b28b148dd09cf74f067455b4b23aa131cd909672c2",
+      "artifact_role": "synthetic_fixture",
+      "classification": "generated"
+    },
+    {
+      "path": "fixtures/deterministic_session/session_manifest.json",
+      "size_bytes": 435,
+      "sha256": "c59038a6d7953c09d0fc3f8d79d4d09d7b3d9c5d1a3ee6e1e89552d9d492e541",
+      "artifact_role": "synthetic_fixture",
+      "classification": "generated"
+    },
+    {
+      "path": "gradle/wrapper/gradle-wrapper.jar",
+      "size_bytes": 43705,
+      "sha256": "81a82aaea5abcc8ff68b3dfcb58b3c3c429378efd98e7433460610fecd7ae45f",
+      "artifact_role": "build_system",
+      "classification": "generated"
+    },
+    {
+      "path": "gradle/wrapper/gradle-wrapper.properties",
+      "size_bytes": 280,
+      "sha256": "5bffcac8f7d9d8ed7122ea6464a5ec6491ba653dff5f2961b44554f16720da6b",
+      "artifact_role": "build_system",
+      "classification": "source"
+    },
+    {
+      "path": "gradle.properties",
+      "size_bytes": 145,
+      "sha256": "be72ba0bf31344e8952e5a58fab5613199904dbf9822d0c2bf4a6d158cb20464",
+      "artifact_role": "build_system",
+      "classification": "source"
+    },
+    {
+      "path": "gradlew",
+      "size_bytes": 8752,
+      "sha256": "734b3879d3501dce471cf0522d3bcbafe76873d9fc5129345b67fb43bd15e933",
+      "artifact_role": "build_system",
+      "classification": "generated"
+    },
+    {
+      "path": "gradlew.bat",
+      "size_bytes": 2966,
+      "sha256": "57931b17dd228e5c24dac90e815d0bf82477e831a4618dfab4136f5446b42a9f",
+      "artifact_role": "build_system",
+      "classification": "generated"
+    },
+    {
+      "path": "results/S1_Android_Acquisition_Spike-debug-androidTest.apk",
+      "size_bytes": 2171376,
+      "sha256": "ad7a32371d2b71ab22c5ba8a9365aabdb880307e5eeccc2d345a7fce2d207f30",
+      "artifact_role": "verification_evidence",
+      "classification": "generated"
+    },
+    {
+      "path": "results/S1_Android_Acquisition_Spike-debug.apk",
+      "size_bytes": 2609492,
+      "sha256": "00a7ef273028f266144efa30fd779b7d8e14bd41a609fa7e54dbcd80ad791930",
+      "artifact_role": "verification_evidence",
+      "classification": "generated"
+    },
+    {
+      "path": "results/android/dependency_lock_generation.txt",
+      "size_bytes": 27748,
+      "sha256": "17e912f8c5056031c220d2634f45525d5a0252e05abd68dacdb2ccccaf9c0706",
+      "artifact_role": "verification_evidence",
+      "classification": "generated"
+    },
+    {
+      "path": "results/android/gradle_verification.txt",
+      "size_bytes": 6442,
+      "sha256": "881868ff0e6aadcefaa5c616a6f060bc149838b8ec7633b50b3416cff4614c49",
+      "artifact_role": "verification_evidence",
+      "classification": "generated"
+    },
+    {
+      "path": "results/android/lint-results-debug.txt",
+      "size_bytes": 17,
+      "sha256": "a69ecb171bea9d40de22744c85220b4a4ea12f5a25ce7976d67f2c88c9195334",
+      "artifact_role": "verification_evidence",
+      "classification": "generated"
+    },
+    {
+      "path": "results/android/lint-results-debug.xml",
+      "size_bytes": 87,
+      "sha256": "3782329f5ec7fc80243d071df4885364697fe238cd16d0fd49637d3010e96025",
+      "artifact_role": "verification_evidence",
+      "classification": "generated"
+    },
+    {
+      "path": "results/android/unit-test-debug.xml",
+      "size_bytes": 935,
+      "sha256": "3bbeb08baf937b4e58f37f1280a44e9324fe63fae767a60204104c1e0e326560",
+      "artifact_role": "verification_evidence",
+      "classification": "generated"
+    },
+    {
+      "path": "results/android/unit-test-release.xml",
+      "size_bytes": 940,
+      "sha256": "9505b3f54642a4258ca964776cb2034ce9b7d3d76c3dab2d4d66d11d0735e8e2",
+      "artifact_role": "verification_evidence",
+      "classification": "generated"
+    },
+    {
+      "path": "results/fixture_analysis/analysis_results.json",
+      "size_bytes": 26754,
+      "sha256": "08dcd8d2e7354d0dcdb031834746c7241ad8a73f44bd97e2add61c8a871ff572",
+      "artifact_role": "verification_evidence",
+      "classification": "generated"
+    },
+    {
+      "path": "results/fixture_analysis/delivered_rates.svg",
+      "size_bytes": 646,
+      "sha256": "782fdc8a91469fba33d6b97a50cd06645f28634cc4de3ca20f7e1464962776c5",
+      "artifact_role": "verification_evidence",
+      "classification": "generated"
+    },
+    {
+      "path": "results/fixture_analysis/stream_statistics.csv",
+      "size_bytes": 523,
+      "sha256": "b09da8d15fec634343f1b265d2a3b1ed7a28bf089fe24b138b738c926afe678b",
+      "artifact_role": "verification_evidence",
+      "classification": "generated"
+    },
+    {
+      "path": "results/fixture_analysis_run.txt",
+      "size_bytes": 100,
+      "sha256": "6726c7b2a9782c409673cb9851f68cee82059d4fc33843a9fc1c77bf878b9da6",
+      "artifact_role": "verification_evidence",
+      "classification": "generated"
+    },
+    {
+      "path": "results/host_tests.txt",
+      "size_bytes": 1209,
+      "sha256": "5499343fe7bd6a80a81951982dcbabef0be7ff322a4444bb414213b782bbcacb",
+      "artifact_role": "verification_evidence",
+      "classification": "generated"
+    },
+    {
+      "path": "results/verification_summary.json",
+      "size_bytes": 1694,
+      "sha256": "f2fe6a097505b626c0836c4037e11c877242fa8c31eead76f6eb3837dc8aaec3",
+      "artifact_role": "verification_evidence",
+      "classification": "generated"
+    },
+    {
+      "path": "scripts/analyze_session.sh",
+      "size_bytes": 282,
+      "sha256": "e25410a85a19230f0edea6244b0c95515715be3ab6af69dbd46f2cbb69e222e9",
+      "artifact_role": "tooling",
+      "classification": "source"
+    },
+    {
+      "path": "scripts/generate_artifact_manifest.py",
+      "size_bytes": 2198,
+      "sha256": "a7929db34697a29aac2a0b9226fbfd46c218ec11f2d61c7b8cb247542ec8f944",
+      "artifact_role": "tooling",
+      "classification": "source"
+    },
+    {
+      "path": "scripts/run_all.sh",
+      "size_bytes": 344,
+      "sha256": "89df4e75b9f957e676486f28e5962921dc4beb9430cee29adcd70d0b01a7d716",
+      "artifact_role": "tooling",
+      "classification": "source"
+    },
+    {
+      "path": "scripts/run_host_tests.sh",
+      "size_bytes": 204,
+      "sha256": "0de64c78d8269a2bf7e6889f1260b348e3b8d41bd67cf276320915195ccd9f19",
+      "artifact_role": "tooling",
+      "classification": "source"
+    },
+    {
+      "path": "settings.gradle.kts",
+      "size_bytes": 348,
+      "sha256": "aee1472820def574171067dcec0fe20906614fe9db33cca8aa5bd151e1491fa2",
+      "artifact_role": "build_system",
+      "classification": "source"
+    },
+    {
+      "path": "tests/test_analyzer.py",
+      "size_bytes": 3008,
+      "sha256": "0d42016c5083448e2fa510a5551237927287e5673639f0a23c162cd24c537734",
+      "artifact_role": "automated_test",
+      "classification": "source"
+    }
+  ]
+}

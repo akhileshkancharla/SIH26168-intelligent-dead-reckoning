@@ -46,9 +46,14 @@ public:
     std::size_t consumedMeasurementCount() const { return consumed_measurement_ids_.size(); }
 
     PropagationResult propagate(const ImuSample& sample);
+    // Evaluate the same innovation gate as update without consuming evidence
+    // or changing the nominal state/covariance.
+    MeasurementResult screen(const GnssMeasurement& measurement) const;
     MeasurementResult update(const GnssMeasurement& measurement);
 
 private:
+    template<int M>
+    MeasurementResult screenFixed(const GnssMeasurement& measurement) const;
     template<int M>
     MeasurementResult updateFixed(const GnssMeasurement& measurement);
 

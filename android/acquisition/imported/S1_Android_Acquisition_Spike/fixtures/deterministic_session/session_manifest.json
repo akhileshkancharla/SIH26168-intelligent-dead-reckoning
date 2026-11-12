@@ -1,0 +1,18 @@
+{
+  "schema_version": "s1.android.acquisition.v1",
+  "session_id": "fixture-session",
+  "complete": true,
+  "stop_reason": "deterministic_fixture",
+  "chunks": [
+    {
+      "path": "chunk_00001.jsonl",
+      "size": 4895,
+      "sha256": "8cd785a19e3c472f8b13d3b28b148dd09cf74f067455b4b23aa131cd909672c2"
+    }
+  ],
+  "total_log_bytes": 4895,
+  "metadata": {
+    "synthetic_fixture": true,
+    "physical_device_evidence": false
+  }
+}
